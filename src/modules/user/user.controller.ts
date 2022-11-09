@@ -26,4 +26,34 @@ export default class UserController {
       });
     }
   }
+
+  static me(req: Request, res: Response) {
+    try {
+      if (req.user) {
+        const UserServiceI = Container.get(UserService);
+        UserServiceI.me(req.user.id, res);
+      } else {
+        return res.onError({
+          status: 401,
+          detail: "userNotFound",
+        });
+      }
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static verifySignup(req: Request, res: Response) {
+    try {
+      const value = UserValidation.verifySignup(req);
+      const VerifyCodeI = Container.get(UserService);
+      VerifyCodeI.verifySignup(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

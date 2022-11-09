@@ -1,5 +1,5 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
-import { SocketService } from 'helper/socket';
+// import { SocketService } from 'helper/socket';
 import http from "http";
 import setDI from './di';
 import path from 'path';
@@ -7,10 +7,10 @@ import logger from 'morgan';
 import multer from 'multer';
 import cors from 'cors';
 // import responseHelper from 'helper/response';
-// import passport from 'passport';
-// import configPassport from 'middlewares/passport';
-// import swaggerUi from 'swagger-ui-express';
-// import swaggerDocument from 'config/swagger.json';
+import passport from 'passport';
+import configPassport from 'middlewares/passport';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from 'config/swagger.json';
 import i18next from 'i18next'
 import i18nextMiddleware from 'i18next-http-middleware'
 import { restRouter } from 'routes';
@@ -26,7 +26,7 @@ const app: Application = express();
 
 const server = http.createServer(app);
 
-app.socketService = new SocketService(server)
+// app.socketService = new SocketService(server)
 
 app.use(cors());
 
@@ -74,9 +74,9 @@ app.use(multer().any());
 
 app.use(ResponseHelper.middlewareResponse);
 
-// app.use(passport.initialize());
+app.use(passport.initialize());
 
-// configPassport();
+configPassport();
 
 app.use('/', restRouter);
 
@@ -86,13 +86,13 @@ app.use('/', restRouter);
 //   })
 // })
 
-// if (process.env.NODE_ENV === NODE_ENV.DEVELOPMENT) {
-//   app.use("/swagger",
-//     swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
-//       explorer: true,
-//     })
-//   );
-// }
+if (process.env.NODE_ENV === NODE_ENV.DEVELOPMENT) {
+  app.use("/swagger",
+    swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+      explorer: true,
+    })
+  );
+}
 
 if (process.env.SEQUELIZE_SYNC === SEQUELIZE_SYNC.ALTER) {
   database.sequelize.sync({ alter: true });

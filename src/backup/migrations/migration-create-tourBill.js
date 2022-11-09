@@ -1,23 +1,35 @@
 "use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("users", {
+    await queryInterface.createTable("tour_bills", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      username: {
-        type: Sequelize.STRING,
-      },
-      password: {
-        type: Sequelize.STRING,
-      },
-      role: {
+      userId: {
         type: Sequelize.INTEGER,
       },
-      avatar: {
+      tourId: {
+        type: Sequelize.INTEGER,
+      },
+      amount: {
+        type: Sequelize.INTEGER,
+      },
+      price: {
+        type: Sequelize.DOUBLE,
+      },
+      discount: {
+        type: Sequelize.INTEGER,
+      },
+      totalBill: {
+        type: Sequelize.DOUBLE,
+      },
+      email: {
+        type: Sequelize.STRING,
+      },
+      phoneNumber: {
         type: Sequelize.STRING,
       },
       firstName: {
@@ -25,24 +37,6 @@ module.exports = {
       },
       lastName: {
         type: Sequelize.STRING,
-      },
-      address: {
-        type: Sequelize.STRING,
-      },
-      phoneNumber: {
-        type: Sequelize.STRING,
-      },
-      introduction: {
-        type: Sequelize.TEXT,
-      },
-      isDeleted: {
-        type: Sequelize.BOOLEAN,
-      },
-      isVerified: {
-        type: Sequelize.BOOLEAN,
-      },
-      rate: {
-        type: Sequelize.DOUBLE,
       },
       createdAt: {
         allowNull: false,
@@ -59,6 +53,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("users");
+    await queryInterface.dropTable("tour_bills");
   },
 };

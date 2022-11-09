@@ -2,7 +2,7 @@ export interface IRegister {
   username: string;
   password: string;
   confirmPassword: string;
-  role: string;
+  role: number;
   avatar: string;
   firstName: string;
   lastName: string;
@@ -16,4 +16,9 @@ export interface IRegister {
 export interface ILogin {
   username: string;
   password: string;
+}
+
+export interface IVerifySignup {
+  code: string;
+  userId: number;
 }

@@ -39,7 +39,7 @@ export default class UserValidation {
           .required(),
         firstName: yup.string().required(),
         lastName: yup.string().required(),
-        role: yup.string(),
+        role: yup.number().required(),
         avatar: yup.string().nullable(),
         address: yup.string().nullable(),
         phoneNumber: yup.string().matches(VALIDATION.phone, {
@@ -49,6 +49,17 @@ export default class UserValidation {
         introduction: yup.string().nullable(),
         isDeleted: yup.boolean().default(false),
         isVerified: yup.boolean().default(false),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+  
+  static verifySignup(req: Request) {
+    const schema = yup
+      .object({
+        code: yup.string(),
+        userId: yup.number(),
       })
       .noUnknown()
       .required();

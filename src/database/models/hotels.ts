@@ -1,43 +1,32 @@
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
-export interface TourAttributes extends Model {
+export interface HotelAttributes extends Model {
   dataValues: object;
   id: number;
-  avatar: string;
-  title: string;
+  name: string;
   description: string;
-  businessHours: string;
   location: string;
-  price: number;
-  discount: number;
   tags: string;
   images: string;
-  rate: number;
   creator: number;
   isTemporarilyStopWorking: boolean;
   isDeleted: boolean;
-  createdAt: Date,
-  updatedAt: Date,
-  deletedAt: Date,
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 }
 
-export type ToursInstance = typeof Model & {
-  new (values?: object, options?: BuildOptions): TourAttributes;
+export type HotelsInstance = typeof Model & {
+  new (values?: object, options?: BuildOptions): HotelAttributes;
   associate?: Function;
 };
 
-export default (
-  sequelize: Sequelize,
-  DataTypes: typeof DataType
-): ToursInstance => {
-  const tours = <ToursInstance>sequelize.define(
-    "tours",
+export default (sequelize: Sequelize, DataTypes: typeof DataType): HotelsInstance => {
+  const hotels = <HotelsInstance>sequelize.define(
+    "hotels",
     {
-      avatar: {
-        type: DataTypes.STRING,
-      },
-      title: {
+      name: {
         allowNull: false,
         type: DataTypes.STRING,
       },
@@ -45,31 +34,15 @@ export default (
         allowNull: false,
         type: DataTypes.TEXT,
       },
-      businessHours: {
-        allowNull: false,
-        type: DataTypes.STRING,
-      },
       location: {
         allowNull: false,
         type: DataTypes.STRING,
-      },
-      price: {
-        allowNull: false,
-        type: DataTypes.DOUBLE,
-      },
-      discount: {
-        allowNull: false,
-        type: DataTypes.DOUBLE,
       },
       tags: {
         type: DataTypes.STRING,
       },
       images: {
         type: DataTypes.STRING,
-      },
-      rate: {
-        defaultValue: 0,
-        type: DataTypes.DOUBLE,
       },
       creator: {
         allowNull: false,
@@ -90,17 +63,17 @@ export default (
       paranoid: true,
     }
   );
-  tours.associate = (models: { [key: string]: any }) => {
-    // tours.belongsTo(models.admin_types, {
+  hotels.associate = (models: { [key: string]: any }) => {
+    // hotels.belongsTo(models.admin_types, {
     //   as: 'admin_type',
     //   foreignKey: 'adminTypeId',
     //   constraints: false
     // });
-    // tours.belongsTo(models.countries, {
+    // hotels.belongsTo(models.countries, {
     //   as: 'country',
     //   foreignKey: 'countryId',
     //   constraints: false
     // });
   };
-  return tours;
+  return hotels;
 };

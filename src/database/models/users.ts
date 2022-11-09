@@ -1,11 +1,12 @@
 import { BuildOptions, Model, Sequelize } from "sequelize";
-import DataType from "sequelize/types/lib/data-types";
+import DataType from "sequelize";
+import { ETypeUser } from "common/general";
 
 export interface UserAttributes extends Model {
   id: number;
   username: string;
   password: string;
-  role: string;
+  role: ETypeUser;
   avatar: string;
   firstName: string;
   lastName: string;
@@ -14,6 +15,7 @@ export interface UserAttributes extends Model {
   introduction: string;
   isDeleted: boolean;
   isVerified: boolean;
+  tokenVerify: string;
   rate: number;
   createdAt: Date,
   updatedAt: Date,
@@ -42,7 +44,7 @@ export default (
       },
       role: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
       },
       avatar: {
         type: DataTypes.STRING,

@@ -24,7 +24,7 @@ fs.readdirSync(__dirname)
     database[model.name] = model;
   });
 
-  // console.log(database, "=======database=========")
+  // console.log(database, "=======database========="
 
 Object.keys(database).forEach((modelName: string) => {
   if (database[modelName].associate) {

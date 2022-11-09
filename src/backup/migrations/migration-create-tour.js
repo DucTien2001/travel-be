@@ -1,48 +1,51 @@
 "use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("users", {
+    await queryInterface.createTable("tours", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      username: {
-        type: Sequelize.STRING,
-      },
-      password: {
-        type: Sequelize.STRING,
-      },
-      role: {
-        type: Sequelize.INTEGER,
-      },
       avatar: {
         type: Sequelize.STRING,
       },
-      firstName: {
+      title: {
         type: Sequelize.STRING,
       },
-      lastName: {
-        type: Sequelize.STRING,
-      },
-      address: {
-        type: Sequelize.STRING,
-      },
-      phoneNumber: {
-        type: Sequelize.STRING,
-      },
-      introduction: {
+      description: {
         type: Sequelize.TEXT,
       },
-      isDeleted: {
-        type: Sequelize.BOOLEAN,
+      businessHours: {
+        type: Sequelize.STRING,
       },
-      isVerified: {
-        type: Sequelize.BOOLEAN,
+      location: {
+        type: Sequelize.STRING,
+      },
+      price: {
+        type: Sequelize.DOUBLE,
+      },
+      discount: {
+        type: Sequelize.DOUBLE,
+      },
+      tags: {
+        type: Sequelize.STRING,
+      },
+      images: {
+        type: Sequelize.STRING,
       },
       rate: {
         type: Sequelize.DOUBLE,
+      },
+      creator: {
+        type: Sequelize.INTEGER,
+      },
+      isTemporarilyStopWorking: {
+        type: Sequelize.BOOLEAN,
+      },
+      isDeleted: {
+        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,
@@ -59,6 +62,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("users");
+    await queryInterface.dropTable("tour");
   },
 };

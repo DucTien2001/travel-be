@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       role: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       avatar: {
         type: Sequelize.STRING,
@@ -40,6 +40,9 @@ module.exports = {
       },
       isVerified: {
         type: Sequelize.BOOLEAN,
+      },
+      tokenVerify: {
+        type: Sequelize.STRING,
       },
       rate: {
         type: Sequelize.DOUBLE,

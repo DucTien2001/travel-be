@@ -1,4 +1,4 @@
-// import passport from "passport";
+import passport from "passport";
 // import { Request, Response, NextFunction } from 'express';
 // import { EAdminType } from 'models/general';
 
@@ -12,12 +12,12 @@
 //   next();
 // };
 
-// export const auth = passport.authenticate('jwt', { session: false })
+export const auth = passport.authenticate('jwt', { session: false })
 
 
 // export const admin = [auth, isAdmin]
 
-// export default {
-//   auth,
-//   admin
-// };
+export default {
+  auth,
+  // admin
+};

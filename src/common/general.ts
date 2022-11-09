@@ -9,3 +9,14 @@ export enum SEQUELIZE_SYNC {
   ALTER = "alter",
   FORCE = "force",
 }
+
+export enum ETypeUser {
+  NORMAL = 1,
+  ENTERPRISE = 2,
+  ADMIN = 3
+}
+
+export enum ETypeVerifyCode {
+  VERIFY_EMAIL = 1,
+  RESET_PASSWORD = 2
+}

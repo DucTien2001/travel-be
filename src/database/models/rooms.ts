@@ -1,16 +1,15 @@
 import { BuildOptions, Model, Sequelize } from "sequelize";
-import DataType from "sequelize/types/lib/data-types";
+import DataType from "sequelize";
 
 export interface RoomAttributes extends Model {
   dataValues: object;
   id: number;
   title: string;
   description: string;
-  location: string;
   discount: number;
   tags: string;
   images: string;
-  creator: number;
+  hotelId: number;
   numberOfBed: number;
   numberOfRoom: number;
   mondayPrice: number;
@@ -44,10 +43,6 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomsInstance
         allowNull: false,
         type: DataTypes.TEXT,
       },
-      location: {
-        allowNull: false,
-        type: DataTypes.STRING,
-      },
       discount: {
         allowNull: false,
         type: DataTypes.INTEGER,
@@ -59,7 +54,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomsInstance
       images: {
         type: DataTypes.STRING,
       },
-      creator: {
+      hotelId: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },

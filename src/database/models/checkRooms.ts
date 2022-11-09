@@ -1,5 +1,5 @@
 import { BuildOptions, Model, Sequelize } from "sequelize";
-import DataType from "sequelize/types/lib/data-types";
+import DataType from "sequelize";
 
 export interface CheckRoomAttributes extends Model {
   id: number;
