@@ -53,7 +53,7 @@ export default class UserService {
         {
           username: data?.username,
           password: hashedPassword,
-          role: data?.role || 1,
+          role: data?.role || 3,
           avatar: data?.avatar || null,
           firstName: data?.firstName,
           lastName: data?.lastName,

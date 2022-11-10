@@ -11,9 +11,9 @@ export enum SEQUELIZE_SYNC {
 }
 
 export enum ETypeUser {
-  NORMAL = 1,
+  ADMIN = 1,
   ENTERPRISE = 2,
-  ADMIN = 3
+  USER = 3,
 }
 
 export enum ETypeVerifyCode {
