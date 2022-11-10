@@ -14,6 +14,7 @@ export default class UserValidation {
             excludeEmptyString: true,
           })
           .required(),
+        role: yup.number().required(),
       })
       .noUnknown()
       .required();
@@ -54,7 +55,7 @@ export default class UserValidation {
       .required();
     return schema.validateSync(req.body);
   }
-  
+
   static verifySignup(req: Request) {
     const schema = yup
       .object({
