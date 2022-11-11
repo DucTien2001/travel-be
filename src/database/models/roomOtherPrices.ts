@@ -45,16 +45,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomOtherPric
     }
   );
   room_other_prices.associate = (models: { [key: string]: any }) => {
-    // room_other_prices.belongsTo(models.admin_types, {
-    //   as: 'admin_type',
-    //   foreignKey: 'adminTypeId',
-    //   constraints: false
-    // });
-    // room_other_prices.belongsTo(models.countries, {
-    //   as: 'country',
-    //   foreignKey: 'countryId',
-    //   constraints: false
-    // });
+    room_other_prices.belongsTo(models.rooms, {
+      as: 'belongToRoom',
+      foreignKey: 'roomId',
+      constraints: false
+    });
   };
   return room_other_prices;
 };

@@ -4,7 +4,6 @@ import DataType from "sequelize";
 export interface TourAttributes extends Model {
   dataValues: object;
   id: number;
-  avatar: string;
   title: string;
   description: string;
   businessHours: string;
@@ -34,9 +33,6 @@ export default (
   const tours = <ToursInstance>sequelize.define(
     "tours",
     {
-      avatar: {
-        type: DataTypes.STRING,
-      },
       title: {
         allowNull: false,
         type: DataTypes.STRING,
@@ -91,16 +87,16 @@ export default (
     }
   );
   tours.associate = (models: { [key: string]: any }) => {
-    // tours.belongsTo(models.admin_types, {
-    //   as: 'admin_type',
-    //   foreignKey: 'adminTypeId',
-    //   constraints: false
-    // });
-    // tours.belongsTo(models.countries, {
-    //   as: 'country',
-    //   foreignKey: 'countryId',
-    //   constraints: false
-    // });
+    tours.belongsTo(models.users, {
+      as: 'belongToUser',
+      foreignKey: 'creator',
+      constraints: false
+    });
+    tours.hasMany(models.tour_bills, {
+      as: 'bookedTour',
+      foreignKey: 'tourId',
+      constraints: false
+    });
   };
   return tours;
 };

@@ -12,10 +12,8 @@ export interface UserAttributes extends Model {
   lastName: string;
   address: string;
   phoneNumber: string;
-  introduction: string;
   isDeleted: boolean;
   isVerified: boolean;
-  tokenVerify: string;
   rate: number;
   createdAt: Date,
   updatedAt: Date,
@@ -63,9 +61,6 @@ export default (
       phoneNumber: {
         type: DataTypes.STRING,
       },
-      introduction: {
-        type: DataTypes.TEXT,
-      },
       isDeleted: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
@@ -86,16 +81,26 @@ export default (
     }
   );
   users.associate = (models: { [key: string]: any }) => {
-    // users.belongsTo(models.admin_types, {
-    //   as: 'admin_type',
-    //   foreignKey: 'adminTypeId',
-    //   constraints: false
-    // });
-    // users.belongsTo(models.countries, {
-    //   as: 'country',
-    //   foreignKey: 'countryId',
-    //   constraints: false
-    // });
+    users.hasMany(models.tours, {
+      as: 'ownTours',
+      foreignKey: 'creator',
+      constraints: false
+    });
+    users.hasMany(models.hotels, {
+      as: 'ownHotels',
+      foreignKey: 'creator',
+      constraints: false
+    });
+    users.hasMany(models.tour_bills, {
+      as: 'bookTours',
+      foreignKey: 'userId',
+      constraints: false
+    });
+    users.hasMany(models.room_bills, {
+      as: 'bookRooms',
+      foreignKey: 'userId',
+      constraints: false
+    });
   };
   return users;
 };

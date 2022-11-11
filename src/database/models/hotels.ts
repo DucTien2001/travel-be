@@ -64,16 +64,16 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): HotelsInstanc
     }
   );
   hotels.associate = (models: { [key: string]: any }) => {
-    // hotels.belongsTo(models.admin_types, {
-    //   as: 'admin_type',
-    //   foreignKey: 'adminTypeId',
-    //   constraints: false
-    // });
-    // hotels.belongsTo(models.countries, {
-    //   as: 'country',
-    //   foreignKey: 'countryId',
-    //   constraints: false
-    // });
+    hotels.belongsTo(models.users, {
+      as: 'belongToUser',
+      foreignKey: 'creator',
+      constraints: false
+    });
+    hotels.hasMany(models.rooms, {
+      as: 'hasManyRooms',
+      foreignKey: 'hotelId',
+      constraints: false
+    });
   };
   return hotels;
 };

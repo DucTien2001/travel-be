@@ -32,9 +32,6 @@ module.exports = {
       phoneNumber: {
         type: Sequelize.STRING,
       },
-      introduction: {
-        type: Sequelize.TEXT,
-      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
       },

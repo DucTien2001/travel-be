@@ -5,7 +5,7 @@ export interface RoomBillAttributes extends Model {
   dataValues: object;
   id: number;
   userId: number;
-  roomId: number;
+  roomIds: string;
   bookedDates: string;
   email: string;
   phoneNumber: string;
@@ -32,9 +32,9 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      tourId: {
+      roomIds: {
         allowNull: false,
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
       },
       bookedDates: {
         allowNull: false,
@@ -74,16 +74,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
     }
   );
   room_bills.associate = (models: { [key: string]: any }) => {
-    // room_bills.belongsTo(models.admin_types, {
-    //   as: 'admin_type',
-    //   foreignKey: 'adminTypeId',
-    //   constraints: false
-    // });
-    // room_bills.belongsTo(models.countries, {
-    //   as: 'country',
-    //   foreignKey: 'countryId',
-    //   constraints: false
-    // });
+    room_bills.belongsTo(models.users, {
+      as: 'bookedRoom',
+      foreignKey: 'userId',
+      constraints: false
+    });
   };
   return room_bills;
 };

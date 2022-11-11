@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("room-bills", {
+    await queryInterface.createTable("room_bills", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,8 +11,8 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER,
       },
-      roomId: {
-        type: Sequelize.INTEGER,
+      roomIds: {
+        type: Sequelize.STRING,
       },
       bookedDates: {
         type: Sequelize.STRING,
@@ -53,6 +53,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("room-bill");
+    await queryInterface.dropTable("room_bills");
   },
 };

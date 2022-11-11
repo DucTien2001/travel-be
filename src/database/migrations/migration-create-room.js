@@ -14,9 +14,6 @@ module.exports = {
       description: {
         type: Sequelize.TEXT,
       },
-      location: {
-        type: Sequelize.STRING,
-      },
       discount: {
         type: Sequelize.INTEGER,
       },
@@ -26,11 +23,8 @@ module.exports = {
       images: {
         type: Sequelize.STRING,
       },
-      creator: {
+      hotelId: {
         type: Sequelize.INTEGER,
-      },
-      bookedDates: {
-        type: Sequelize.JSON,
       },
       numberOfBed: {
         type: Sequelize.INTEGER,
@@ -83,6 +77,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("room");
+    await queryInterface.dropTable("rooms");
   },
 };

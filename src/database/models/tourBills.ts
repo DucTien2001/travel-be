@@ -74,16 +74,16 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
     }
   );
   tour_bills.associate = (models: { [key: string]: any }) => {
-    // tour_bills.belongsTo(models.admin_types, {
-    //   as: 'admin_type',
-    //   foreignKey: 'adminTypeId',
-    //   constraints: false
-    // });
-    // tour_bills.belongsTo(models.countries, {
-    //   as: 'country',
-    //   foreignKey: 'countryId',
-    //   constraints: false
-    // });
+    tour_bills.belongsTo(models.tours, {
+      as: 'bookedTour',
+      foreignKey: 'tourId',
+      constraints: false
+    });
+    tour_bills.belongsTo(models.users, {
+      as: 'userBill',
+      foreignKey: 'userId',
+      constraints: false
+    });
   };
   return tour_bills;
 };

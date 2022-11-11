@@ -8,9 +8,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      avatar: {
-        type: Sequelize.STRING,
-      },
       title: {
         type: Sequelize.STRING,
       },
@@ -62,6 +59,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("tour");
+    await queryInterface.dropTable("tours");
   },
 };

@@ -35,16 +35,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): CheckRoomsIns
     }
   );
   check_rooms.associate = (models: { [key: string]: any }) => {
-    // check_rooms.belongsTo(models.admin_types, {
-    //   as: 'admin_type',
-    //   foreignKey: 'adminTypeId',
-    //   constraints: false
-    // });
-    // check_rooms.belongsTo(models.countries, {
-    //   as: 'country',
-    //   foreignKey: 'countryId',
-    //   constraints: false
-    // });
+    check_rooms.belongsTo(models.rooms, {
+      as: 'belongToRoom',
+      foreignKey: 'roomId',
+      constraints: false
+    });
   };
   return check_rooms;
 };
