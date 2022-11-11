@@ -1,6 +1,6 @@
 import Container, { Inject, Service } from "typedi";
 import bcrypt from "bcryptjs";
-import { ILogin, IRegister, IVerifySignup } from "./user.models";
+import { IChangePassForgot, IChangePassword, ILogin, IRegister, IVerifySignup } from "./user.models";
 import database, { sequelize } from "database/models";
 import { Response } from "express";
 import EmailService from "services/emailService";
@@ -120,7 +120,7 @@ export default class UserService {
           detail: res.locals.t("login_invalid_error"),
         });
       }
-      if(user?.role !== data?.role) {
+      if (user?.role !== data?.role) {
         return res.onError({
           status: 400,
           detail: res.locals.t("invalid_role"),
@@ -141,6 +141,47 @@ export default class UserService {
         token,
       });
     } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async changePassword(data: IChangePassword, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      // user
+      const user = await this.usersModel.findOne({
+        where: {
+          id: data?.userId,
+        },
+      });
+      if (!user) {
+        return res.onError({
+          status: 400,
+          detail: res.locals.t("user_not_found"),
+        });
+      }
+
+      if (data?.password !== data?.confirmPassword) {
+        await t.rollback();
+        return res.onError({
+          status: 400,
+          detail: res.locals.t("password_and_confirm_password_do_not_match"),
+        });
+      }
+      const hashedPassword = await hashUserPassword(data?.password);
+      user.password = hashedPassword;
+
+      await user.save({ transaction: t });
+
+      await t.commit();
+      return res.onSuccess({
+        detail: res.locals.t("complete_change_password"),
+      });
+    } catch (error) {
+      await t.rollback();
       return res.onError({
         status: 500,
         detail: error,
@@ -297,6 +338,166 @@ export default class UserService {
       }
     } catch (error) {
       await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async sendEmailForgotPassword(id: number, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      // verify code
+      const item = await this.verifyCodesModel.findOne({
+        where: {
+          userId: id,
+        },
+      });
+      if (!item) {
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("not_found"),
+        });
+      }
+      const codeVerify = (Math.floor(Math.random() * 999999) + 100000).toString();
+      item.code = codeVerify;
+      item.type = ETypeVerifyCode.FORGOT_PASSWORD;
+      item.expiredDate = moment().add(process.env.MAXAGE_TOKEN_ACTIVE, "hours").toDate();
+
+      // user
+      const user = await this.usersModel.findOne({
+        where: {
+          id: id,
+        },
+      });
+      if (!user) {
+        await t.rollback();
+        return res.onError({
+          status: 400,
+          detail: res.locals.t("user_not_found"),
+        });
+      }
+
+      // email
+      const emailRes = await EmailService.sendForgotPassword(user?.username, codeVerify);
+      if (emailRes.isSuccess) {
+        await item.save({ transaction: t });
+        await t.commit();
+        return res.onSuccess({
+          detail: res.locals.t("sent_email_forgot_password"),
+        });
+      } else {
+        await t.rollback();
+        return res.onError({
+          status: 500,
+          detail: "email_sending_failed",
+        });
+      }
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async changePassForgot(data: IChangePassForgot, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      // user
+      const user = await this.usersModel.findOne({
+        where: {
+          id: data.userId,
+        },
+      });
+      if (!user) {
+        return res.onError({
+          status: 400,
+          detail: res.locals.t("user_not_found"),
+        });
+      }
+      // verify code
+      const item = await this.verifyCodesModel.findOne({
+        where: {
+          code: data.code,
+          userId: data.userId,
+          type: ETypeVerifyCode.FORGOT_PASSWORD,
+        },
+      });
+      if (!item) {
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("not_found_the_code_verification"),
+        });
+      }
+
+      if (new Date() < new Date(item?.expiredDate)) {
+        if (data?.password !== data?.confirmPassword) {
+          await t.rollback();
+          return res.onError({
+            status: 400,
+            detail: res.locals.t("password_and_confirm_password_do_not_match"),
+          });
+        }
+        const hashedPassword = await hashUserPassword(data?.password);
+        user.password = hashedPassword;
+        item.code = null;
+
+        await user.save({ transaction: t });
+        await item.save({ transaction: t });
+
+        await t.commit();
+        return res.onSuccess({
+          detail: res.locals.t("complete_change_password"),
+        });
+      } else {
+        await t.rollback();
+        return res.onError({
+          status: 400,
+          detail: res.locals.t("the_verification_code_has_expired"),
+        });
+      }
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+  
+  /**
+   * Get user profile
+   */
+   public async getUserProfile(id: number, res: Response) {
+    try {
+      const user = await this.usersModel.findOne({
+        where: {
+          id: id,
+        },
+      });
+      if (!user) {
+        return res.onError({
+          status: 404,
+          detail: "Not found",
+        });
+      }
+      const _user = {
+        ...user?.dataValues
+      };
+      const result = {
+        avatar: _user?.avatar,
+        firstName: _user?.firstName,
+        lastName: _user?.lastName,
+        address: _user?.address,
+        phoneNumber: _user?.phoneNumber,
+      }
+      return res.onSuccess(result, {
+        message: res.locals.t("get_user_success"),
+      });
+    } catch (error) {
       return res.onError({
         status: 500,
         detail: error,

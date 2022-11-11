@@ -26,6 +26,9 @@ module.exports = {
       creator: {
         type: Sequelize.INTEGER,
       },
+      rate: {
+        type: Sequelize.DOUBLE,
+      },
       isTemporarilyStopWorking: {
         type: Sequelize.BOOLEAN,
       },

@@ -38,9 +38,6 @@ module.exports = {
       isVerified: {
         type: Sequelize.BOOLEAN,
       },
-      rate: {
-        type: Sequelize.DOUBLE,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

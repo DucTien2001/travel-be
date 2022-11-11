@@ -3,6 +3,7 @@ import DataType from "sequelize";
 import { ETypeUser } from "common/general";
 
 export interface UserAttributes extends Model {
+  dataValues: any;
   id: number;
   username: string;
   password: string;
@@ -14,7 +15,6 @@ export interface UserAttributes extends Model {
   phoneNumber: string;
   isDeleted: boolean;
   isVerified: boolean;
-  rate: number;
   createdAt: Date,
   updatedAt: Date,
   deletedAt: Date,
@@ -70,10 +70,6 @@ export default (
         allowNull: false,
         type: DataTypes.BOOLEAN,
         defaultValue: false,
-      },
-      rate: {
-        defaultValue: 0,
-        type: DataTypes.DOUBLE,
       },
     },
     {

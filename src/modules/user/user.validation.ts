@@ -66,4 +66,53 @@ export default class UserValidation {
       .required();
     return schema.validateSync(req.body);
   }
+
+  static changePassword(req: Request) {
+    const schema = yup
+      .object({
+        userId: yup.number(),
+        password: yup
+          .string()
+          .matches(VALIDATION.password, {
+            message: req.t("field_password_vali_password"),
+            excludeEmptyString: true,
+          })
+          .required(),
+        confirmPassword: yup
+          .string()
+          .matches(VALIDATION.password, {
+            message: req.t("field_password_vali_password"),
+            excludeEmptyString: true,
+          })
+          .required(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+
+  static changePassForgot(req: Request) {
+    const schema = yup
+      .object({
+        userId: yup.number(),
+        password: yup
+          .string()
+          .matches(VALIDATION.password, {
+            message: req.t("field_password_vali_password"),
+            excludeEmptyString: true,
+          })
+          .required(),
+        confirmPassword: yup
+          .string()
+          .matches(VALIDATION.password, {
+            message: req.t("field_password_vali_password"),
+            excludeEmptyString: true,
+          })
+          .required(),
+        code: yup.string(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
 }

@@ -56,4 +56,64 @@ export default class UserController {
       });
     }
   }
+
+  static reSendEmailVerifySignup(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const VerifyCodeI = Container.get(UserService);
+      VerifyCodeI.reSendEmailVerifySignup(Number(id), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static sendEmailForgotPassword(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const VerifyCodeI = Container.get(UserService);
+      VerifyCodeI.sendEmailForgotPassword(Number(id), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+  
+  static changePassword(req: Request, res: Response) {
+    try {
+      const value = UserValidation.changePassword(req);
+      const UserServiceI = Container.get(UserService);
+      UserServiceI.changePassword(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+  
+  static changePassForgot(req: Request, res: Response) {
+    try {
+      const value = UserValidation.changePassForgot(req);
+      const UserServiceI = Container.get(UserService);
+      UserServiceI.changePassForgot(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+  
+  static getUserProfile(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const UserServiceI = Container.get(UserService);
+      UserServiceI.getUserProfile( Number(id), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

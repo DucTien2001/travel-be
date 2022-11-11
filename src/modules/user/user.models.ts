@@ -23,3 +23,16 @@ export interface IVerifySignup {
   code: string;
   userId: number;
 }
+
+export interface IChangePassword {
+  userId: number;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface IChangePassForgot {
+  userId: number;
+  code: string;
+  password: string;
+  confirmPassword: string;
+}

@@ -18,5 +18,6 @@ export enum ETypeUser {
 
 export enum ETypeVerifyCode {
   VERIFY_EMAIL = 1,
-  RESET_PASSWORD = 2
+  RESET_PASSWORD = 2,
+  FORGOT_PASSWORD = 3
 }
