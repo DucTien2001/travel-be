@@ -38,7 +38,7 @@ export interface IChangePassword {
 }
 
 export interface IChangePassForgot {
-  userId: number;
+  email: string;
   code: string;
   password: string;
   confirmPassword: string;

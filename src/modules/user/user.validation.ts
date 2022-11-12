@@ -114,7 +114,7 @@ export default class UserValidation {
   static changePassForgot(req: Request) {
     const schema = yup
       .object({
-        userId: yup.number(),
+        email: yup.string().email().required(),
         password: yup
           .string()
           .matches(VALIDATION.password, {

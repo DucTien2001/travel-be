@@ -407,7 +407,7 @@ export default class UserService {
       // user
       const user = await this.usersModel.findOne({
         where: {
-          id: data.userId,
+          username: data.email,
         },
       });
       if (!user) {
@@ -420,7 +420,7 @@ export default class UserService {
       const item = await this.verifyCodesModel.findOne({
         where: {
           code: data.code,
-          userId: data.userId,
+          userId: user.id,
           type: ETypeVerifyCode.FORGOT_PASSWORD,
         },
       });
