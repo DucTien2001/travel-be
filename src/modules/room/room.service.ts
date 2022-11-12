@@ -1,6 +1,6 @@
 import Container, { Inject, Service } from "typedi";
 import { ICreateRoom, IUpdateRoomInfo, IUpdateRoomPrice } from "./room.models";
-import database, { sequelize } from "database/models";
+import { sequelize } from "database/models";
 import { Response } from "express";
 
 @Service()
@@ -112,12 +112,10 @@ export default class RoomService {
         {
           title: data?.title,
           description: data?.description,
-          location: data?.location,
           discount: data?.discount || 0,
           tags: data?.tags || "",
           images: data?.images,
-          creator: data?.creator,
-          bookedDates: null,
+          hotelId: data?.hotelId,
           numberOfBed: data?.numberOfBed,
           numberOfRoom: data?.numberOfRoom,
           mondayPrice: data?.mondayPrice,
@@ -165,7 +163,6 @@ export default class RoomService {
       }
       if (data.title) room.title = data.title;
       if (data.description) room.description = data.description;
-      if (data.location) room.location = data.location;
       if (data.tags) room.tags = data.tags;
       if (data.images) room.images = data.images;
       if (data.numberOfBed) room.numberOfBed = data.numberOfBed;

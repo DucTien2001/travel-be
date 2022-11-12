@@ -3,7 +3,7 @@ import RoomService from "./room.service";
 import RoomValidation from "./room.validation";
 import { Request, Response } from "express";
 
-export default class UserController {
+export default class RoomController {
   static getRoom(req: Request, res: Response) {
     try {
       const { roomId } = req.params;

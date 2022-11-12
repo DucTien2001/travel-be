@@ -7,12 +7,10 @@ export default class RoomValidation {
       .object({
         title: yup.string(),
         description: yup.string(),
-        location: yup.string(),
-        price: yup.number(),
         discount: yup.number(),
         tags: yup.string().nullable(),
         images: yup.string().nullable(),
-        creator: yup.number(),
+        hotelId: yup.number(),
         numberOfBed: yup.number(),
         numberOfRoom: yup.number(),
         mondayPrice: yup.number(),
@@ -33,8 +31,6 @@ export default class RoomValidation {
       .object({
         title: yup.string(),
         description: yup.string(),
-        location: yup.string(),
-        price: yup.number(),
         tags: yup.string().nullable(),
         images: yup.string().nullable(),
         numberOfBed: yup.number(),

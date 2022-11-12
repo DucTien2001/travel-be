@@ -1,7 +1,6 @@
 export interface ICreateRoom {
   title: string;
   description: string;
-  location: string;
   discount: number;
   tags: string;
   images: string;
@@ -14,13 +13,12 @@ export interface ICreateRoom {
   fridayPrice: number;
   saturdayPrice: number;
   sundayPrice: number;
-  creator: number;
+  hotelId: number;
 }
 
 export interface IUpdateRoomInfo {
   title: string;
   description: string;
-  location: string;
   tags: string;
   images: string;
   numberOfBed: number;
