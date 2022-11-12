@@ -6,6 +6,8 @@ export interface HotelAttributes extends Model {
   id: number;
   name: string;
   description: string;
+  checkInTime: string;
+  checkOutTime: string;
   location: string;
   tags: string;
   images: string;
@@ -34,6 +36,14 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): HotelsInstanc
       description: {
         allowNull: false,
         type: DataTypes.TEXT,
+      },
+      checkInTime: {
+        allowNull: false,
+        type: DataTypes.STRING,
+      },
+      checkOutTime: {
+        allowNull: false,
+        type: DataTypes.STRING,
       },
       location: {
         allowNull: false,

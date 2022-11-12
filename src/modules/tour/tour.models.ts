@@ -7,10 +7,7 @@ export interface ITour {
   discount: number;
   tags: string;
   images: string;
-  rate: number;
   creator: number;
-  isTemporarilyStopWorking: boolean;
-  isDeleted: boolean;
 }
 
 export interface IUpdateTour {

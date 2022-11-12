@@ -3,7 +3,7 @@ import TourService from "./tour.service";
 import TourValidation from "./tour.validation";
 import { Request, Response } from "express";
 
-export default class UserController {
+export default class TourController {
   static getTour(req: Request, res: Response) {
     try {
       const { tourId } = req.params;

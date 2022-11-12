@@ -14,6 +14,12 @@ module.exports = {
       description: {
         type: Sequelize.TEXT,
       },
+      checkInTime: {
+        type: Sequelize.STRING,
+      },
+      checkOutTime: {
+        type: Sequelize.STRING,
+      },
       location: {
         type: Sequelize.STRING,
       },

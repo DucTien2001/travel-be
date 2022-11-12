@@ -1,16 +1,15 @@
 import * as yup from "yup";
 import { Request } from "express";
 
-export default class TourValidation {
-  static createNewTour(req: Request) {
+export default class HotelValidation {
+  static createNewHotel(req: Request) {
     const schema = yup
       .object({
-        title: yup.string(),
+        name: yup.string(),
         description: yup.string(),
-        businessHours: yup.string(),
+        checkInTime: yup.string(),
+        checkOutTime: yup.string(),
         location: yup.string(),
-        price: yup.number(),
-        discount: yup.number(),
         tags: yup.string().nullable(),
         images: yup.string().nullable(),
         creator: yup.number(),
@@ -20,15 +19,14 @@ export default class TourValidation {
     return schema.validateSync(req.body);
   }
 
-  static updateTour(req: Request) {
+  static updateHotel(req: Request) {
     const schema = yup
       .object({
-        title: yup.string(),
+        name: yup.string(),
         description: yup.string(),
-        businessHours: yup.string(),
+        checkInTime: yup.string(),
+        checkOutTime: yup.string(),
         location: yup.string(),
-        price: yup.number(),
-        discount: yup.number(),
         tags: yup.string().nullable(),
         images: yup.string().nullable(),
       })

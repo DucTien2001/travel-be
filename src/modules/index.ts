@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { hotelRouter } from "./hotel";
 import { roomRouter } from "./room";
 import { roomBillRouter } from "./roomBill";
 import { roomOtherPriceRouter } from "./roomOtherPrice";
@@ -10,6 +11,7 @@ export const mainRouter = Router();
 
 mainRouter.use("/user", userRouter);
 mainRouter.use("/tour", tourRouter);
+mainRouter.use("/hotel", hotelRouter);
 mainRouter.use("/room", roomRouter);
 mainRouter.use("/room-other-price", roomOtherPriceRouter);
 mainRouter.use("/tour-bill", tourBillRouter);

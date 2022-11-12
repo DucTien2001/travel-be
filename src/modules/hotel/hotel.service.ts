@@ -1,34 +1,33 @@
 import Container, { Inject, Service } from "typedi";
-import { ITour, IUpdateTour } from "./tour.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
+import { ICreateHotel, IUpdateHotel } from "./hotel.models";
 
 @Service()
-export default class TourService {
-  constructor(@Inject("toursModel") private toursModel: ModelsInstance.Tours) {}
+export default class HotelService {
+  constructor(@Inject("hotelsModel") private hotelsModel: ModelsInstance.Hotels) {}
   /**
-   * Get tour of user
+   * Get hotel of user
    */
-  public async getTour(tourId: number, res: Response) {
+  public async getHotel(hotelId: number, res: Response) {
     try {
-      const tour = await this.toursModel.findOne({
+      const hotel = await this.hotelsModel.findOne({
         where: {
-          id: tourId,
+          id: hotelId,
         },
       });
-      if (!tour) {
+      if (!hotel) {
         return res.onError({
           status: 404,
           detail: "Not found",
         });
       }
       const result = {
-        ...tour?.dataValues,
-        businessHours: tour?.businessHours.split(","),
-        tags: tour?.tags.split(","),
+        ...hotel?.dataValues,
+        tags: hotel?.tags.split(","),
       };
       return res.onSuccess(result, {
-        message: res.locals.t("get_tour_success"),
+        message: res.locals.t("get_hotel_success"),
       });
     } catch (error) {
       return res.onError({
@@ -39,31 +38,30 @@ export default class TourService {
   }
 
   /**
-   * Get tours of user
+   * Get hotels of user
    */
-  public async getTours(userId: number, res: Response) {
+  public async getHotels(userId: number, res: Response) {
     try {
-      const listTours = await this.toursModel.findAll({
+      const listHotels = await this.hotelsModel.findAll({
         where: {
           creator: userId,
           isDeleted: false,
         },
       });
-      if (!listTours) {
+      if (!listHotels) {
         return res.onError({
           status: 404,
           detail: "Not found",
         });
       }
-      const tours = listTours.map((item) => {
+      const hotels = listHotels.map((item) => {
         return {
           ...item?.dataValues,
-          businessHours: item?.businessHours.split(","),
           tags: item?.tags.split(","),
         };
       });
-      return res.onSuccess(tours, {
-        message: res.locals.t("get_tours_success"),
+      return res.onSuccess(hotels, {
+        message: res.locals.t("get_hotels_success"),
       });
     } catch (error) {
       return res.onError({
@@ -74,31 +72,30 @@ export default class TourService {
   }
 
   /**
-   * Get all tours
+   * Get all hotels
    */
-  public async getAllTours(res: Response) {
+  public async getAllHotels(res: Response) {
     try {
-      const listTours = await this.toursModel.findAll({
+      const listHotels = await this.hotelsModel.findAll({
         where: {
           isTemporarilyStopWorking: false,
           isDeleted: false,
         },
       });
-      if (!listTours) {
+      if (!listHotels) {
         return res.onError({
           status: 404,
           detail: "Not found",
         });
       }
-      const tours = listTours.map((item) => {
+      const hotels = listHotels.map((item) => {
         return {
           ...item?.dataValues,
-          businessHours: item?.businessHours.split(","),
           tags: item?.tags.split(","),
         };
       });
-      return res.onSuccess(tours, {
-        message: res.locals.t("get_all_tours_success"),
+      return res.onSuccess(hotels, {
+        message: res.locals.t("get_all_hotels_success"),
       });
     } catch (error) {
       return res.onError({
@@ -108,17 +105,16 @@ export default class TourService {
     }
   }
 
-  public async createNewTour(data: ITour, res: Response) {
+  public async createNewHotel(data: ICreateHotel, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const newTour = await this.toursModel.create(
+      const newHotel = await this.hotelsModel.create(
         {
-          title: data?.title,
+          name: data?.name,
           description: data?.description || "",
-          businessHours: data?.businessHours || "",
+          checkInTime: data?.checkInTime,
+          checkOutTime: data?.checkOutTime,
           location: data?.location,
-          price: data?.price,
-          discount: data?.discount || 0,
           tags: data?.tags || "",
           images: data?.images,
           rate: 0,
@@ -131,8 +127,8 @@ export default class TourService {
         }
       );
       await t.commit();
-      return res.onSuccess(newTour, {
-        message: res.locals.t("tour_create_success"),
+      return res.onSuccess(newHotel, {
+        message: res.locals.t("hotel_create_success"),
       });
     } catch (error) {
       await t.rollback();
@@ -143,35 +139,34 @@ export default class TourService {
     }
   }
 
-  public async updateTour(tourId: number, data: IUpdateTour, res: Response) {
+  public async updateHotel(hotelId: number, data: IUpdateHotel, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const tour = await this.toursModel.findOne({
+      const hotel = await this.hotelsModel.findOne({
         where: {
-          id: tourId,
+          id: hotelId,
           isDeleted: false,
         },
       });
-      if (!tour) {
+      if (!hotel) {
         await t.rollback();
         return res.onError({
           status: 404,
-          detail: res.locals.t("tour_not_found"),
+          detail: res.locals.t("hotel_not_found"),
         });
       }
-      if (data.title) tour.title = data.title;
-      if (data.description) tour.description = data.description;
-      if (data.businessHours) tour.businessHours = data.businessHours;
-      if (data.location) tour.location = data.location;
-      if (data.price) tour.price = data.price;
-      if (data.discount) tour.discount = data.discount;
-      if (data.tags) tour.tags = data.tags;
-      if (data.images) tour.images = data.images;
+      if (data.name) hotel.name = data.name;
+      if (data.description) hotel.description = data.description;
+      if (data.checkInTime) hotel.checkInTime = data.checkInTime;
+      if (data.checkOutTime) hotel.checkOutTime = data.checkOutTime;
+      if (data.location) hotel.location = data.location;
+      if (data.tags) hotel.tags = data.tags;
+      if (data.images) hotel.images = data.images;
 
-      await tour.save({ transaction: t });
+      await hotel.save({ transaction: t });
       await t.commit();
-      return res.onSuccess(tour, {
-        message: res.locals.t("tour_update_success"),
+      return res.onSuccess(hotel, {
+        message: res.locals.t("hotel_update_success"),
       });
     } catch (error) {
       await t.rollback();
@@ -182,27 +177,27 @@ export default class TourService {
     }
   }
 
-  public async temporarilyStopWorking(tourId: number, res: Response) {
+  public async temporarilyStopWorking(hotelId: number, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const tour = await this.toursModel.findOne({
+      const hotel = await this.hotelsModel.findOne({
         where: {
-          id: tourId,
+          id: hotelId,
         },
       });
-      if (!tour) {
+      if (!hotel) {
         await t.rollback();
         return res.onError({
           status: 404,
-          detail: res.locals.t("tour_not_found"),
+          detail: res.locals.t("hotel_not_found"),
         });
       }
-      tour.isTemporarilyStopWorking = true;
+      hotel.isTemporarilyStopWorking = true;
 
-      await tour.save({ transaction: t });
+      await hotel.save({ transaction: t });
       await t.commit();
-      return res.onSuccess(tour, {
-        message: res.locals.t("tour_temporarily_stop_working_success"),
+      return res.onSuccess(hotel, {
+        message: res.locals.t("hotel_temporarily_stop_working_success"),
       });
     } catch (error) {
       await t.rollback();
@@ -213,27 +208,27 @@ export default class TourService {
     }
   }
 
-  public async deleteTour(tourId: number, res: Response) {
+  public async deleteHotel(hotelId: number, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const tour = await this.toursModel.findOne({
+      const hotel = await this.hotelsModel.findOne({
         where: {
-          id: tourId,
+          id: hotelId,
         },
       });
-      if (!tour) {
+      if (!hotel) {
         await t.rollback();
         return res.onError({
           status: 404,
-          detail: res.locals.t("tour_not_found"),
+          detail: res.locals.t("hotel_not_found"),
         });
       }
-      tour.isDeleted = true;
+      hotel.isDeleted = true;
 
-      await tour.save({ transaction: t });
+      await hotel.save({ transaction: t });
       await t.commit();
-      return res.onSuccess(tour, {
-        message: res.locals.t("tour_delete_success"),
+      return res.onSuccess(hotel, {
+        message: res.locals.t("hotel_delete_success"),
       });
     } catch (error) {
       await t.rollback();
