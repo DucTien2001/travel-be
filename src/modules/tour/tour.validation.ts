@@ -1,20 +1,14 @@
 import * as yup from "yup";
 import { Request } from "express";
-import { VALIDATION } from "../../config/constants";
 
 export default class TourValidation {
   static createNewTour(req: Request) {
     const schema = yup
       .object({
-        avatar: yup.string(),
         title: yup.string(),
         description: yup.string(),
         businessHours: yup.string(),
         location: yup.string(),
-        // contact: yup.string().matches(VALIDATION.phone, {
-        //   message: req.t("field_phone_number_vali_phone"),
-        //   excludeEmptyString: true,
-        // }),
         price: yup.number(),
         discount: yup.number(),
         tags: yup.string().nullable(),
@@ -32,7 +26,6 @@ export default class TourValidation {
   static updateTour(req: Request) {
     const schema = yup
       .object({
-        avatar: yup.string(),
         title: yup.string(),
         description: yup.string(),
         businessHours: yup.string(),

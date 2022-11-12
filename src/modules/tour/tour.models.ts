@@ -1,5 +1,4 @@
 export interface ITour {
-  avatar: string;
   title: string;
   description: string;
   businessHours: string;
@@ -15,7 +14,6 @@ export interface ITour {
 }
 
 export interface IUpdateTour {
-  avatar: string;
   title: string;
   description: string;
   businessHours: string;

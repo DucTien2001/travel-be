@@ -113,7 +113,6 @@ export default class TourService {
     try {
       const newTour = await this.toursModel.create(
         {
-          avatar: data?.avatar || null,
           title: data?.title,
           description: data?.description || "",
           businessHours: data?.businessHours || "",
@@ -160,7 +159,6 @@ export default class TourService {
           detail: res.locals.t("tour_not_found"),
         });
       }
-      if (data.avatar) tour.avatar = data.avatar;
       if (data.title) tour.title = data.title;
       if (data.description) tour.description = data.description;
       if (data.businessHours) tour.businessHours = data.businessHours;
