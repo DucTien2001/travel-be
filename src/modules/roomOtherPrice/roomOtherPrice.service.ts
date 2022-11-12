@@ -104,7 +104,7 @@ export default class RoomOtherPriceService {
     try {
       const room = await this.roomOtherPricesModel.findOne({
         where: {
-          id: data?.roomId,
+          roomId: data?.roomId,
           date: data?.date,
           isDeleted: false,
         },
@@ -137,7 +137,7 @@ export default class RoomOtherPriceService {
     try {
       const room = await this.roomOtherPricesModel.findOne({
         where: {
-          id: data?.roomId,
+          roomId: data?.roomId,
           date: data?.date,
           isDeleted: false,
         },

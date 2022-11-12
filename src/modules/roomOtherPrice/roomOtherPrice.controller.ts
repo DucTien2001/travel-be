@@ -3,7 +3,7 @@ import RoomOtherPriceService from "./roomOtherPrice.service";
 import RoomOtherPriceValidation from "./roomOtherPrice.validation";
 import { Request, Response } from "express";
 
-export default class UserController {
+export default class RoomOtherPriceController {
   static getPrice(req: Request, res: Response) {
     try {
       const value = RoomOtherPriceValidation.getPrice(req);

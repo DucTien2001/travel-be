@@ -1,7 +1,7 @@
 import * as yup from "yup";
 import { Request } from "express";
 
-export default class RoomValidation {
+export default class RoomPriceValidation {
   static getPrice(req: Request) {
     const schema = yup
       .object({
