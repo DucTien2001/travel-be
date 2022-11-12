@@ -8,7 +8,6 @@ export interface IRegister {
   lastName: string;
   address: string;
   phoneNumber: string;
-  introduction: string;
   isDeleted: boolean;
   isVerified: boolean;
 }
@@ -24,6 +23,10 @@ export interface IVerifySignup {
   userId: number;
 }
 
+export interface IReSendVerifySignup {
+  email: string;
+}
+
 export interface IChangePassword {
   userId: number;
   password: string;
@@ -35,4 +38,12 @@ export interface IChangePassForgot {
   code: string;
   password: string;
   confirmPassword: string;
+}
+
+export interface IUpdateUserProfile {
+  avatar: string;
+  firstName: string;
+  lastName: string;
+  address: string;
+  phoneNumber: string;
 }

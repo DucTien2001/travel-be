@@ -67,6 +67,16 @@ export default class UserValidation {
     return schema.validateSync(req.body);
   }
 
+  static reSendEmailVerifySignup(req: Request) {
+    const schema = yup
+      .object({
+        email: yup.string().email().required(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+
   static changePassword(req: Request) {
     const schema = yup
       .object({
@@ -110,6 +120,23 @@ export default class UserValidation {
           })
           .required(),
         code: yup.string(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+
+  static updateUserProfile(req: Request) {
+    const schema = yup
+      .object({
+        avatar: yup.string(),
+        firstName: yup.string(),
+        lastName: yup.string(),
+        address: yup.string(),
+        phoneNumber: yup.string().matches(VALIDATION.phone, {
+          message: req.t("field_phone_number_vali_phone"),
+          excludeEmptyString: true,
+        }),
       })
       .noUnknown()
       .required();

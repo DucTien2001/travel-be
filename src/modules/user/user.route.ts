@@ -13,3 +13,4 @@ userRouter.route("/send-email-forgot-password/:id").put(UserController.sendEmail
 userRouter.route("/change-password").put(UserController.changePassword);
 userRouter.route("/change-forgot-password").put(UserController.changePassForgot);
 userRouter.route("/profile/:id").get(UserController.getUserProfile);
+userRouter.route("/update-profile/:id").get(UserController.updateUserProfile);

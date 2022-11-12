@@ -1,6 +1,6 @@
 import Container, { Inject, Service } from "typedi";
 import bcrypt from "bcryptjs";
-import { IChangePassForgot, IChangePassword, ILogin, IRegister, IVerifySignup } from "./user.models";
+import { IChangePassForgot, IChangePassword, ILogin, IRegister, IReSendVerifySignup, IUpdateUserProfile, IVerifySignup } from "./user.models";
 import database, { sequelize } from "database/models";
 import { Response } from "express";
 import EmailService from "services/emailService";
@@ -59,7 +59,6 @@ export default class UserService {
           lastName: data?.lastName,
           address: data?.address || null,
           phoneNumber: data?.phoneNumber,
-          introduction: data?.introduction || null,
         },
         {
           transaction: t,
@@ -284,14 +283,26 @@ export default class UserService {
     }
   }
 
-  public async reSendEmailVerifySignup(id: number, res: Response) {
+  public async reSendEmailVerifySignup(data: IReSendVerifySignup, res: Response) {
     const t = await sequelize.transaction();
     try {
+      // user
+      const user = await this.usersModel.findOne({
+        where: {
+          username: data.email,
+        },
+      });
+      if (!user) {
+        await t.rollback();
+        return res.onError({
+          status: 400,
+          detail: res.locals.t("user_not_found"),
+        });
+      }
       // verify code
       const item = await this.verifyCodesModel.findOne({
         where: {
-          userId: id,
-          type: ETypeVerifyCode.VERIFY_EMAIL,
+          userId: user.id,
         },
       });
       if (!item) {
@@ -302,26 +313,13 @@ export default class UserService {
       }
       const codeVerify = uuidv4();
       item.code = codeVerify;
+      item.type = ETypeVerifyCode.VERIFY_EMAIL;
       item.expiredDate = moment().add(process.env.MAXAGE_TOKEN_ACTIVE, "hours").toDate();
-
-      // user
-      const user = await this.usersModel.findOne({
-        where: {
-          id: id,
-        },
-      });
-      if (!user) {
-        await t.rollback();
-        return res.onError({
-          status: 400,
-          detail: res.locals.t("user_not_found"),
-        });
-      }
 
       // email
       const emailRes = await EmailService.sendConfirmSignUp(
-        user?.username,
-        `${process.env.SITE_URL}/auth/verifySignup?code=${codeVerify}&userId=${id}`
+        data.email,
+        `${process.env.SITE_URL}/auth/verifySignup?code=${codeVerify}&userId=${user.id}`
       );
       if (emailRes.isSuccess) {
         await item.save({ transaction: t });
@@ -498,6 +496,45 @@ export default class UserService {
         message: res.locals.t("get_user_success"),
       });
     } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+  
+  /**
+   * Update user profile
+   */
+  public async updateUserProfile(id: number, data: IUpdateUserProfile, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const user = await this.usersModel.findOne({
+        where: {
+          id: id,
+          isDeleted: false,
+        },
+      });
+      if (!user) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("user_not_found"),
+        });
+      }
+      if (data.avatar) user.avatar = data.avatar;
+      if (data.firstName) user.firstName = data.firstName;
+      if (data.lastName) user.lastName = data.lastName;
+      if (data.address) user.address = data.address;
+      if (data.phoneNumber) user.phoneNumber = data.phoneNumber;
+
+      await user.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(user, {
+        message: res.locals.t("user_profile_update_success"),
+      });
+    } catch (error) {
+      await t.rollback();
       return res.onError({
         status: 500,
         detail: error,

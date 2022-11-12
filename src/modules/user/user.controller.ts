@@ -59,9 +59,9 @@ export default class UserController {
 
   static reSendEmailVerifySignup(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const value = UserValidation.reSendEmailVerifySignup(req);
       const VerifyCodeI = Container.get(UserService);
-      VerifyCodeI.reSendEmailVerifySignup(Number(id), res);
+      VerifyCodeI.reSendEmailVerifySignup(value, res);
     } catch (error) {
       return res.onError({
         detail: error,
@@ -110,6 +110,19 @@ export default class UserController {
       const { id } = req.params;
       const UserServiceI = Container.get(UserService);
       UserServiceI.getUserProfile( Number(id), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static updateUserProfile(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = UserValidation.updateUserProfile(req);
+      const UserServiceI = Container.get(UserService);
+      UserServiceI.updateUserProfile(Number(id), value, res);
     } catch (error) {
       return res.onError({
         detail: error,
