@@ -76,6 +76,16 @@ export default class UserValidation {
       .required();
     return schema.validateSync(req.body);
   }
+  
+  static sendEmailForgotPassword(req: Request) {
+    const schema = yup
+      .object({
+        email: yup.string().email().required(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
 
   static changePassword(req: Request) {
     const schema = yup

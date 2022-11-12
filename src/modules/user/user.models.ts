@@ -27,6 +27,10 @@ export interface IReSendVerifySignup {
   email: string;
 }
 
+export interface ISendEmailForgotPassword {
+  email: string;
+}
+
 export interface IChangePassword {
   userId: number;
   password: string;

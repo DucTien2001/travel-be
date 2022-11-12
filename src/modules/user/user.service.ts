@@ -1,6 +1,6 @@
 import Container, { Inject, Service } from "typedi";
 import bcrypt from "bcryptjs";
-import { IChangePassForgot, IChangePassword, ILogin, IRegister, IReSendVerifySignup, IUpdateUserProfile, IVerifySignup } from "./user.models";
+import { IChangePassForgot, IChangePassword, ILogin, IRegister, IReSendVerifySignup, ISendEmailForgotPassword, IUpdateUserProfile, IVerifySignup } from "./user.models";
 import database, { sequelize } from "database/models";
 import { Response } from "express";
 import EmailService from "services/emailService";
@@ -343,13 +343,27 @@ export default class UserService {
     }
   }
 
-  public async sendEmailForgotPassword(id: number, res: Response) {
+  public async sendEmailForgotPassword(data: ISendEmailForgotPassword, res: Response) {
     const t = await sequelize.transaction();
     try {
+      // user
+      const user = await this.usersModel.findOne({
+        where: {
+          username: data?.email,
+        },
+      });
+      if (!user) {
+        await t.rollback();
+        return res.onError({
+          status: 400,
+          detail: res.locals.t("user_not_found"),
+        });
+      }
+
       // verify code
       const item = await this.verifyCodesModel.findOne({
         where: {
-          userId: id,
+          userId: user.id,
         },
       });
       if (!item) {
@@ -361,21 +375,7 @@ export default class UserService {
       const codeVerify = (Math.floor(Math.random() * 999999) + 100000).toString();
       item.code = codeVerify;
       item.type = ETypeVerifyCode.FORGOT_PASSWORD;
-      item.expiredDate = moment().add(process.env.MAXAGE_TOKEN_ACTIVE, "hours").toDate();
-
-      // user
-      const user = await this.usersModel.findOne({
-        where: {
-          id: id,
-        },
-      });
-      if (!user) {
-        await t.rollback();
-        return res.onError({
-          status: 400,
-          detail: res.locals.t("user_not_found"),
-        });
-      }
+      item.expiredDate = moment().add(process.env.MAXAGE_TOKEN_FORGOT_PASSWORD, "hours").toDate();
 
       // email
       const emailRes = await EmailService.sendForgotPassword(user?.username, codeVerify);

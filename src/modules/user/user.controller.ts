@@ -71,9 +71,9 @@ export default class UserController {
 
   static sendEmailForgotPassword(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const value = UserValidation.sendEmailForgotPassword(req);
       const VerifyCodeI = Container.get(UserService);
-      VerifyCodeI.sendEmailForgotPassword(Number(id), res);
+      VerifyCodeI.sendEmailForgotPassword(value, res);
     } catch (error) {
       return res.onError({
         detail: error,
