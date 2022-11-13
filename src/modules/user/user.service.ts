@@ -163,14 +163,21 @@ export default class UserService {
         });
       }
 
-      if (data?.password !== data?.confirmPassword) {
+      const authenticated = comparePassword(data.currentPassword, user.password || "");
+      if (!authenticated) {
+        return res.onError({
+          status: 400,
+          detail: res.locals.t("current_password_is_not_correct"),
+        });
+      }
+      if (data?.newPassword !== data?.confirmPassword) {
         await t.rollback();
         return res.onError({
           status: 400,
           detail: res.locals.t("password_and_confirm_password_do_not_match"),
         });
       }
-      const hashedPassword = await hashUserPassword(data?.password);
+      const hashedPassword = await hashUserPassword(data?.newPassword);
       user.password = hashedPassword;
 
       await user.save({ transaction: t });

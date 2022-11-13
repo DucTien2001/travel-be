@@ -33,7 +33,8 @@ export interface ISendEmailForgotPassword {
 
 export interface IChangePassword {
   userId: number;
-  password: string;
+  currentPassword: string;
+  newPassword: string;
   confirmPassword: string;
 }
 

@@ -76,7 +76,7 @@ export default class UserValidation {
       .required();
     return schema.validateSync(req.body);
   }
-  
+
   static sendEmailForgotPassword(req: Request) {
     const schema = yup
       .object({
@@ -91,7 +91,14 @@ export default class UserValidation {
     const schema = yup
       .object({
         userId: yup.number(),
-        password: yup
+        currentPassword: yup
+          .string()
+          .matches(VALIDATION.password, {
+            message: req.t("field_password_vali_password"),
+            excludeEmptyString: true,
+          })
+          .required(),
+        newPassword: yup
           .string()
           .matches(VALIDATION.password, {
             message: req.t("field_password_vali_password"),
