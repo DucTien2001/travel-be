@@ -493,6 +493,7 @@ export default class UserService {
         ...user?.dataValues
       };
       const result = {
+        email: _user?.username,
         avatar: _user?.avatar,
         firstName: _user?.firstName,
         lastName: _user?.lastName,
