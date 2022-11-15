@@ -24,6 +24,7 @@ export default class HotelService {
       }
       const result = {
         ...hotel?.dataValues,
+        images: hotel?.images.split(","),
         tags: hotel?.tags.split(","),
       };
       return res.onSuccess(result, {
@@ -57,6 +58,7 @@ export default class HotelService {
       const hotels = listHotels.map((item) => {
         return {
           ...item?.dataValues,
+          images: item?.images.split(","),
           tags: item?.tags.split(","),
         };
       });
@@ -91,6 +93,7 @@ export default class HotelService {
       const hotels = listHotels.map((item) => {
         return {
           ...item?.dataValues,
+          images: item?.images.split(","),
           tags: item?.tags.split(","),
         };
       });
@@ -127,9 +130,12 @@ export default class HotelService {
         }
       );
       await t.commit();
-      return res.onSuccess(newHotel, {
-        message: res.locals.t("hotel_create_success"),
-      });
+      return res.onSuccess(
+        { ...newHotel, tags: newHotel.tags.split(","), images: newHotel.images.split(",") },
+        {
+          message: res.locals.t("hotel_create_success"),
+        }
+      );
     } catch (error) {
       await t.rollback();
       return res.onError({
