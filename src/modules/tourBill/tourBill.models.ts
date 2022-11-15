@@ -1,5 +1,6 @@
 export interface ICreateTourBill {
   userId: number;
+  userMail: string;
   tourId: number;
   amount: number;
   price: number;
@@ -8,4 +9,9 @@ export interface ICreateTourBill {
   phoneNumber: string;
   firstName: string;
   lastName: string;
+}
+
+export interface IVerifyBookTour {
+  code: string;
+  billId: number;
 }

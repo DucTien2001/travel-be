@@ -14,6 +14,8 @@ export interface TourBillAttributes extends Model {
   phoneNumber: string;
   firstName: string;
   lastName: string;
+  verifyCode: string;
+  expiredDate: Date;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -67,6 +69,14 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
       lastName: {
         allowNull: false,
         type: DataTypes.STRING,
+      },
+      verifyCode: {
+        allowNull: false,
+        type: DataTypes.STRING,
+      },
+      expiredDate: {
+          type: DataTypes.DATE,
+          allowNull: false,
       },
     },
     {

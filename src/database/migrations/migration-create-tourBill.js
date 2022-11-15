@@ -38,6 +38,13 @@ module.exports = {
       lastName: {
         type: Sequelize.STRING,
       },
+      verifyCode: {
+        type: Sequelize.STRING,
+      },
+      expiredDate: {
+        default: null,
+        type: Sequelize.DATE,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

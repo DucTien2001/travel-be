@@ -17,11 +17,8 @@ module.exports = {
       bookedDates: {
         type: Sequelize.STRING,
       },
-      amount: {
-        type: Sequelize.INTEGER,
-      },
-      discount: {
-        type: Sequelize.INTEGER,
+      specialDates: {
+        type: Sequelize.STRING,
       },
       totalBill: {
         type: Sequelize.INTEGER,
@@ -37,6 +34,13 @@ module.exports = {
       },
       lastName: {
         type: Sequelize.STRING,
+      },
+      verifyCode: {
+        type: Sequelize.STRING,
+      },
+      expiredDate: {
+        default: null,
+        type: Sequelize.DATE,
       },
       createdAt: {
         allowNull: false,

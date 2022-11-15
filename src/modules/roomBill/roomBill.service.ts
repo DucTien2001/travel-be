@@ -9,7 +9,8 @@ export default class RoomBillService {
     @Inject("roomBillsModel") private roomBillsModel: ModelsInstance.RoomBills,
     @Inject("roomsModel") private roomsModel: ModelsInstance.Rooms,
     @Inject("roomOthersModel")
-    private roomOthersModel: ModelsInstance.RoomOtherPrices
+    private roomOthersModel: ModelsInstance.RoomOtherPrices,
+    @Inject("roomBillDetailsModel") private roomBillDetailsModel: ModelsInstance.RoomBillDetails,
   ) {}
   /**
    * Get a room bill
@@ -102,85 +103,117 @@ export default class RoomBillService {
     }
   }
 
+  private async handleCalculatePriceForRoom(roomId: number, amount: number, normalDates: string[], specialDates: string[], res: Response){
+    let totalPrice = 0;
+    const room = await this.roomsModel.findOne({
+      where: {
+        id: roomId,
+        isTemporarilyStopWorking: false,
+        isDeleted: false,
+      },
+    });
+    if (!room) {
+      return res.onError({
+        status: 404,
+        detail: "room_not_found",
+      });
+    }
+    const discount = room?.discount || 0;
+
+    normalDates.map((item: any) => {
+      const date = new Date(item).getDay();
+      switch (date) {
+        case 0:
+          // sunday
+          totalPrice += room?.sundayPrice;
+          break;
+        case 1:
+          // monday
+          totalPrice += room?.mondayPrice;
+          break;
+        case 2:
+          // tuesday
+          totalPrice += room?.tuesdayPrice;
+          break;
+        case 3:
+          // wednesday
+          totalPrice += room?.wednesdayPrice;
+          break;
+        case 4:
+          // thursday
+          totalPrice += room?.thursdayPrice;
+          break;
+        case 5:
+          // friday
+          totalPrice += room?.fridayPrice;
+          break;
+        default:
+          // saturday
+          totalPrice += room?.saturdayPrice;
+      }
+    });
+    specialDates.map(async (item) => {
+      const priceInfo = await this.roomOthersModel.findOne({
+        where: {
+          date: item,
+        },
+      });
+      if (priceInfo) {
+        totalPrice += priceInfo?.price;
+      }
+    });
+    const _totalPrice = totalPrice*(100-discount)/100
+    return {
+      roomId: roomId,
+      amount: amount,
+      discount: discount,
+      totalPrice: _totalPrice,
+    }
+  }
+
   public async createRoomBill(data: ICreateRoomBill, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const room = await this.roomsModel.findOne({
-        where: {
-          id: data?.roomId,
-          isTemporarilyStopWorking: false,
-          isDeleted: false,
-        },
-      });
-      if (!room) {
-        return res.onError({
-          status: 404,
-          detail: "room_not_found",
-        });
-      }
-      const discount = data?.discount || 0;
       let totalBill = 0;
       const bookedDates = data?.bookedDates.split(",");
       const specialDates = data?.specialDates.split(",");
-      const normalDates = <any>[];
+      let normalDates = <any>[];
       if (specialDates) {
         bookedDates.map((item) => {
           if (!specialDates.includes(item)) {
             normalDates.push(item);
           }
         });
-        specialDates.map(async (item) => {
-          const priceInfo = await this.roomOthersModel.findOne({
-            where: {
-              date: item,
-            },
-          });
-          if (priceInfo) {
-            totalBill += priceInfo?.price;
-          }
-        });
+      } else {
+        normalDates = [...bookedDates]
       }
-      normalDates.map((item: any) => {
-        const date = new Date(item).getDay();
-        switch (date) {
-          case 0:
-            // sunday
-            totalBill += room?.sundayPrice;
-            break;
-          case 1:
-            // monday
-            totalBill += room?.mondayPrice;
-            break;
-          case 2:
-            // tuesday
-            totalBill += room?.tuesdayPrice;
-            break;
-          case 3:
-            // wednesday
-            totalBill += room?.wednesdayPrice;
-            break;
-          case 4:
-            // thursday
-            totalBill += room?.thursdayPrice;
-            break;
-          case 5:
-            // friday
-            totalBill += room?.fridayPrice;
-            break;
-          default:
-            // saturday
-            totalBill += room?.saturdayPrice;
-        }
-      });
 
-      const newRoom = await this.roomBillsModel.create(
+      const billDetails = <any>[]
+      data?.rooms.map(async(item)=> {
+        const room = await this.roomsModel.findOne({
+          where: {
+            id: item.roomId,
+            isTemporarilyStopWorking: false,
+            isDeleted: false,
+          },
+        });
+        if (!room) {
+          return res.onError({
+            status: 404,
+            detail: "room_not_found",
+          });
+        }
+        const billDetail = await this.handleCalculatePriceForRoom(room.id, Number(item.amount), normalDates, specialDates, res)
+        totalBill += billDetail.totalPrice
+        billDetails.push(billDetail)
+      })
+
+      const newRoomBill = await this.roomBillsModel.create(
         {
           userId: data?.userId,
-          roomId: data?.roomId,
-          amount: data?.amount,
-          discount: data?.discount,
-          totalBill: (totalBill * (100 - discount)) / 100,
+          totalBill: totalBill,
           bookedDates: data?.bookedDates,
+          specialDates: data?.specialDates,
           email: data?.email,
           phoneNumber: data?.phoneNumber,
           firstName: data?.firstName,
@@ -190,8 +223,24 @@ export default class RoomBillService {
           transaction: t,
         }
       );
+
+      billDetails.map(async (item: any)=>{
+        const roomBillDetail = await this.roomBillDetailsModel.create(
+          {
+            billId: newRoomBill.id,
+            roomId: item.roomId,
+            amount: item.amount,
+            discount: item.discount,
+            totalPrice: item.totalPrice,
+          },
+          {
+            transaction: t,
+          }
+        );
+        console.log(roomBillDetail, "=======roomBillDetail====")
+      })
       await t.commit();
-      return res.onSuccess(newRoom, {
+      return res.onSuccess(newRoomBill, {
         message: res.locals.t("room_bill_create_success"),
       });
     } catch (error) {

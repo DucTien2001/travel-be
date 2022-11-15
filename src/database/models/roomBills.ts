@@ -5,15 +5,15 @@ export interface RoomBillAttributes extends Model {
   dataValues: object;
   id: number;
   userId: number;
-  roomIds: string;
   bookedDates: string;
+  specialDates: string;
   email: string;
   phoneNumber: string;
   fistName: string;
   lastName: string;
-  amount: number;
-  discount: number;
   totalBill: number;
+  verifyCode: string;
+  expiredDate: Date;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -32,11 +32,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      roomIds: {
+      bookedDates: {
         allowNull: false,
         type: DataTypes.STRING,
       },
-      bookedDates: {
+      specialDates: {
         allowNull: false,
         type: DataTypes.STRING,
       },
@@ -56,17 +56,17 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
         allowNull: false,
         type: DataTypes.STRING,
       },
-      amount: {
-        allowNull: false,
-        type: DataTypes.INTEGER,
-      },
-      discount: {
-        allowNull: false,
-        type: DataTypes.INTEGER,
-      },
       totalBill: {
         allowNull: false,
         type: DataTypes.DOUBLE,
+      },
+      verifyCode: {
+        allowNull: false,
+        type: DataTypes.STRING,
+      },
+      expiredDate: {
+          type: DataTypes.DATE,
+          allowNull: false,
       },
     },
     {
@@ -77,6 +77,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
     room_bills.belongsTo(models.users, {
       as: 'bookedRoom',
       foreignKey: 'userId',
+      constraints: false
+    });
+    room_bills.hasMany(models.room_bill_details, {
+      as: 'roomBillDetail',
+      foreignKey: 'billId',
       constraints: false
     });
   };

@@ -1,5 +1,6 @@
 import { CheckRoomAttributes, CheckRoomsInstance } from "database/models/checkRooms";
 import { HotelAttributes, HotelsInstance } from "database/models/hotels";
+import { RoomBillDetailAttributes, RoomBillDetailsInstance } from "database/models/roomBillDetails";
 import { RoomBillAttributes, RoomBillsInstance } from "database/models/roomBills";
 import { RoomOtherPriceAttributes, RoomOtherPricesInstance } from "database/models/roomOtherPrices";
 import { RoomAttributes, RoomsInstance } from "database/models/rooms";
@@ -18,6 +19,7 @@ declare global {
     export type CheckRoom = CheckRoomAttributes;
     export type RoomOtherPrice = RoomOtherPriceAttributes;
     export type RoomBill = RoomBillAttributes;
+    export type RoomBillDetail = RoomBillDetailAttributes;
     export type TourBill = TourBillAttributes;
   }
 
@@ -30,6 +32,7 @@ declare global {
     export type CheckRooms = CheckRoomsInstance;
     export type RoomOtherPrices = RoomOtherPricesInstance;
     export type RoomBills = RoomBillsInstance;
+    export type RoomBillDetails = RoomBillDetailsInstance;
     export type TourBills = TourBillsInstance;
   }
 }
