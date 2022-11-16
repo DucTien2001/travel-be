@@ -4,6 +4,7 @@ export interface ICreateHotel {
   checkInTime: string;
   checkOutTime: string;
   location: string;
+  contact: string;
   tags: string;
   images: string;
   creator: number;
@@ -15,6 +16,7 @@ export interface IUpdateHotel {
   checkInTime: string;
   checkOutTime: string;
   location: string;
+  contact: string;
   tags: string;
   images: string;
 }

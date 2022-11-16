@@ -25,6 +25,7 @@ export default class RoomService {
       const result = {
         ...room?.dataValues,
         tags: room?.tags.split(","),
+        images: room?.images.split(",")
       };
       return res.onSuccess(result, {
         message: res.locals.t("get_room_success"),
@@ -58,6 +59,7 @@ export default class RoomService {
         return {
           ...item?.dataValues,
           tags: item?.tags.split(","),
+          images: item?.images.split(",")
         };
       });
       return res.onSuccess(rooms, {
@@ -92,6 +94,7 @@ export default class RoomService {
         return {
           ...item?.dataValues,
           tags: item?.tags.split(","),
+          images: item?.images.split(",")
         };
       });
       return res.onSuccess(rooms, {
@@ -133,7 +136,7 @@ export default class RoomService {
         }
       );
       await t.commit();
-      return res.onSuccess(newRoom, {
+      return res.onSuccess({...newRoom, images: newRoom.images.split(",")}, {
         message: res.locals.t("room_create_success"),
       });
     } catch (error) {

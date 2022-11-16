@@ -20,6 +20,9 @@ module.exports = {
       location: {
         type: Sequelize.STRING,
       },
+      contact: {
+        type: Sequelize.STRING,
+      },
       price: {
         type: Sequelize.DOUBLE,
       },

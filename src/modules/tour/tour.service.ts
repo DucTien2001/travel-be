@@ -25,6 +25,7 @@ export default class TourService {
       const result = {
         ...tour?.dataValues,
         businessHours: tour?.businessHours.split(","),
+        images: tour?.images.split(","),
         tags: tour?.tags.split(","),
       };
       return res.onSuccess(result, {
@@ -59,6 +60,7 @@ export default class TourService {
         return {
           ...item?.dataValues,
           businessHours: item?.businessHours.split(","),
+          images: item?.images.split(","),
           tags: item?.tags.split(","),
         };
       });
@@ -94,6 +96,7 @@ export default class TourService {
         return {
           ...item?.dataValues,
           businessHours: item?.businessHours.split(","),
+          images: item?.images.split(","),
           tags: item?.tags.split(","),
         };
       });
@@ -117,6 +120,7 @@ export default class TourService {
           description: data?.description || "",
           businessHours: data?.businessHours || "",
           location: data?.location,
+          contact: data?.contact,
           price: data?.price,
           discount: data?.discount || 0,
           tags: data?.tags || "",
@@ -131,7 +135,7 @@ export default class TourService {
         }
       );
       await t.commit();
-      return res.onSuccess(newTour, {
+      return res.onSuccess({...newTour, images: newTour.images.split(",")}, {
         message: res.locals.t("tour_create_success"),
       });
     } catch (error) {
@@ -163,6 +167,7 @@ export default class TourService {
       if (data.description) tour.description = data.description;
       if (data.businessHours) tour.businessHours = data.businessHours;
       if (data.location) tour.location = data.location;
+      if (data.contact) tour.contact = data.contact;
       if (data.price) tour.price = data.price;
       if (data.discount) tour.discount = data.discount;
       if (data.tags) tour.tags = data.tags;

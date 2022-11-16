@@ -3,6 +3,7 @@ export interface ITour {
   description: string;
   businessHours: string;
   location: string;
+  contact: string;
   price: number;
   discount: number;
   tags: string;
@@ -15,6 +16,7 @@ export interface IUpdateTour {
   description: string;
   businessHours: string;
   location: string;
+  contact: string;
   price: number;
   discount: number;
   tags: string;

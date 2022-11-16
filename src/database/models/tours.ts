@@ -8,6 +8,7 @@ export interface TourAttributes extends Model {
   description: string;
   businessHours: string;
   location: string;
+  contact: string;
   price: number;
   discount: number;
   tags: string;
@@ -46,6 +47,10 @@ export default (
         type: DataTypes.STRING,
       },
       location: {
+        allowNull: false,
+        type: DataTypes.STRING,
+      },
+      contact: {
         allowNull: false,
         type: DataTypes.STRING,
       },

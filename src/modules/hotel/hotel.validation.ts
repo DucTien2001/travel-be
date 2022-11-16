@@ -10,6 +10,7 @@ export default class HotelValidation {
         checkInTime: yup.string(),
         checkOutTime: yup.string(),
         location: yup.string(),
+        contact: yup.string(),
         tags: yup.string().nullable(),
         images: yup.string().nullable(),
         creator: yup.number(),
@@ -27,6 +28,7 @@ export default class HotelValidation {
         checkInTime: yup.string(),
         checkOutTime: yup.string(),
         location: yup.string(),
+        contact: yup.string(),
         tags: yup.string().nullable(),
         images: yup.string().nullable(),
       })

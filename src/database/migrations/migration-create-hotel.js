@@ -23,6 +23,9 @@ module.exports = {
       location: {
         type: Sequelize.STRING,
       },
+      contact: {
+        type: Sequelize.STRING,
+      },
       tags: {
         type: Sequelize.STRING,
       },

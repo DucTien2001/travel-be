@@ -118,6 +118,7 @@ export default class HotelService {
           checkInTime: data?.checkInTime,
           checkOutTime: data?.checkOutTime,
           location: data?.location,
+          contact: data?.contact,
           tags: data?.tags || "",
           images: data?.images,
           rate: 0,
@@ -166,6 +167,7 @@ export default class HotelService {
       if (data.checkInTime) hotel.checkInTime = data.checkInTime;
       if (data.checkOutTime) hotel.checkOutTime = data.checkOutTime;
       if (data.location) hotel.location = data.location;
+      if (data.contact) hotel.contact = data.contact;
       if (data.tags) hotel.tags = data.tags;
       if (data.images) hotel.images = data.images;
 
