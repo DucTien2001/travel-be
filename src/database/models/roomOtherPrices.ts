@@ -2,7 +2,7 @@ import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
 export interface RoomOtherPriceAttributes extends Model {
-  dataValues: object;
+  dataValues: any;
   id: number;
   date: Date;
   price: number;

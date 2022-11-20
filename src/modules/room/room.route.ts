@@ -4,8 +4,8 @@ import RoomController from "./room.controller";
 export const roomRouter = Router();
 
 roomRouter.route("/get-room/:roomId").get(RoomController.getRoom);
-roomRouter.route("/get-rooms/:id").get(RoomController.getRooms);
-roomRouter.route("/get-all-tours").get(RoomController.getAllRooms);
+roomRouter.route("/get-rooms-available").post(RoomController.getRoomsAvailable);
+roomRouter.route("/get-all-rooms/:hotelId").get(RoomController.getAllRoomsOfHotel);
 roomRouter.route("/create").post(RoomController.createNewRoom);
 roomRouter.route("/update-information/:id").put(RoomController.updateRoomInformation);
 roomRouter.route("/update-price/:id").put(RoomController.updateRoomPrice);

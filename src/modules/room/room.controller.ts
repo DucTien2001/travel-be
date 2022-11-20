@@ -16,11 +16,11 @@ export default class RoomController {
     }
   }
 
-  static getRooms(req: Request, res: Response) {
+  static getRoomsAvailable(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const value = RoomValidation.getRoomsAvailable(req);
       const RoomServiceI = Container.get(RoomService);
-      RoomServiceI.getRooms(Number(id), res);
+      RoomServiceI.getRoomsAvailable(value, res);
     } catch (error) {
       return res.onError({
         detail: error,
@@ -28,10 +28,11 @@ export default class RoomController {
     }
   }
 
-  static getAllRooms(req: Request, res: Response) {
+  static getAllRoomsOfHotel(req: Request, res: Response) {
     try {
+      const { hotelId } = req.params;
       const RoomServiceI = Container.get(RoomService);
-      RoomServiceI.getAllRooms(res);
+      RoomServiceI.getAllRoomsOfHotel(Number(hotelId) ,res);
     } catch (error) {
       return res.onError({
         detail: error,

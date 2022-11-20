@@ -2,7 +2,7 @@ import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
 export interface RoomAttributes extends Model {
-  dataValues: object;
+  dataValues: any;
   id: number;
   title: string;
   description: string;

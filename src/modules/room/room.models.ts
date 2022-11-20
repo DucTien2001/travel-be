@@ -35,3 +35,9 @@ export interface IUpdateRoomPrice {
   saturdayPrice: number;
   sundayPrice: number;
 }
+
+export interface IGetRoomsAvailable {
+  hotelId: number;
+  startDate: Date;
+  endDate: Date;
+}

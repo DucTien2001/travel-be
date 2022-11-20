@@ -1,11 +1,15 @@
 import Container, { Inject, Service } from "typedi";
-import { ICreateRoom, IUpdateRoomInfo, IUpdateRoomPrice } from "./room.models";
+import { ICreateRoom, IGetRoomsAvailable, IUpdateRoomInfo, IUpdateRoomPrice } from "./room.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
 
 @Service()
 export default class RoomService {
-  constructor(@Inject("roomsModel") private roomsModel: ModelsInstance.Rooms) {}
+  constructor(
+    @Inject("roomsModel") private roomsModel: ModelsInstance.Rooms,
+    @Inject("checkRoomsModel") private checkRoomsModel: ModelsInstance.CheckRooms,
+    @Inject("roomOtherPricesModel") private roomOtherPricesModel: ModelsInstance.RoomOtherPrices
+  ) {}
   /**
    * Get room
    */
@@ -25,7 +29,7 @@ export default class RoomService {
       const result = {
         ...room?.dataValues,
         tags: room?.tags.split(","),
-        images: room?.images.split(",")
+        images: room?.images.split(","),
       };
       return res.onSuccess(result, {
         message: res.locals.t("get_room_success"),
@@ -39,13 +43,41 @@ export default class RoomService {
   }
 
   /**
-   * Get rooms of user
+   * Get rooms available
    */
-  public async getRooms(userId: number, res: Response) {
+  getPriceOfDate = (date: Date, room: any) => {
+    let price = 0;
+    const currentDay = date.getDay();
+    switch (currentDay) {
+      case 0:
+        price = room.sundayPrice;
+        break;
+      case 1:
+        price = room.mondayPrice;
+        break;
+      case 2:
+        price = room.tuesdayPrice;
+        break;
+      case 3:
+        price = room.wednesdayPrice;
+        break;
+      case 4:
+        price = room.thursdayPrice;
+        break;
+      case 5:
+        price = room.fridayPrice;
+        break;
+      case 6:
+        price = room.saturdayPrice;
+    }
+    return price;
+  };
+  public async getRoomsAvailable(data: IGetRoomsAvailable, res: Response) {
     try {
       const listRooms = await this.roomsModel.findAll({
         where: {
-          creator: userId,
+          hotelId: data.hotelId,
+          isTemporarilyStopWorking: false,
           isDeleted: false,
         },
       });
@@ -55,16 +87,54 @@ export default class RoomService {
           detail: "Not found",
         });
       }
-      const rooms = listRooms.map((item) => {
+
+      const rooms = await listRooms.map(async (item: any) => {
+        const listCheckRooms = await this.checkRoomsModel.findAll({
+          where: {
+            roomId: item?.dataValues?.id,
+          },
+        });
+        const startDate = new Date(data.startDate);
+        const endDate = new Date(data.endDate);
+        let numberOfRooms = item?.dataValues?.numberOfRoom;
+        if (listCheckRooms) {
+          listCheckRooms.map((check) => {
+            const bookedDate = new Date(check.dataValues?.bookedDate);
+            if (
+              startDate.getTime() <= bookedDate.getTime() &&
+              endDate.getTime() > bookedDate.getTime() &&
+              check.dataValues?.numberOfRoomsAvailable < numberOfRooms
+            ) {
+              numberOfRooms = check.dataValues?.numberOfRoomsAvailable;
+            }
+          });
+        }
+
+        const allPrices = await this.roomOtherPricesModel.findAll({
+          where: {
+            roomId: item?.dataValues?.id,
+          },
+        });
         return {
           ...item?.dataValues,
+          numberOfRoom: numberOfRooms,
           tags: item?.tags.split(","),
-          images: item?.images.split(",")
+          images: item?.images.split(","),
+          specialDatePrice: allPrices
         };
       });
-      return res.onSuccess(rooms, {
-        message: res.locals.t("get_rooms_success"),
-      });
+      Promise.all(rooms)
+        .then((result) => {
+          return res.onSuccess(result, {
+            message: res.locals.t("get_rooms_success"),
+          });
+        })
+        .catch((error) => {
+          return res.onError({
+            status: 500,
+            detail: error,
+          });
+        });
     } catch (error) {
       return res.onError({
         status: 500,
@@ -76,10 +146,11 @@ export default class RoomService {
   /**
    * Get all rooms
    */
-  public async getAllRooms(res: Response) {
+  public async getAllRoomsOfHotel(hotelId: number, res: Response) {
     try {
       const listRooms = await this.roomsModel.findAll({
         where: {
+          hotelId: hotelId,
           isTemporarilyStopWorking: false,
           isDeleted: false,
         },
@@ -94,7 +165,7 @@ export default class RoomService {
         return {
           ...item?.dataValues,
           tags: item?.tags.split(","),
-          images: item?.images.split(",")
+          images: item?.images.split(","),
         };
       });
       return res.onSuccess(rooms, {
@@ -136,9 +207,12 @@ export default class RoomService {
         }
       );
       await t.commit();
-      return res.onSuccess({...newRoom, images: newRoom.images.split(",")}, {
-        message: res.locals.t("room_create_success"),
-      });
+      return res.onSuccess(
+        { ...newRoom, images: newRoom.images.split(",") },
+        {
+          message: res.locals.t("room_create_success"),
+        }
+      );
     } catch (error) {
       await t.rollback();
       return res.onError({

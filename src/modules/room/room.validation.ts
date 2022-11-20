@@ -57,4 +57,16 @@ export default class RoomValidation {
       .required();
     return schema.validateSync(req.body);
   }
+  
+  static getRoomsAvailable(req: Request) {
+    const schema = yup
+      .object({
+        hotelId: yup.number(),
+        startDate: yup.date(),
+        endDate: yup.date(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
 }

@@ -2,6 +2,7 @@ import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
 export interface CheckRoomAttributes extends Model {
+  dataValues: any;
   id: number;
   bookedDate: Date;
   numberOfRoomsAvailable: number;
