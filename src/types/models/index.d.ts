@@ -1,10 +1,12 @@
 import { CheckRoomAttributes, CheckRoomsInstance } from "database/models/checkRooms";
+import { HotelCommentAttributes, HotelCommentsInstance } from "database/models/hotelComments";
 import { HotelAttributes, HotelsInstance } from "database/models/hotels";
 import { RoomBillDetailAttributes, RoomBillDetailsInstance } from "database/models/roomBillDetails";
 import { RoomBillAttributes, RoomBillsInstance } from "database/models/roomBills";
 import { RoomOtherPriceAttributes, RoomOtherPricesInstance } from "database/models/roomOtherPrices";
 import { RoomAttributes, RoomsInstance } from "database/models/rooms";
 import { TourBillAttributes, TourBillsInstance } from "database/models/tourBills";
+import { TourCommentAttributes, TourCommentsInstance } from "database/models/tourComments";
 import { TourAttributes, ToursInstance } from "database/models/tours";
 import { UserAttributes, UsersInstance } from "database/models/users";
 import { VerifyCodeAttributes, VerifyCodesInstance } from "database/models/verifyCodes";
@@ -21,6 +23,8 @@ declare global {
     export type RoomBill = RoomBillAttributes;
     export type RoomBillDetail = RoomBillDetailAttributes;
     export type TourBill = TourBillAttributes;
+    export type TourComment = TourCommentAttributes;
+    export type HotelComment = HotelCommentAttributes;
   }
 
   namespace ModelsInstance {
@@ -34,5 +38,7 @@ declare global {
     export type RoomBills = RoomBillsInstance;
     export type RoomBillDetails = RoomBillDetailsInstance;
     export type TourBills = TourBillsInstance;
+    export type TourComments = TourCommentsInstance;
+    export type HotelComments = HotelCommentsInstance;
   }
 }

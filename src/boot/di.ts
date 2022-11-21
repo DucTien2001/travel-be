@@ -12,4 +12,6 @@ export default () => {
   Container.set("roomBillDetailsModel", database.room_bill_details);
   Container.set("roomOtherPricesModel", database.room_other_prices);
   Container.set("checkRoomsModel", database.check_rooms);
+  Container.set("tourCommentsModel", database.tour_comments);
+  Container.set("hotelCommentsModel", database.hotel_comments);
 };
