@@ -71,7 +71,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
         type: DataTypes.STRING,
       },
       verifyCode: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING,
       },
       expiredDate: {
