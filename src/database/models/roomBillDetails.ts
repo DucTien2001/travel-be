@@ -8,6 +8,7 @@ export interface RoomBillDetailAttributes extends Model {
   roomId: string;
   amount: number;
   discount: number;
+  prices: string;
   totalPrice: number;
   createdAt: Date;
   updatedAt: Date;
@@ -38,6 +39,10 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillDetai
       discount: {
         allowNull: false,
         type: DataTypes.INTEGER,
+      },
+      prices: {
+        allowNull: false,
+        type: DataTypes.STRING,
       },
       totalPrice: {
         allowNull: false,

@@ -7,12 +7,20 @@ export default class RoomBillValidation {
     const schema = yup
       .object({
         userId: yup.number(),
-        roomId: yup.number(),
-        amount: yup.number(),
-        price: yup.number(),
-        discount: yup.number(),
-        bookedDates: yup.string(),
-        specialDates: yup.string().nullable(),
+        userMail: yup.string().email(),
+        rooms: yup.array(
+          yup.object({
+            roomId: yup.number(),
+            amount: yup.number(),
+            discount: yup.string(),
+            prices: yup.string(),
+            totalPrice: yup.number(),
+          })
+        ),
+        startDate: yup.string(),
+        endDate: yup.string(),
+        bookedDates: yup.array<string>().nullable(),
+        totalBill: yup.number(),
         email: yup.string().email(),
         phoneNumber: yup.string().matches(VALIDATION.phone, {
           message: req.t("field_phone_number_vali_phone"),
@@ -20,6 +28,17 @@ export default class RoomBillValidation {
         }),
         firstName: yup.string(),
         lastName: yup.string(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+  
+  static verifyBookRoom(req: Request) {
+    const schema = yup
+      .object({
+        code: yup.string(),
+        billId: yup.number(),
       })
       .noUnknown()
       .required();

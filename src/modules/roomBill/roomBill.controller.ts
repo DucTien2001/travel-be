@@ -39,12 +39,36 @@ export default class RoomBillController {
       });
     }
   }
+  
+  static getRoomBillDetails(req: Request, res: Response) {
+    try {
+      const { billId } = req.params;
+      const RoomBillServiceI = Container.get(RoomBillService);
+      RoomBillServiceI.getRoomBillDetails(Number(billId), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 
   static createRoomBill(req: Request, res: Response) {
     try {
       const value = RoomBillValidation.createRoomBill(req);
       const RoomBillServiceI = Container.get(RoomBillService);
       RoomBillServiceI.createRoomBill(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static verifyBookRoom(req: Request, res: Response) {
+    try {
+      const value = RoomBillValidation.verifyBookRoom(req);
+      const VerifyCodeI = Container.get(RoomBillService);
+      VerifyCodeI.verifyBookRoom(value, res);
     } catch (error) {
       return res.onError({
         detail: error,

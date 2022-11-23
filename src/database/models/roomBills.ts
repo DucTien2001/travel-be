@@ -6,7 +6,8 @@ export interface RoomBillAttributes extends Model {
   id: number;
   userId: number;
   bookedDates: string;
-  specialDates: string;
+  startDate: string;
+  endDate: string;
   email: string;
   phoneNumber: string;
   fistName: string;
@@ -36,9 +37,13 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
         allowNull: false,
         type: DataTypes.STRING,
       },
-      specialDates: {
+      startDate: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: DataTypes.DATE,
+      },
+      endDate: {
+        allowNull: false,
+        type: DataTypes.DATE,
       },
       email: {
         allowNull: false,
@@ -61,12 +66,10 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
         type: DataTypes.DOUBLE,
       },
       verifyCode: {
-        allowNull: false,
         type: DataTypes.STRING,
       },
       expiredDate: {
           type: DataTypes.DATE,
-          allowNull: false,
       },
     },
     {

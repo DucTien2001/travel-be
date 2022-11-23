@@ -1,7 +1,10 @@
 import Container, { Inject, Service } from "typedi";
-import { ICreateRoomBill } from "./roomBill.models";
+import { ICreateRoomBill, IVerifyBookRoom } from "./roomBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
+import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
+import EmailService from "services/emailService";
 
 @Service()
 export default class RoomBillService {
@@ -11,6 +14,7 @@ export default class RoomBillService {
     @Inject("roomOthersModel")
     private roomOthersModel: ModelsInstance.RoomOtherPrices,
     @Inject("roomBillDetailsModel") private roomBillDetailsModel: ModelsInstance.RoomBillDetails,
+    @Inject("checkRoomsModel") private checkRoomsModel: ModelsInstance.CheckRooms
   ) {}
   /**
    * Get a room bill
@@ -102,8 +106,40 @@ export default class RoomBillService {
       });
     }
   }
+  
+  /**
+   * Get room bill details
+   */
+   public async getRoomBillDetails(billId: number, res: Response) {
+    try {
+      const billDetails = await this.roomBillDetailsModel.findAll({
+        where: {
+          billId: billId,
+        },
+      });
+      if (!billDetails) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+      const allBillDetails = billDetails.map((item) => {
+        return {
+          ...item?.dataValues,
+        };
+      });
+      return res.onSuccess(allBillDetails, {
+        message: res.locals.t("get_all_room_bill_details_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
 
-  private async handleCalculatePriceForRoom(roomId: number, amount: number, normalDates: string[], specialDates: string[], res: Response){
+  private async handleCalculatePriceForRoom(roomId: number, amount: number, normalDates: string[], specialDates: string[], res: Response) {
     let totalPrice = 0;
     const room = await this.roomsModel.findOne({
       where: {
@@ -162,87 +198,173 @@ export default class RoomBillService {
         totalPrice += priceInfo?.price;
       }
     });
-    const _totalPrice = totalPrice*(100-discount)/100
+    const _totalPrice = (totalPrice * (100 - discount)) / 100;
     return {
       roomId: roomId,
       amount: amount,
       discount: discount,
       totalPrice: _totalPrice,
-    }
+    };
   }
 
   public async createRoomBill(data: ICreateRoomBill, res: Response) {
     const t = await sequelize.transaction();
     try {
-      let totalBill = 0;
-      const bookedDates = data?.bookedDates.split(",");
-      const specialDates = data?.specialDates.split(",");
-      let normalDates = <any>[];
-      if (specialDates) {
-        bookedDates.map((item) => {
-          if (!specialDates.includes(item)) {
-            normalDates.push(item);
-          }
-        });
-      } else {
-        normalDates = [...bookedDates]
-      }
-
-      const billDetails = <any>[]
-      data?.rooms.map(async(item)=> {
-        const room = await this.roomsModel.findOne({
-          where: {
-            id: item.roomId,
-            isTemporarilyStopWorking: false,
-            isDeleted: false,
-          },
-        });
-        if (!room) {
-          return res.onError({
-            status: 404,
-            detail: "room_not_found",
-          });
-        }
-        const billDetail = await this.handleCalculatePriceForRoom(room.id, Number(item.amount), normalDates, specialDates, res)
-        totalBill += billDetail.totalPrice
-        billDetails.push(billDetail)
-      })
-
+      const codeVerify = uuidv4();
       const newRoomBill = await this.roomBillsModel.create(
         {
           userId: data?.userId,
-          totalBill: totalBill,
+          startDate: data?.startDate,
+          endDate: data?.endDate,
           bookedDates: data?.bookedDates,
-          specialDates: data?.specialDates,
+          totalBill: data?.totalBill,
           email: data?.email,
           phoneNumber: data?.phoneNumber,
           firstName: data?.firstName,
           lastName: data?.lastName,
+          verifyCode: codeVerify,
+          expiredDate: moment().add(process.env.MAXAGE_TOKEN_ACTIVE, "hours").toDate(),
         },
         {
           transaction: t,
         }
       );
 
-      billDetails.map(async (item: any)=>{
-        const roomBillDetail = await this.roomBillDetailsModel.create(
-          {
-            billId: newRoomBill.id,
-            roomId: item.roomId,
-            amount: item.amount,
-            discount: item.discount,
-            totalPrice: item.totalPrice,
-          },
-          {
-            transaction: t,
-          }
+      const roomBillDetails = <any>[];
+      data?.rooms.map(async (item: any) => {
+        roomBillDetails.push(
+          await this.roomBillDetailsModel.create(
+            {
+              billId: newRoomBill.id,
+              roomId: item.roomId,
+              amount: item.amount,
+              discount: item.discount,
+              prices: item.prices,
+              totalPrice: item.totalPrice,
+            },
+            {
+              transaction: t,
+            }
+          )
         );
-        console.log(roomBillDetail, "=======roomBillDetail====")
-      })
-      await t.commit();
-      return res.onSuccess(newRoomBill, {
-        message: res.locals.t("room_bill_create_success"),
       });
+      Promise.all(roomBillDetails)
+        .then(async () => {
+          //email
+          const emailRes = await EmailService.sendConfirmBookRoom(
+            data?.userMail,
+            `${process.env.SITE_URL}/book/verifyBookRoom?code=${newRoomBill.verifyCode}&billId=${newRoomBill.id}`
+          );
+          if (emailRes.isSuccess) {
+            await t.commit();
+            return res.onSuccess(newRoomBill, {
+              message: res.locals.t("room_bill_create_success"),
+            });
+          } else {
+            await t.rollback();
+            return res.onError({
+              status: 500,
+              detail: "email_sending_failed",
+            });
+          }
+        })
+        .catch(async (error) => {
+          await t.rollback();
+          return res.onError({
+            status: 500,
+            detail: error,
+          });
+        });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async verifyBookRoom(data: IVerifyBookRoom, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      // verify code
+      const bill = await this.roomBillsModel.findOne({
+        where: {
+          id: data.billId,
+        },
+      });
+      if (!bill) {
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("room_bill_not_found"),
+        });
+      }
+      if (!bill.verifyCode) {
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("room_bill_was_verified"),
+        });
+      }
+
+      if (new Date() < new Date(bill?.expiredDate)) {
+        bill.verifyCode = null;
+        await bill.save({ transaction: t });
+
+        const roomsOfBill = await this.roomBillDetailsModel.findAll({
+          where: {
+            billId: bill.id,
+          },
+        });
+        const bookedDates = bill?.bookedDates.split(",");
+        let checkRoomReq = <any>[];
+        roomsOfBill.forEach((roomItem) => {
+          bookedDates.forEach(async (dateItem) => {
+            const checkItem = await this.checkRoomsModel.findOne({
+              where: {
+                bookedDate: dateItem,
+                roomId: roomItem?.roomId,
+              },
+            });
+            if (checkItem) {
+              checkItem.numberOfRoomsAvailable = checkItem.numberOfRoomsAvailable - roomItem?.amount;
+            } else {
+              const room = await this.roomsModel.findOne({
+                where: {
+                  id: roomItem?.roomId,
+                },
+              });
+              checkRoomReq.push(
+                this.checkRoomsModel.create({
+                  bookedDate: dateItem,
+                  roomId: roomItem?.roomId,
+                  numberOfRoomsAvailable: room?.numberOfRoom,
+                })
+              );
+            }
+          });
+        });
+
+        Promise.all(checkRoomReq)
+          .then(async () => {
+            await t.commit();
+            return res.onSuccess({
+              detail: res.locals.t("create_check_room_is_successful"),
+            });
+          })
+          .catch(async () => {
+            await t.rollback();
+            return res.onError({
+              status: 400,
+              detail: res.locals.t("create_check_room_is_failed"),
+            });
+          });
+      } else {
+        await t.rollback();
+        return res.onError({
+          status: 400,
+          detail: res.locals.t("the_verification_code_has_expired"),
+        });
+      }
     } catch (error) {
       await t.rollback();
       return res.onError({
