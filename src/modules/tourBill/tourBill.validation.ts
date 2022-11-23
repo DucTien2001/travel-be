@@ -24,4 +24,15 @@ export default class TourBillValidation {
       .required();
     return schema.validateSync(req.body);
   }
+  
+  static verifyBookTour(req: Request) {
+    const schema = yup
+      .object({
+        code: yup.string(),
+        billId: yup.number(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
 }

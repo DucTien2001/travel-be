@@ -7,3 +7,4 @@ tourBillRouter.route("/get-tour-bill/:billId").get(TourBillController.getTourBil
 tourBillRouter.route("/get-all-tour-bills/:tourId").get(TourBillController.getAllTourBills);
 tourBillRouter.route("/get-all-user-tour-bills/:userId").get(TourBillController.getAllUserTourBills);
 tourBillRouter.route("/create").post(TourBillController.createTourBill);
+tourBillRouter.route("/verify-book-tour").post(TourBillController.verifyBookTour);

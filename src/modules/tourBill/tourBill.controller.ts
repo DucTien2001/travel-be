@@ -51,4 +51,16 @@ export default class UserController {
       });
     }
   }
+  
+  static verifyBookTour(req: Request, res: Response) {
+    try {
+      const value = TourBillValidation.verifyBookTour(req);
+      const VerifyCodeI = Container.get(TourBillService);
+      VerifyCodeI.verifyBookTour(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }
