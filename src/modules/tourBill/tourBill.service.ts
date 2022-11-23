@@ -149,7 +149,7 @@ export default class TourBillService {
       //email
       const emailRes = await EmailService.sendConfirmBookTour(
         data?.userMail,
-        `${process.env.SITE_URL}/auth/verifyBookTour?code=${newTourBill.verifyCode}&billId=${newTourBill.id}`
+        `${process.env.SITE_URL}/book/verifyBookTour?code=${newTourBill.verifyCode}&billId=${newTourBill.id}`
       );
       if (emailRes.isSuccess) {
         await t.commit();
