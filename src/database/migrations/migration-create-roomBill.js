@@ -11,14 +11,14 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER,
       },
-      roomIds: {
-        type: Sequelize.STRING,
-      },
       bookedDates: {
         type: Sequelize.STRING,
       },
-      specialDates: {
-        type: Sequelize.STRING,
+      startDate: {
+        type: Sequelize.DATE,
+      },
+      endDate: {
+        type: Sequelize.DATE,
       },
       totalBill: {
         type: Sequelize.INTEGER,

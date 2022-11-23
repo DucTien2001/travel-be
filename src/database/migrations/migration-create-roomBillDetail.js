@@ -20,6 +20,9 @@ module.exports = {
       discount: {
         type: Sequelize.INTEGER,
       },
+      prices: {
+        type: Sequelize.STRING,
+      },
       totalPrice: {
         type: Sequelize.DOUBLE,
       },

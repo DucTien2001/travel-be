@@ -53,9 +53,6 @@ module.exports = {
       sundayPrice: {
         type: Sequelize.DOUBLE,
       },
-      otherPrice: {
-        type: Sequelize.JSON,
-      },
       isTemporarilyStopWorking: {
         type: Sequelize.BOOLEAN,
       },
