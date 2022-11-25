@@ -1,8 +1,8 @@
 import * as yup from "yup";
 import { Request } from "express";
 
-export default class HotelCommentValidation {
-  static createNewHotelComment(req: Request) {
+export default class TourCommentValidation {
+  static createNewTourComment(req: Request) {
     const schema = yup
       .object({
         comment: yup.string(),
@@ -15,7 +15,7 @@ export default class HotelCommentValidation {
     return schema.validateSync(req.body);
   }
 
-  static updateHotelComment(req: Request) {
+  static updateTourComment(req: Request) {
     const schema = yup
       .object({
         comment: yup.string(),
@@ -26,7 +26,7 @@ export default class HotelCommentValidation {
     return schema.validateSync(req.body);
   }
   
-  static replyHotelComment(req: Request) {
+  static replyTourComment(req: Request) {
     const schema = yup
       .object({
         replyComment: yup.string(),
