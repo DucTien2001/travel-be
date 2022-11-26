@@ -15,6 +15,9 @@ export default class TourCommentService {
         where: {
           tourId: tourId,
         },
+        include: {
+          association: "tourReviewer"
+        }
       });
       if (!listTourComments) {
         return res.onError({

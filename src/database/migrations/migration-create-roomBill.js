@@ -29,7 +29,7 @@ module.exports = {
       phoneNumber: {
         type: Sequelize.STRING,
       },
-      fistName: {
+      firstName: {
         type: Sequelize.STRING,
       },
       lastName: {

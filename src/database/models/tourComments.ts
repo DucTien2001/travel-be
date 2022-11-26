@@ -50,7 +50,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourCommentsI
       constraints: false
     });
     tour_comments.belongsTo(models.users, {
-      as: 'belongToUser',
+      as: 'tourReviewer',
       foreignKey: 'userId',
       constraints: false
     });
