@@ -19,7 +19,7 @@ export default class RoomBillValidation {
         ),
         startDate: yup.string(),
         endDate: yup.string(),
-        bookedDates: yup.array<string>().nullable(),
+        bookedDates: yup.string().nullable(),
         totalBill: yup.number(),
         email: yup.string().email(),
         phoneNumber: yup.string().matches(VALIDATION.phone, {

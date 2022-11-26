@@ -11,8 +11,8 @@ export default class RoomBillService {
   constructor(
     @Inject("roomBillsModel") private roomBillsModel: ModelsInstance.RoomBills,
     @Inject("roomsModel") private roomsModel: ModelsInstance.Rooms,
-    @Inject("roomOthersModel")
-    private roomOthersModel: ModelsInstance.RoomOtherPrices,
+    @Inject("roomOtherPricesModel")
+    private roomOtherPricesModel: ModelsInstance.RoomOtherPrices,
     @Inject("roomBillDetailsModel") private roomBillDetailsModel: ModelsInstance.RoomBillDetails,
     @Inject("checkRoomsModel") private checkRoomsModel: ModelsInstance.CheckRooms
   ) {}
@@ -189,7 +189,7 @@ export default class RoomBillService {
       }
     });
     specialDates.map(async (item) => {
-      const priceInfo = await this.roomOthersModel.findOne({
+      const priceInfo = await this.roomOtherPricesModel.findOne({
         where: {
           date: item,
         },
@@ -231,25 +231,28 @@ export default class RoomBillService {
       );
 
       const roomBillDetails = <any>[];
-      data?.rooms.map(async (item: any) => {
-        roomBillDetails.push(
-          await this.roomBillDetailsModel.create(
-            {
-              billId: newRoomBill.id,
-              roomId: item.roomId,
-              amount: item.amount,
-              discount: item.discount,
-              prices: item.prices,
-              totalPrice: item.totalPrice,
-            },
-            {
-              transaction: t,
-            }
-          )
-        );
+      data?.rooms.map(async (room: any) => {
+        data?.bookedDates.split(",").map(async(bookedDate)=>{
+          roomBillDetails.push(
+            this.roomBillDetailsModel.create(
+              {
+                billId: newRoomBill.id,
+                roomId: room.roomId,
+                amount: room.amount,
+                discount: room.discount,
+                price: room.price,
+                bookedDate: bookedDate,
+                totalPrice: room.totalPrice,
+              },
+              {
+                transaction: t,
+              }
+            )
+          );
+        })
       });
       Promise.all(roomBillDetails)
-        .then(async () => {
+        .then(async (resTemp) => {
           //email
           const emailRes = await EmailService.sendConfirmBookRoom(
             data?.userMail,

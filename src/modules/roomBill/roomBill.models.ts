@@ -5,10 +5,11 @@ export interface ICreateRoomBill {
     roomId: string;
     amount: string;
     discount: number;
-    prices: number[];
+    price: number;
+    bookedDate: Date;
     totalPrice: number;
   }[];
-  bookedDates: string[];
+  bookedDates: string;
   startDate: Date;
   endDate: Date;
   totalBill: number;
