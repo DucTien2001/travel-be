@@ -1,10 +1,12 @@
 import Container, { Inject, Service } from "typedi";
-import { ICreateTourBill, IVerifyBookTour } from "./tourBill.models";
+import { ICreateTourBill, IGetToursRevenueByMonth, IVerifyBookTour } from "./tourBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 import EmailService from "services/emailService";
+import { Op } from "sequelize";
+import { TourBillAttributes } from "database/models/tourBills";
 
 @Service()
 export default class TourBillService {
@@ -124,7 +126,7 @@ export default class TourBillService {
       // tour bill
       const discount = data?.discount || 0;
       const totalBill = (data.amount * data.price * (100 - discount)) / 100;
-      const codeVerify = uuidv4()
+      const codeVerify = uuidv4();
 
       const newTourBill = await this.tourBillsModel.create(
         {
@@ -171,7 +173,7 @@ export default class TourBillService {
       });
     }
   }
-  
+
   public async verifyBookTour(data: IVerifyBookTour, res: Response) {
     const t = await sequelize.transaction();
     try {
@@ -193,12 +195,12 @@ export default class TourBillService {
           detail: res.locals.t("tour_bill_was_verified"),
         });
       }
-      
+
       if (new Date() < new Date(bill?.expiredDate)) {
         bill.verifyCode = null;
         await bill.save({ transaction: t });
         await t.commit();
-        
+
         return res.onSuccess({
           detail: res.locals.t("complete_verification"),
         });
@@ -211,6 +213,63 @@ export default class TourBillService {
       }
     } catch (error) {
       await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Get all tour bills of any tour
+   */
+  public async getRevenueOfToursByMonth(data: IGetToursRevenueByMonth, res: Response) {
+    try {
+      const bills = await this.tourBillsModel.findAll({
+        where: {
+          tourId: {
+            [Op.or]: data.tourIds,
+          },
+          verifyCode: null
+        },
+      });
+      if (!bills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+      const tourBillArr: TourBillAttributes[][] = [];
+      data.tourIds.forEach((tourId) => {
+        tourBillArr.push(
+          bills.filter((bill) => bill?.dataValues?.tourId === tourId && new Date(bill?.dataValues?.createdAt).getMonth() === data.month)
+        );
+      });
+      const tourBillDetailArr: any[][] = []
+      tourBillArr.forEach((tourBills) => {
+        const tourBillDetail: any[] = []
+        tourBills.forEach(billItem =>{
+          const date = new Date(billItem?.dataValues?.createdAt).getDate()
+          let isNotHaveDate = true
+          tourBillDetail.forEach(detailItem => {
+            if(detailItem?.date === date){
+              isNotHaveDate = false
+              detailItem!.cost += billItem?.dataValues?.totalBill
+            }
+          })
+          if(isNotHaveDate){
+            tourBillDetail.push({
+              date: date,
+              cost: billItem?.dataValues?.totalBill
+            })
+          }
+        })
+        tourBillDetailArr.push(tourBillDetail)
+      });
+      return res.onSuccess(tourBillDetailArr, {
+        message: res.locals.t("get_all_tour_bills_success"),
+      });
+    } catch (error) {
       return res.onError({
         status: 500,
         detail: error,

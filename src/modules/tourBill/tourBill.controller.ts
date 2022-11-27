@@ -63,4 +63,16 @@ export default class UserController {
       });
     }
   }
+  
+  static getRevenueOfToursByMonth(req: Request, res: Response) {
+    try {
+      const value = TourBillValidation.getRevenueOfToursByMonth(req);
+      const VerifyCodeI = Container.get(TourBillService);
+      VerifyCodeI.getRevenueOfToursByMonth(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

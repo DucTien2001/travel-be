@@ -15,3 +15,8 @@ export interface IVerifyBookTour {
   code: string;
   billId: number;
 }
+
+export interface IGetToursRevenueByMonth {
+  tourIds: number[];
+  month: number;
+}
