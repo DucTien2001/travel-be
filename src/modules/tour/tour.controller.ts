@@ -87,4 +87,16 @@ export default class TourController {
       });
     }
   }
+
+  static searchTours(req: Request, res: Response) {
+    try {
+      const { name } = req.params;
+      const TourServiceI = Container.get(TourService);
+      TourServiceI.searchTour(name, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

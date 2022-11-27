@@ -87,4 +87,16 @@ export default class HotelController {
       });
     }
   }
+
+  static searchHotels(req: Request, res: Response) {
+    try {
+      const { name } = req.params;
+      const HotelServiceI = Container.get(HotelService);
+      HotelServiceI.searchHotel(name, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

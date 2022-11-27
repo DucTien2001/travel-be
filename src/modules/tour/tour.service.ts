@@ -2,6 +2,7 @@ import Container, { Inject, Service } from "typedi";
 import { ITour, IUpdateTour } from "./tour.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
+import { Op } from "sequelize";
 
 @Service()
 export default class TourService {
@@ -242,6 +243,33 @@ export default class TourService {
       });
     } catch (error) {
       await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+  
+  public async searchTour(name: string, res: Response) {
+    try {
+      const listTours = await this.toursModel.findAll({
+        where: {
+          title: {
+            [Op.like]: "%" + name + "%",
+          },
+        },
+      });
+      const tours = listTours.map((item) => {
+        return {
+          ...item?.dataValues,
+          images: item?.images.split(","),
+          tags: item?.tags.split(","),
+        };
+      });
+      return res.onSuccess(tours, {
+        message: res.locals.t("get_searched_tours_success"),
+      });
+    } catch (error) {
       return res.onError({
         status: 500,
         detail: error,

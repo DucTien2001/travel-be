@@ -10,3 +10,4 @@ tourRouter.route("/create").post(TourController.createNewTour);
 tourRouter.route("/update/:id").put(TourController.updateTour);
 tourRouter.route("/delete/:id").put(TourController.deleteTour);
 tourRouter.route("/temporarily-stop-working/:id").put(TourController.temporarilyStopWorking);
+tourRouter.route("/search-tours/:name").get(TourController.searchTours);
