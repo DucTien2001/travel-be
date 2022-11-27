@@ -5,6 +5,7 @@ export interface RoomBillAttributes extends Model {
   dataValues: object;
   id: number;
   userId: number;
+  hotelId: number;
   bookedDates: string;
   startDate: string;
   endDate: string;
@@ -30,6 +31,10 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
     "room_bills",
     {
       userId: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      hotelId: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },

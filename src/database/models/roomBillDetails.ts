@@ -60,7 +60,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillDetai
   );
   room_bill_details.associate = (models: { [key: string]: any }) => {
     room_bill_details.belongsTo(models.room_bills, {
-      as: 'belongsToRoomBill',
+      as: 'detailsOfRoomBill',
       foreignKey: 'billId',
       constraints: false
     });

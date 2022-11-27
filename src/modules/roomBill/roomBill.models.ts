@@ -1,5 +1,6 @@
 export interface ICreateRoomBill {
   userId: number;
+  hotelId: number;
   userMail: string;
   rooms: {
     roomId: string;

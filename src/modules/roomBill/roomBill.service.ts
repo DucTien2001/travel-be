@@ -84,6 +84,9 @@ export default class RoomBillService {
         where: {
           userId: userId,
         },
+        include: {
+          association: "roomBillDetail"
+        }
       });
       if (!bills) {
         return res.onError({
@@ -214,6 +217,7 @@ export default class RoomBillService {
       const newRoomBill = await this.roomBillsModel.create(
         {
           userId: data?.userId,
+          hotelId: data?.hotelId,
           startDate: data?.startDate,
           endDate: data?.endDate,
           bookedDates: data?.bookedDates,

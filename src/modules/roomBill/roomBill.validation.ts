@@ -7,6 +7,7 @@ export default class RoomBillValidation {
     const schema = yup
       .object({
         userId: yup.number(),
+        hotelId: yup.number(),
         userMail: yup.string().email(),
         rooms: yup.array(
           yup.object({
