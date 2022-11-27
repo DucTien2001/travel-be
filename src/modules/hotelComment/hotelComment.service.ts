@@ -15,6 +15,9 @@ export default class HotelCommentService {
         where: {
           hotelId: hotelId,
         },
+        include: {
+          association: "hotelReviewer"
+        }
       });
       if (!listHotelComments) {
         return res.onError({

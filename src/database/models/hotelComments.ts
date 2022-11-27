@@ -54,7 +54,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): HotelComments
       constraints: false
     });
     hotel_comments.belongsTo(models.users, {
-      as: 'belongToUser',
+      as: 'hotelReviewer',
       foreignKey: 'userId',
       constraints: false
     });
