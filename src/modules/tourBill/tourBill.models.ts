@@ -19,4 +19,10 @@ export interface IVerifyBookTour {
 export interface IGetToursRevenueByMonth {
   tourIds: number[];
   month: number;
+  year: number;
+}
+
+export interface IGetToursRevenueByYear {
+  tourIds: number[];
+  year: number;
 }

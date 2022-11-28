@@ -1,5 +1,5 @@
 import Container, { Inject, Service } from "typedi";
-import { ICreateTourBill, IGetToursRevenueByMonth, IVerifyBookTour } from "./tourBill.models";
+import { ICreateTourBill, IGetToursRevenueByMonth, IGetToursRevenueByYear, IVerifyBookTour } from "./tourBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
 import { v4 as uuidv4 } from "uuid";
@@ -221,7 +221,7 @@ export default class TourBillService {
   }
 
   /**
-   * Get all tour bills of any tour
+   * Get all tours revenue by month
    */
   public async getRevenueOfToursByMonth(data: IGetToursRevenueByMonth, res: Response) {
     try {
@@ -230,7 +230,7 @@ export default class TourBillService {
           tourId: {
             [Op.or]: data.tourIds,
           },
-          verifyCode: null
+          verifyCode: null,
         },
       });
       if (!bills) {
@@ -242,29 +242,95 @@ export default class TourBillService {
       const tourBillArr: TourBillAttributes[][] = [];
       data.tourIds.forEach((tourId) => {
         tourBillArr.push(
-          bills.filter((bill) => bill?.dataValues?.tourId === tourId && new Date(bill?.dataValues?.createdAt).getMonth() === data.month)
+          bills.filter(
+            (bill) =>
+              bill?.dataValues?.tourId === tourId &&
+              new Date(bill?.dataValues?.createdAt).getMonth() === data.month &&
+              new Date(bill?.dataValues?.createdAt).getFullYear() === data.year
+          )
         );
       });
-      const tourBillDetailArr: any[][] = []
+      const tourBillDetailArr: any[][] = [];
       tourBillArr.forEach((tourBills) => {
-        const tourBillDetail: any[] = []
-        tourBills.forEach(billItem =>{
-          const date = new Date(billItem?.dataValues?.createdAt).getDate()
-          let isNotHaveDate = true
-          tourBillDetail.forEach(detailItem => {
-            if(detailItem?.date === date){
-              isNotHaveDate = false
-              detailItem!.cost += billItem?.dataValues?.totalBill
+        const tourBillDetail: any[] = [];
+        tourBills.forEach((billItem) => {
+          const date = new Date(billItem?.dataValues?.createdAt).getDate();
+          let isNotHaveDate = true;
+          tourBillDetail.forEach((detailItem) => {
+            if (detailItem?.date === date) {
+              isNotHaveDate = false;
+              detailItem!.cost += billItem?.dataValues?.totalBill;
             }
-          })
-          if(isNotHaveDate){
+          });
+          if (isNotHaveDate) {
             tourBillDetail.push({
               date: date,
-              cost: billItem?.dataValues?.totalBill
-            })
+              cost: billItem?.dataValues?.totalBill,
+            });
           }
-        })
-        tourBillDetailArr.push(tourBillDetail)
+        });
+        tourBillDetailArr.push(tourBillDetail);
+      });
+      return res.onSuccess(tourBillDetailArr, {
+        message: res.locals.t("get_all_tour_bills_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Get all tours revenue by year
+   */
+  public async getRevenueOfToursByYear(data: IGetToursRevenueByYear, res: Response) {
+    try {
+      const bills = await this.tourBillsModel.findAll({
+        where: {
+          tourId: {
+            [Op.or]: data.tourIds,
+          },
+          verifyCode: null,
+        },
+      });
+      if (!bills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+      const tourBillArr: TourBillAttributes[][] = [];
+      data.tourIds.forEach((tourId) => {
+        tourBillArr.push(
+          bills.filter(
+            (bill) =>
+              bill?.dataValues?.tourId === tourId &&
+              new Date(bill?.dataValues?.createdAt).getFullYear() === data.year
+          )
+        );
+      });
+      const tourBillDetailArr: any[][] = [];
+      tourBillArr.forEach((tourBills) => {
+        const tourBillDetail: any[] = [];
+        tourBills.forEach((billItem) => {
+          const month = new Date(billItem?.dataValues?.createdAt).getMonth();
+          let isNotHaveMonth = true;
+          tourBillDetail.forEach((detailItem) => {
+            if (detailItem?.month === month) {
+              isNotHaveMonth = false;
+              detailItem!.cost += billItem?.dataValues?.totalBill;
+            }
+          });
+          if (isNotHaveMonth) {
+            tourBillDetail.push({
+              month: month,
+              cost: billItem?.dataValues?.totalBill,
+            });
+          }
+        });
+        tourBillDetailArr.push(tourBillDetail);
       });
       return res.onSuccess(tourBillDetailArr, {
         message: res.locals.t("get_all_tour_bills_success"),

@@ -9,3 +9,4 @@ tourBillRouter.route("/get-all-user-tour-bills/:userId").get(TourBillController.
 tourBillRouter.route("/create").post(TourBillController.createTourBill);
 tourBillRouter.route("/verify-book-tour").post(TourBillController.verifyBookTour);
 tourBillRouter.route("/get-tours-revenue-by-month").post(TourBillController.getRevenueOfToursByMonth);
+tourBillRouter.route("/get-tours-revenue-by-year").post(TourBillController.getRevenueOfToursByYear);

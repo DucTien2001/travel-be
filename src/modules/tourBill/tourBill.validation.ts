@@ -41,6 +41,18 @@ export default class TourBillValidation {
       .object({
         tourIds: yup.array().of(yup.number()),
         month: yup.number(),
+        year: yup.number(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+  
+  static getRevenueOfToursByYear(req: Request) {
+    const schema = yup
+      .object({
+        tourIds: yup.array().of(yup.number()),
+        year: yup.number(),
       })
       .noUnknown()
       .required();
