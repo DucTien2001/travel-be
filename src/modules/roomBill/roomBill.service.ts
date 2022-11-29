@@ -1,10 +1,12 @@
 import Container, { Inject, Service } from "typedi";
-import { ICreateRoomBill, IVerifyBookRoom } from "./roomBill.models";
+import { ICreateRoomBill, IGetHotelsRevenueByMonth, IGetHotelsRevenueByYear, IVerifyBookRoom } from "./roomBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 import EmailService from "services/emailService";
+import { Op } from "sequelize";
+import { RoomBillAttributes } from "database/models/roomBills";
 
 @Service()
 export default class RoomBillService {
@@ -374,6 +376,129 @@ export default class RoomBillService {
       }
     } catch (error) {
       await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Get all hotels revenue by month
+   */
+  public async getRevenueOfHotelsByMonth(data: IGetHotelsRevenueByMonth, res: Response) {
+    try {
+      const bills = await this.roomBillsModel.findAll({
+        where: {
+          hotelId: {
+            [Op.or]: data.hotelIds,
+          },
+          verifyCode: null,
+        },
+      });
+      if (!bills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+      const hotelBillArr: RoomBillAttributes[][] = [];
+      data.hotelIds.forEach((hotelId) => {
+        hotelBillArr.push(
+          bills.filter(
+            (bill) =>
+              bill?.dataValues?.hotelId === hotelId &&
+              new Date(bill?.dataValues?.createdAt).getMonth() === data.month &&
+              new Date(bill?.dataValues?.createdAt).getFullYear() === data.year
+          )
+        );
+      });
+      const hotelBillDetailArr: any[][] = [];
+      hotelBillArr.forEach((hotelBills) => {
+        const hotelBillDetail: any[] = [];
+        hotelBills.forEach((billItem) => {
+          const date = new Date(billItem?.dataValues?.createdAt).getDate();
+          let isNotHaveDate = true;
+          hotelBillDetail.forEach((detailItem) => {
+            if (detailItem?.date === date) {
+              isNotHaveDate = false;
+              detailItem!.cost += billItem?.dataValues?.totalBill;
+            }
+          });
+          if (isNotHaveDate) {
+            hotelBillDetail.push({
+              date: date,
+              cost: billItem?.dataValues?.totalBill,
+            });
+          }
+        });
+        hotelBillDetailArr.push(hotelBillDetail);
+      });
+      return res.onSuccess(hotelBillDetailArr, {
+        message: res.locals.t("get_all_hotel_bills_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Get all hotels revenue by year
+   */
+  public async getRevenueOfHotelsByYear(data: IGetHotelsRevenueByYear, res: Response) {
+    try {
+      const bills = await this.roomBillsModel.findAll({
+        where: {
+          hotelId: {
+            [Op.or]: data.hotelIds,
+          },
+          verifyCode: null,
+        },
+      });
+      if (!bills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+      const hotelBillArr: RoomBillAttributes[][] = [];
+      data.hotelIds.forEach((hotelId) => {
+        hotelBillArr.push(
+          bills.filter(
+            (bill) =>
+              bill?.dataValues?.hotelId === hotelId &&
+              new Date(bill?.dataValues?.createdAt).getFullYear() === data.year
+          )
+        );
+      });
+      const hotelBillDetailArr: any[][] = [];
+      hotelBillArr.forEach((hotelBills) => {
+        const hotelBillDetail: any[] = [];
+        hotelBills.forEach((billItem) => {
+          const month = new Date(billItem?.dataValues?.createdAt).getMonth();
+          let isNotHaveMonth = true;
+          hotelBillDetail.forEach((detailItem) => {
+            if (detailItem?.month === month) {
+              isNotHaveMonth = false;
+              detailItem!.cost += billItem?.dataValues?.totalBill;
+            }
+          });
+          if (isNotHaveMonth) {
+            hotelBillDetail.push({
+              month: month,
+              cost: billItem?.dataValues?.totalBill,
+            });
+          }
+        });
+        hotelBillDetailArr.push(hotelBillDetail);
+      });
+      return res.onSuccess(hotelBillDetailArr, {
+        message: res.locals.t("get_all_hotel_bills_success"),
+      });
+    } catch (error) {
       return res.onError({
         status: 500,
         detail: error,

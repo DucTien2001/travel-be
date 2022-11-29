@@ -9,3 +9,5 @@ roomBillRouter.route("/get-all-room-bills/:roomId").get(RoomBillController.getAl
 roomBillRouter.route("/get-all-user-room-bills/:userId").get(RoomBillController.getAllUserRoomBills);
 roomBillRouter.route("/create").post(RoomBillController.createRoomBill);
 roomBillRouter.route("/verify-book-room").post(RoomBillController.verifyBookRoom);
+roomBillRouter.route("/get-hotels-revenue-by-month").post(RoomBillController.getRevenueOfHotelsByMonth);
+roomBillRouter.route("/get-hotels-revenue-by-year").post(RoomBillController.getRevenueOfHotelsByYear);

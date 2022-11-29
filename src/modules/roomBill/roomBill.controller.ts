@@ -75,4 +75,28 @@ export default class RoomBillController {
       });
     }
   }
+  
+  static getRevenueOfHotelsByMonth(req: Request, res: Response) {
+    try {
+      const value = RoomBillValidation.getRevenueOfHotelsByMonth(req);
+      const VerifyCodeI = Container.get(RoomBillService);
+      VerifyCodeI.getRevenueOfHotelsByMonth(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+  
+  static getRevenueOfHotelsByYear(req: Request, res: Response) {
+    try {
+      const value = RoomBillValidation.getRevenueOfHotelsByYear(req);
+      const VerifyCodeI = Container.get(RoomBillService);
+      VerifyCodeI.getRevenueOfHotelsByYear(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

@@ -7,7 +7,7 @@ export interface ICreateRoomBill {
     amount: string;
     discount: number;
     price: number;
-    bookedDate: Date;
+    bookedDate?: Date;
     totalPrice: number;
   }[];
   bookedDates: string;
@@ -23,4 +23,15 @@ export interface ICreateRoomBill {
 export interface IVerifyBookRoom {
   code: string;
   billId: number;
+}
+
+export interface IGetHotelsRevenueByMonth {
+  hotelIds: number[];
+  month: number;
+  year: number;
+}
+
+export interface IGetHotelsRevenueByYear {
+  hotelIds: number[];
+  year: number;
 }

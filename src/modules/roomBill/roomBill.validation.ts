@@ -14,7 +14,8 @@ export default class RoomBillValidation {
             roomId: yup.number(),
             amount: yup.number(),
             discount: yup.string(),
-            prices: yup.string(),
+            price: yup.string(),
+            bookedDates: yup.string(),
             totalPrice: yup.number(),
           })
         ),
@@ -40,6 +41,29 @@ export default class RoomBillValidation {
       .object({
         code: yup.string(),
         billId: yup.number(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+  
+  static getRevenueOfHotelsByMonth(req: Request) {
+    const schema = yup
+      .object({
+        hotelIds: yup.array().of(yup.number()),
+        month: yup.number(),
+        year: yup.number(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+  
+  static getRevenueOfHotelsByYear(req: Request) {
+    const schema = yup
+      .object({
+        hotelIds: yup.array().of(yup.number()),
+        year: yup.number(),
       })
       .noUnknown()
       .required();
