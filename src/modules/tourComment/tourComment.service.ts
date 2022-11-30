@@ -1,11 +1,54 @@
 import Container, { Inject, Service } from "typedi";
 import { sequelize } from "database/models";
 import { Response } from "express";
-import { ICreateTourComment, IReplyTourComment, IUpdateTourComment } from "./tourComment.models";
+import { ICreateTourComment, IGetAllTourComment, IReplyTourComment, IUpdateTourComment } from "./tourComment.models";
+import { Op } from "sequelize";
 
 @Service()
 export default class TourCommentService {
   constructor(@Inject("tourCommentsModel") private tourCommentsModel: ModelsInstance.TourComments) {}
+  /**
+   * Get all tour comments
+   */
+  public async getAllTourComments(data: IGetAllTourComment, res: Response) {
+    try {
+      const listTourComments = await this.tourCommentsModel.findAll({
+        where: {
+          tourId: {
+            [Op.or]: data.tourIds,
+          },
+        },
+        include: [
+          {
+            association: "tourReviewer",
+          },
+          {
+            association: "tourInfo",
+          },
+        ],
+      });
+      if (!listTourComments) {
+        return res.onError({
+          status: 404,
+          detail: "Not found",
+        });
+      }
+      const tourComments = listTourComments.map((item) => {
+        return {
+          ...item?.dataValues,
+        };
+      });
+      return res.onSuccess(tourComments, {
+        message: res.locals.t("get_all_tour_comments_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
   /**
    * Get tour comments
    */
@@ -16,8 +59,8 @@ export default class TourCommentService {
           tourId: tourId,
         },
         include: {
-          association: "tourReviewer"
-        }
+          association: "tourReviewer",
+        },
       });
       if (!listTourComments) {
         return res.onError({
@@ -99,7 +142,7 @@ export default class TourCommentService {
       });
     }
   }
-  
+
   public async replyTourComment(commentId: number, data: IReplyTourComment, res: Response) {
     const t = await sequelize.transaction();
     try {

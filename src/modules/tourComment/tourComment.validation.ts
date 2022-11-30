@@ -35,4 +35,14 @@ export default class TourCommentValidation {
       .required();
     return schema.validateSync(req.body);
   }
+  
+  static getAllTourComments(req: Request) {
+    const schema = yup
+      .object({
+        tourIds: yup.array().of(yup.number()),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
 }

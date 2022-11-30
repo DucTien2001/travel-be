@@ -16,6 +16,18 @@ export default class TourCommentController {
     }
   }
 
+  static getAllTourComments(req: Request, res: Response) {
+    try {
+      const value = TourCommentValidation.getAllTourComments(req);
+      const TourCommentServiceI = Container.get(TourCommentService);
+      TourCommentServiceI.getAllTourComments(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
   static createNewTourComment(req: Request, res: Response) {
     try {
       const value = TourCommentValidation.createNewTourComment(req);

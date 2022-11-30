@@ -13,3 +13,7 @@ export interface IUpdateTourComment {
 export interface IReplyTourComment {
   replyComment: string;
 }
+
+export interface IGetAllTourComment {
+  tourIds: number[];
+}

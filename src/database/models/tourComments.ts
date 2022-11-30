@@ -45,7 +45,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourCommentsI
   );
   tour_comments.associate = (models: { [key: string]: any }) => {
     tour_comments.belongsTo(models.tours, {
-      as: 'belongToTour',
+      as: 'tourInfo',
       foreignKey: 'tourId',
       constraints: false
     });
