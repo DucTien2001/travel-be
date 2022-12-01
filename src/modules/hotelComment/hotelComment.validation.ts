@@ -36,4 +36,14 @@ export default class HotelCommentValidation {
       .required();
     return schema.validateSync(req.body);
   }
+  
+  static getAllHotelComments(req: Request) {
+    const schema = yup
+      .object({
+        hotelIds: yup.array().of(yup.number()),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
 }

@@ -49,7 +49,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): HotelComments
   );
   hotel_comments.associate = (models: { [key: string]: any }) => {
     hotel_comments.belongsTo(models.hotels, {
-      as: 'belongToTour',
+      as: 'hotelInfo',
       foreignKey: 'hotelId',
       constraints: false
     });

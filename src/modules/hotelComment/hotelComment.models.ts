@@ -14,3 +14,7 @@ export interface IUpdateHotelComment {
 export interface IReplyHotelComment {
   replyComment: string;
 }
+
+export interface IGetAllHotelComment {
+  hotelIds: number[];
+}

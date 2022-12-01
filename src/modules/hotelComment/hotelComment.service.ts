@@ -1,11 +1,53 @@
 import Container, { Inject, Service } from "typedi";
 import { sequelize } from "database/models";
 import { Response } from "express";
-import { ICreateHotelComment, IReplyHotelComment, IUpdateHotelComment } from "./hotelComment.models";
+import { ICreateHotelComment, IGetAllHotelComment, IReplyHotelComment, IUpdateHotelComment } from "./hotelComment.models";
+import { Op } from "sequelize";
 
 @Service()
 export default class HotelCommentService {
   constructor(@Inject("hotelCommentsModel") private hotelCommentsModel: ModelsInstance.HotelComments) {}
+    /**
+   * Get all hotel comments
+   */
+     public async getAllHotelComments(data: IGetAllHotelComment, res: Response) {
+      try {
+        const listHotelComments = await this.hotelCommentsModel.findAll({
+          where: {
+            hotelId: {
+              [Op.or]: data.hotelIds,
+            },
+          },
+          include: [
+            {
+              association: "hotelReviewer",
+            },
+            {
+              association: "hotelInfo",
+            },
+          ],
+        });
+        if (!listHotelComments) {
+          return res.onError({
+            status: 404,
+            detail: "Not found",
+          });
+        }
+        const hotelComments = listHotelComments.map((item) => {
+          return {
+            ...item?.dataValues,
+          };
+        });
+        return res.onSuccess(hotelComments, {
+          message: res.locals.t("get_all_hotel_comments_success"),
+        });
+      } catch (error) {
+        return res.onError({
+          status: 500,
+          detail: error,
+        });
+      }
+    }
   /**
    * Get hotel comments
    */

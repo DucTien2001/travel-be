@@ -16,6 +16,18 @@ export default class HotelCommentController {
     }
   }
 
+  static getAllHotelComments(req: Request, res: Response) {
+    try {
+      const value = HotelCommentValidation.getAllHotelComments(req);
+      const HotelCommentServiceI = Container.get(HotelCommentService);
+      HotelCommentServiceI.getAllHotelComments(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
   static createNewHotelComment(req: Request, res: Response) {
     try {
       const value = HotelCommentValidation.createNewHotelComment(req);
