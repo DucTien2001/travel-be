@@ -9,7 +9,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       bookedDate: {
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
       },
       numberOfRoomsAvailable: {
         type: Sequelize.INTEGER,

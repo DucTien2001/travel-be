@@ -25,7 +25,7 @@ module.exports = {
       },
       bookedDate: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
       },
       totalPrice: {
         type: Sequelize.DOUBLE,
