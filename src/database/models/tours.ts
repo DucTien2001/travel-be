@@ -14,6 +14,7 @@ export interface TourAttributes extends Model {
   tags: string;
   images: string;
   rate: number;
+  numberOfReviewer: number;
   creator: number;
   isTemporarilyStopWorking: boolean;
   isDeleted: boolean;
@@ -71,6 +72,10 @@ export default (
       rate: {
         defaultValue: 0,
         type: DataTypes.DOUBLE,
+      },
+      numberOfReviewer: {
+        defaultValue: 0,
+        type: DataTypes.INTEGER,
       },
       creator: {
         allowNull: false,

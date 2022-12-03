@@ -6,48 +6,51 @@ import { Op } from "sequelize";
 
 @Service()
 export default class HotelCommentService {
-  constructor(@Inject("hotelCommentsModel") private hotelCommentsModel: ModelsInstance.HotelComments) {}
-    /**
+  constructor(
+    @Inject("hotelCommentsModel") private hotelCommentsModel: ModelsInstance.HotelComments,
+    @Inject("hotelsModel") private hotelsModel: ModelsInstance.Hotels
+  ) {}
+  /**
    * Get all hotel comments
    */
-     public async getAllHotelComments(data: IGetAllHotelComment, res: Response) {
-      try {
-        const listHotelComments = await this.hotelCommentsModel.findAll({
-          where: {
-            hotelId: {
-              [Op.or]: data.hotelIds,
-            },
+  public async getAllHotelComments(data: IGetAllHotelComment, res: Response) {
+    try {
+      const listHotelComments = await this.hotelCommentsModel.findAll({
+        where: {
+          hotelId: {
+            [Op.or]: data.hotelIds,
           },
-          include: [
-            {
-              association: "hotelReviewer",
-            },
-            {
-              association: "hotelInfo",
-            },
-          ],
-        });
-        if (!listHotelComments) {
-          return res.onError({
-            status: 404,
-            detail: "Not found",
-          });
-        }
-        const hotelComments = listHotelComments.map((item) => {
-          return {
-            ...item?.dataValues,
-          };
-        });
-        return res.onSuccess(hotelComments, {
-          message: res.locals.t("get_all_hotel_comments_success"),
-        });
-      } catch (error) {
+        },
+        include: [
+          {
+            association: "hotelReviewer",
+          },
+          {
+            association: "hotelInfo",
+          },
+        ],
+      });
+      if (!listHotelComments) {
         return res.onError({
-          status: 500,
-          detail: error,
+          status: 404,
+          detail: "Not found",
         });
       }
+      const hotelComments = listHotelComments.map((item) => {
+        return {
+          ...item?.dataValues,
+        };
+      });
+      return res.onSuccess(hotelComments, {
+        message: res.locals.t("get_all_hotel_comments_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
     }
+  }
   /**
    * Get hotel comments
    */
@@ -58,8 +61,8 @@ export default class HotelCommentService {
           hotelId: hotelId,
         },
         include: {
-          association: "hotelReviewer"
-        }
+          association: "hotelReviewer",
+        },
       });
       if (!listHotelComments) {
         return res.onError({
@@ -98,6 +101,23 @@ export default class HotelCommentService {
           transaction: t,
         }
       );
+      const hotel = await this.hotelsModel.findOne({
+        where: {
+          id: data?.hotelId,
+        },
+      });
+      if (!hotel) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: "Hotel not found",
+        });
+      }
+      const oldNumberOfReviewer = hotel.numberOfReviewer
+      const newNumberOfReviewer = hotel.numberOfReviewer + 1
+      hotel.rate = (hotel.rate * oldNumberOfReviewer + Number(data?.rate)) / newNumberOfReviewer
+      hotel.numberOfReviewer = newNumberOfReviewer
+      await hotel.save({ transaction: t });
       await t.commit();
       return res.onSuccess(newHotelComment, {
         message: res.locals.t("hotel_comment_create_success"),
@@ -142,7 +162,7 @@ export default class HotelCommentService {
       });
     }
   }
-  
+
   public async replyHotelComment(commentId: number, data: IReplyHotelComment, res: Response) {
     const t = await sequelize.transaction();
     try {

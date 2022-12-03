@@ -6,7 +6,10 @@ import { Op } from "sequelize";
 
 @Service()
 export default class TourCommentService {
-  constructor(@Inject("tourCommentsModel") private tourCommentsModel: ModelsInstance.TourComments) {}
+  constructor(
+    @Inject("tourCommentsModel") private tourCommentsModel: ModelsInstance.TourComments,
+    @Inject("toursModel") private toursModel: ModelsInstance.Tours
+  ) {}
   /**
    * Get all tour comments
    */
@@ -98,6 +101,23 @@ export default class TourCommentService {
           transaction: t,
         }
       );
+      const tour = await this.toursModel.findOne({
+        where: {
+          id: data?.tourId,
+        },
+      });
+      if (!tour) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: "Tour not found",
+        });
+      }
+      const oldNumberOfReviewer = tour.numberOfReviewer
+      const newNumberOfReviewer = tour.numberOfReviewer + 1
+      tour.rate = (tour.rate * oldNumberOfReviewer + Number(data?.rate)) / newNumberOfReviewer
+      tour.numberOfReviewer = newNumberOfReviewer
+      await tour.save({ transaction: t });
       await t.commit();
       return res.onSuccess(newTourComment, {
         message: res.locals.t("tour_comment_create_success"),

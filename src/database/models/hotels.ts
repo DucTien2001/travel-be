@@ -14,6 +14,7 @@ export interface HotelAttributes extends Model {
   images: string;
   creator: number;
   rate: number;
+  numberOfReviewer: number;
   isTemporarilyStopWorking: boolean;
   isDeleted: boolean;
   createdAt: Date;
@@ -67,6 +68,10 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): HotelsInstanc
       rate: {
         defaultValue: 0,
         type: DataTypes.DOUBLE,
+      },
+      numberOfReviewer: {
+        defaultValue: 0,
+        type: DataTypes.INTEGER,
       },
       isTemporarilyStopWorking: {
         allowNull: false,

@@ -38,6 +38,9 @@ module.exports = {
       rate: {
         type: Sequelize.DOUBLE,
       },
+      numberOfReviewer: {
+        type: Sequelize.INTEGER,
+      },
       creator: {
         type: Sequelize.INTEGER,
       },

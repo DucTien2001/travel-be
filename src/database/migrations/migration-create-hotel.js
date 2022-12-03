@@ -38,6 +38,9 @@ module.exports = {
       rate: {
         type: Sequelize.DOUBLE,
       },
+      numberOfReviewer: {
+        type: Sequelize.INTEGER,
+      },
       isTemporarilyStopWorking: {
         type: Sequelize.BOOLEAN,
       },
