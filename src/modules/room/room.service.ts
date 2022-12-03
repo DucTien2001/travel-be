@@ -95,14 +95,27 @@ export default class RoomService {
           },
         });
         const startDate = new Date(data.startDate);
+        const dateOfStartDate = startDate.getDate()
+        const monthOfStartDate = startDate.getMonth()
+        const yearOfStartDate = startDate.getFullYear()
         const endDate = new Date(data.endDate);
+        const dateOfEndDate = endDate.getDate()
+        const monthOfEndDate = endDate.getMonth()
+        const yearOfEndDate = endDate.getFullYear()
+        const _startDate=new Date(yearOfStartDate, monthOfStartDate, dateOfStartDate)
+        const _endDate=new Date(yearOfEndDate, monthOfEndDate, dateOfEndDate)
         let numberOfRooms = item?.dataValues?.numberOfRoom;
         if (listCheckRooms) {
           listCheckRooms.map((check) => {
             const bookedDate = new Date(check.dataValues?.bookedDate);
+            const dateOfBookedDate = bookedDate.getDate()
+            const monthOfBookedDate = bookedDate.getMonth()
+            const yearOfBookedDate = bookedDate.getFullYear()
+
+            const _bookedDate=new Date(yearOfBookedDate, monthOfBookedDate, dateOfBookedDate)
             if (
-              startDate.getTime() <= bookedDate.getTime() &&
-              endDate.getTime() > bookedDate.getTime() &&
+              _startDate.getTime() <= _bookedDate.getTime() &&
+              _endDate.getTime() > _bookedDate.getTime() &&
               check.dataValues?.numberOfRoomsAvailable < numberOfRooms
             ) {
               numberOfRooms = check.dataValues?.numberOfRoomsAvailable;
@@ -151,7 +164,6 @@ export default class RoomService {
       const listRooms = await this.roomsModel.findAll({
         where: {
           hotelId: hotelId,
-          isTemporarilyStopWorking: false,
           isDeleted: false,
         },
       });

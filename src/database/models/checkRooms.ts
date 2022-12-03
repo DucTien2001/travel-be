@@ -4,7 +4,7 @@ import DataType from "sequelize";
 export interface CheckRoomAttributes extends Model {
   dataValues: any;
   id: number;
-  bookedDate: Date;
+  bookedDate: string;
   numberOfRoomsAvailable: number;
   roomId: number;
   createdAt: Date;
@@ -22,7 +22,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): CheckRoomsIns
     "check_rooms",
     {
       bookedDate: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING,
       },
       numberOfRoomsAvailable: {
         type: DataTypes.INTEGER,
