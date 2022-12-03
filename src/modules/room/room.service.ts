@@ -107,12 +107,8 @@ export default class RoomService {
         let numberOfRooms = item?.dataValues?.numberOfRoom;
         if (listCheckRooms) {
           listCheckRooms.map((check) => {
-            const bookedDate = new Date(check.dataValues?.bookedDate);
-            const dateOfBookedDate = bookedDate.getDate()
-            const monthOfBookedDate = bookedDate.getMonth()
-            const yearOfBookedDate = bookedDate.getFullYear()
-
-            const _bookedDate=new Date(yearOfBookedDate, monthOfBookedDate, dateOfBookedDate)
+            const bookedDate = check.dataValues?.bookedDate.split(",")
+            const _bookedDate = new Date(bookedDate[0], bookedDate[1], bookedDate[2]);
             if (
               _startDate.getTime() <= _bookedDate.getTime() &&
               _endDate.getTime() > _bookedDate.getTime() &&

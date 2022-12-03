@@ -14,6 +14,7 @@ export interface RoomBillDetailAttributes extends Model {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
+  belongsToRoom: any;
 }
 
 export type RoomBillDetailsInstance = typeof Model & {
@@ -47,7 +48,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillDetai
       },
       bookedDate: {
         allowNull: false,
-        type: DataTypes.DATE,
+        type: DataTypes.TEXT,
       },
       totalPrice: {
         allowNull: false,

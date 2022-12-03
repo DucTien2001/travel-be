@@ -87,8 +87,8 @@ export default class RoomBillService {
           userId: userId,
         },
         include: {
-          association: "roomBillDetail"
-        }
+          association: "roomBillDetail",
+        },
       });
       if (!bills) {
         return res.onError({
@@ -111,11 +111,11 @@ export default class RoomBillService {
       });
     }
   }
-  
+
   /**
    * Get room bill details
    */
-   public async getRoomBillDetails(billId: number, res: Response) {
+  public async getRoomBillDetails(billId: number, res: Response) {
     try {
       const billDetails = await this.roomBillDetailsModel.findAll({
         where: {
@@ -237,53 +237,43 @@ export default class RoomBillService {
       );
 
       const roomBillDetails = <any>[];
-      data?.rooms.map(async (room: any) => {
-        data?.bookedDates.split(",").map(async(bookedDate)=>{
-          roomBillDetails.push(
-            this.roomBillDetailsModel.create(
-              {
-                billId: newRoomBill.id,
-                roomId: room.roomId,
-                amount: room.amount,
-                discount: room.discount,
-                price: room.price,
-                bookedDate: bookedDate,
-                totalPrice: room.totalPrice,
-              },
-              {
-                transaction: t,
-              }
-            )
-          );
-        })
-      });
-      Promise.all(roomBillDetails)
-        .then(async (resTemp) => {
-          //email
-          const emailRes = await EmailService.sendConfirmBookRoom(
-            data?.userMail,
-            `${process.env.SITE_URL}/book/verifyBookRoom?code=${newRoomBill.verifyCode}&billId=${newRoomBill.id}`
-          );
-          if (emailRes.isSuccess) {
-            await t.commit();
-            return res.onSuccess(newRoomBill, {
-              message: res.locals.t("room_bill_create_success"),
-            });
-          } else {
-            await t.rollback();
-            return res.onError({
-              status: 500,
-              detail: "email_sending_failed",
-            });
-          }
-        })
-        .catch(async (error) => {
-          await t.rollback();
-          return res.onError({
-            status: 500,
-            detail: error,
-          });
+
+      data?.rooms.map((room: any) => {
+        const _bookedDate = new Date(room?.bookedDate);
+        const dateOfBookedDate = _bookedDate.getDate();
+        const monthOfBookedDate = _bookedDate.getMonth();
+        const yearOfBookedDate = _bookedDate.getFullYear();
+        const bookedDateString = `${yearOfBookedDate},${monthOfBookedDate},${dateOfBookedDate}`;
+        roomBillDetails.push({
+          billId: newRoomBill.id,
+          roomId: room.roomId,
+          amount: room.amount,
+          discount: room.discount,
+          price: room.price,
+          bookedDate: bookedDateString,
+          totalPrice: room.totalPrice,
         });
+      });
+      this.roomBillDetailsModel.bulkCreate(roomBillDetails, {
+        transaction: t,
+      });
+      //email
+      const emailRes = await EmailService.sendConfirmBookRoom(
+        data?.userMail,
+        `${process.env.SITE_URL}/book/verifyBookRoom?code=${newRoomBill.verifyCode}&billId=${newRoomBill.id}`
+      );
+      if (emailRes.isSuccess) {
+        await t.commit();
+        return res.onSuccess(newRoomBill, {
+          message: res.locals.t("room_bill_create_success"),
+        });
+      } else {
+        await t.rollback();
+        return res.onError({
+          status: 500,
+          detail: "email_sending_failed",
+        });
+      }
     } catch (error) {
       await t.rollback();
       return res.onError({
@@ -316,57 +306,69 @@ export default class RoomBillService {
       }
 
       if (new Date() < new Date(bill?.expiredDate)) {
-        bill.verifyCode = null;
-        await bill.save({ transaction: t });
-
         const roomsOfBill = await this.roomBillDetailsModel.findAll({
           where: {
             billId: bill.id,
           },
+          include: [
+            {
+              association: "belongsToRoom",
+            },
+          ],
         });
         const bookedDates = bill?.bookedDates.split(",");
-        let checkRoomReq = <any>[];
-        roomsOfBill.forEach((roomItem) => {
-          bookedDates.forEach(async (dateItem) => {
-            const checkItem = await this.checkRoomsModel.findOne({
-              where: {
-                bookedDate: dateItem,
-                roomId: roomItem?.roomId,
-              },
-            });
-            if (checkItem) {
-              checkItem.numberOfRoomsAvailable = checkItem.numberOfRoomsAvailable - roomItem?.amount;
-            } else {
-              const room = await this.roomsModel.findOne({
-                where: {
-                  id: roomItem?.roomId,
-                },
-              });
-              checkRoomReq.push(
-                this.checkRoomsModel.create({
-                  bookedDate: dateItem,
-                  roomId: roomItem?.roomId,
-                  numberOfRoomsAvailable: room?.numberOfRoom,
-                })
-              );
-            }
-          });
+
+        const dateStringArr = <any>[];
+        bookedDates.forEach(async (dateItem) => {
+          const _dateItem = new Date(dateItem);
+          const dateOfDateItem = _dateItem.getDate();
+          const monthOfDateItem = _dateItem.getMonth();
+          const yearOfDateItem = _dateItem.getFullYear();
+          const dateItemString = `${yearOfDateItem},${monthOfDateItem},${dateOfDateItem}`;
+          dateStringArr.push(dateItemString);
         });
 
-        Promise.all(checkRoomReq)
-          .then(async () => {
-            await t.commit();
-            return res.onSuccess({
-              detail: res.locals.t("create_check_room_is_successful"),
-            });
-          })
-          .catch(async () => {
-            await t.rollback();
-            return res.onError({
-              status: 400,
-              detail: res.locals.t("create_check_room_is_failed"),
-            });
+        let checkRoomReq = <any>[];
+        roomsOfBill.forEach(async (roomItem) => {
+          dateStringArr.forEach(async (dateItemString: any) => {
+            checkRoomReq.push(
+              this.checkRoomsModel.findOne({
+                where: {
+                  bookedDate: dateItemString,
+                  roomId: roomItem?.roomId,
+                },
+              })
+            );
           });
+        });
+        bill.verifyCode = null;
+        await bill.save({ transaction: t });
+
+        const checkRoomsRes = await Promise.all(checkRoomReq);
+
+        const updateCheckRoomReq = <any>[];
+        const createCheckRoomReq = <any>[];
+        checkRoomsRes.map(async (checkRoom, index) => {
+          if (checkRoom) {
+            const roomBillDetail = roomsOfBill.filter((rb) => Number(rb?.dataValues?.roomId) === Number(checkRoom?.dataValues?.roomId))[0];
+            checkRoom.numberOfRoomsAvailable = checkRoom.numberOfRoomsAvailable - roomBillDetail.amount;
+            updateCheckRoomReq.push(checkRoom.save({ transaction: t }));
+          } else {
+            checkRoomReq.push(
+              await this.checkRoomsModel.create({
+                bookedDate: roomsOfBill[index].bookedDate,
+                roomId: roomsOfBill[index].roomId,
+                numberOfRoomsAvailable: roomsOfBill[index].belongsToRoom.numberOfRoom - roomsOfBill[index].amount,
+              })
+            );
+          }
+        });
+
+        await Promise.all([...updateCheckRoomReq, ...createCheckRoomReq]);
+        await t.commit();
+        return res.onSuccess({
+          detail: res.locals.t("create_check_room_is_successful"),
+        });
       } else {
         await t.rollback();
         return res.onError({
@@ -467,11 +469,7 @@ export default class RoomBillService {
       const hotelBillArr: RoomBillAttributes[][] = [];
       data.hotelIds.forEach((hotelId) => {
         hotelBillArr.push(
-          bills.filter(
-            (bill) =>
-              bill?.dataValues?.hotelId === hotelId &&
-              new Date(bill?.dataValues?.createdAt).getFullYear() === data.year
-          )
+          bills.filter((bill) => bill?.dataValues?.hotelId === hotelId && new Date(bill?.dataValues?.createdAt).getFullYear() === data.year)
         );
       });
       const hotelBillDetailArr: any[][] = [];
