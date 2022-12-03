@@ -9,6 +9,8 @@ export interface TourCommentAttributes extends Model {
   comment: string;
   rate: number;
   replyComment: string;
+  isRequestDelete: boolean;
+  reasonForDelete: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -27,6 +29,13 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourCommentsI
         type: DataTypes.TEXT,
       },
       replyComment: {
+        type: DataTypes.TEXT,
+      },
+      isRequestDelete: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      reasonForDelete: {
         type: DataTypes.TEXT,
       },
       rate: {

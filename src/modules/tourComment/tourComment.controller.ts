@@ -28,6 +28,17 @@ export default class TourCommentController {
     }
   }
 
+  static getTourCommentsNeedDelete(req: Request, res: Response) {
+    try {
+      const TourCommentServiceI = Container.get(TourCommentService);
+      TourCommentServiceI.getTourCommentsNeedDelete(res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
   static createNewTourComment(req: Request, res: Response) {
     try {
       const value = TourCommentValidation.createNewTourComment(req);
@@ -59,6 +70,19 @@ export default class TourCommentController {
       const value = TourCommentValidation.replyTourComment(req);
       const TourCommentServiceI = Container.get(TourCommentService);
       TourCommentServiceI.replyTourComment(Number(id), value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+  
+  static requestDeleteTourComment(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = TourCommentValidation.requestDeleteTourComment(req);
+      const TourCommentServiceI = Container.get(TourCommentService);
+      TourCommentServiceI.requestDeleteTourComment(Number(id), value, res);
     } catch (error) {
       return res.onError({
         detail: error,

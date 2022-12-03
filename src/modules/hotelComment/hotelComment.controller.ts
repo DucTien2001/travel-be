@@ -28,6 +28,17 @@ export default class HotelCommentController {
     }
   }
 
+  static getHotelCommentsNeedDelete(req: Request, res: Response) {
+    try {
+      const HotelCommentServiceI = Container.get(HotelCommentService);
+      HotelCommentServiceI.getHotelCommentsNeedDelete(res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
   static createNewHotelComment(req: Request, res: Response) {
     try {
       const value = HotelCommentValidation.createNewHotelComment(req);
@@ -59,6 +70,19 @@ export default class HotelCommentController {
       const value = HotelCommentValidation.replyHotelComment(req);
       const HotelCommentServiceI = Container.get(HotelCommentService);
       HotelCommentServiceI.replyHotelComment(Number(id), value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+  
+  static requestDeleteHotelComment(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = HotelCommentValidation.requestDeleteHotelComment(req);
+      const HotelCommentServiceI = Container.get(HotelCommentService);
+      HotelCommentServiceI.requestDeleteHotelComment(Number(id), value, res);
     } catch (error) {
       return res.onError({
         detail: error,

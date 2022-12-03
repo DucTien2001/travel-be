@@ -37,6 +37,16 @@ export default class HotelCommentValidation {
     return schema.validateSync(req.body);
   }
   
+  static requestDeleteHotelComment(req: Request) {
+    const schema = yup
+      .object({
+        reasonForDelete: yup.string(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+  
   static getAllHotelComments(req: Request) {
     const schema = yup
       .object({

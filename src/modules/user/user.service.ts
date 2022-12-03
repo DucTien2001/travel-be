@@ -512,6 +512,47 @@ export default class UserService {
   }
   
   /**
+   * Get all user profile
+   */
+   public async getAllUserProfiles(res: Response) {
+    try {
+      const allUser = await this.usersModel.findAll({
+        where: {
+          isDeleted: false,
+        },
+      });
+      if (!allUser) {
+        return res.onError({
+          status: 404,
+          detail: "Not found",
+        });
+      }
+      const result = <any>[]
+      allUser.map(user=>{
+        const _user = {...user.dataValues}
+        result.push({
+          id: _user?.id,
+          email: _user?.username,
+          avatar: _user?.avatar,
+          firstName: _user?.firstName,
+          lastName: _user?.lastName,
+          address: _user?.address,
+          phoneNumber: _user?.phoneNumber,
+          role: _user?.role,
+        })
+      })
+      return res.onSuccess(result, {
+        message: res.locals.t("get_user_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+  
+  /**
    * Update user profile
    */
   public async updateUserProfile(id: number, data: IUpdateUserProfile, res: Response) {

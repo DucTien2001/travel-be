@@ -116,6 +116,17 @@ export default class UserController {
       });
     }
   }
+  
+  static getAllUserProfiles(req: Request, res: Response) {
+    try {
+      const UserServiceI = Container.get(UserService);
+      UserServiceI.getAllUserProfiles(res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 
   static updateUserProfile(req: Request, res: Response) {
     try {

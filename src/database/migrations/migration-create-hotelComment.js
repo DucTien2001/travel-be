@@ -14,6 +14,12 @@ module.exports = {
       replyComment: {
         type: Sequelize.TEXT,
       },
+      isRequestDelete: {
+        type: Sequelize.BOOLEAN,
+      },
+      reasonForDelete: {
+        type: Sequelize.TEXT,
+      },
       rate: {
         type: Sequelize.INTEGER,
       },

@@ -1,7 +1,13 @@
 import Container, { Inject, Service } from "typedi";
 import { sequelize } from "database/models";
 import { Response } from "express";
-import { ICreateHotelComment, IGetAllHotelComment, IReplyHotelComment, IUpdateHotelComment } from "./hotelComment.models";
+import {
+  ICreateHotelComment,
+  IGetAllHotelComment,
+  IReplyHotelComment,
+  IRequestDeleteHotelComment,
+  IUpdateHotelComment,
+} from "./hotelComment.models";
 import { Op } from "sequelize";
 
 @Service()
@@ -85,6 +91,45 @@ export default class HotelCommentService {
       });
     }
   }
+  /**
+   * Get hotel comments need to delete
+   */
+  public async getHotelCommentsNeedDelete(res: Response) {
+    try {
+      const listHotelComments = await this.hotelCommentsModel.findAll({
+        where: {
+          isRequestDelete: true,
+        },
+        include: [
+          {
+            association: "hotelReviewer",
+          },
+          {
+            association: "hotelInfo",
+          },
+        ],
+      });
+      if (!listHotelComments) {
+        return res.onError({
+          status: 404,
+          detail: "Not found",
+        });
+      }
+      const hotelComments = listHotelComments.map((item) => {
+        return {
+          ...item?.dataValues,
+        };
+      });
+      return res.onSuccess(hotelComments, {
+        message: res.locals.t("get_hotel_comments_need_to_delete_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
 
   public async createNewHotelComment(data: ICreateHotelComment, res: Response) {
     const t = await sequelize.transaction();
@@ -113,10 +158,10 @@ export default class HotelCommentService {
           detail: "Hotel not found",
         });
       }
-      const oldNumberOfReviewer = hotel.numberOfReviewer
-      const newNumberOfReviewer = hotel.numberOfReviewer + 1
-      hotel.rate = (hotel.rate * oldNumberOfReviewer + Number(data?.rate)) / newNumberOfReviewer
-      hotel.numberOfReviewer = newNumberOfReviewer
+      const oldNumberOfReviewer = hotel.numberOfReviewer;
+      const newNumberOfReviewer = hotel.numberOfReviewer + 1;
+      hotel.rate = (hotel.rate * oldNumberOfReviewer + Number(data?.rate)) / newNumberOfReviewer;
+      hotel.numberOfReviewer = newNumberOfReviewer;
       await hotel.save({ transaction: t });
       await t.commit();
       return res.onSuccess(newHotelComment, {
@@ -179,6 +224,38 @@ export default class HotelCommentService {
         });
       }
       if (data.replyComment) hotelCmt.replyComment = data.replyComment;
+
+      await hotelCmt.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(hotelCmt, {
+        message: res.locals.t("reply_hotel_comment_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async requestDeleteHotelComment(commentId: number, data: IRequestDeleteHotelComment, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const hotelCmt = await this.hotelCommentsModel.findOne({
+        where: {
+          id: commentId,
+        },
+      });
+      if (!hotelCmt) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("hotel_comment_not_found"),
+        });
+      }
+      if (data.reasonForDelete) hotelCmt.reasonForDelete = data.reasonForDelete;
+      hotelCmt.isRequestDelete = true;
 
       await hotelCmt.save({ transaction: t });
       await t.commit();

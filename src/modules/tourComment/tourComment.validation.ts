@@ -36,6 +36,16 @@ export default class TourCommentValidation {
     return schema.validateSync(req.body);
   }
   
+  static requestDeleteTourComment(req: Request) {
+    const schema = yup
+      .object({
+        reasonForDelete: yup.string(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+  
   static getAllTourComments(req: Request) {
     const schema = yup
       .object({

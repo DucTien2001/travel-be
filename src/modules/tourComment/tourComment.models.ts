@@ -17,3 +17,7 @@ export interface IReplyTourComment {
 export interface IGetAllTourComment {
   tourIds: number[];
 }
+
+export interface IRequestDeleteTourComment {
+  reasonForDelete: string;
+}
