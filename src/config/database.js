@@ -31,7 +31,7 @@ const config = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOSTNAME,
     port: process.env.DB_PORT,
-    dialect: 'postgres',
+    dialect: 'mysql',
     dialectOptions: {
       bigNumberStrings: true,
       ssl: {
