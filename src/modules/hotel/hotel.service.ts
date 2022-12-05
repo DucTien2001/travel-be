@@ -248,12 +248,45 @@ export default class HotelService {
     }
   }
 
+  /**
+   * Search hotels by name
+   */
   public async searchHotel(name: string, res: Response) {
     try {
       const listHotels = await this.hotelsModel.findAll({
         where: {
           name: {
             [Op.like]: "%" + name + "%",
+          },
+        },
+      });
+      const hotels = listHotels.map((item) => {
+        return {
+          ...item?.dataValues,
+          images: item?.images.split(","),
+          tags: item?.tags.split(","),
+        };
+      });
+      return res.onSuccess(hotels, {
+        message: res.locals.t("get_searched_hotels_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Search hotels by location
+   */
+  public async searchByLocation(location: string, res: Response) {
+    try {
+      const listHotels = await this.hotelsModel.findAll({
+        where: {
+          location: {
+            [Op.like]: "%" + location + "%",
           },
         },
       });

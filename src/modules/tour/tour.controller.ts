@@ -99,4 +99,16 @@ export default class TourController {
       });
     }
   }
+
+  static searchByLocation(req: Request, res: Response) {
+    try {
+      const { location } = req.params;
+      const TourServiceI = Container.get(TourService);
+      TourServiceI.searchByLocation(location, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

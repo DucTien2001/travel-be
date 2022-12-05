@@ -99,4 +99,16 @@ export default class HotelController {
       });
     }
   }
+  
+  static searchByLocation(req: Request, res: Response) {
+    try {
+      const { location } = req.params;
+      const HotelServiceI = Container.get(HotelService);
+      HotelServiceI.searchByLocation(location, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

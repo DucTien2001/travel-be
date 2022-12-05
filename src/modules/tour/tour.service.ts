@@ -250,6 +250,9 @@ export default class TourService {
     }
   }
   
+  /**
+   * Search tours by name
+   */
   public async searchTour(name: string, res: Response) {
     try {
       const listTours = await this.toursModel.findAll({
@@ -267,6 +270,36 @@ export default class TourService {
         };
       });
       return res.onSuccess(tours, {
+        message: res.locals.t("get_searched_tours_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Search tours by location
+   */
+  public async searchByLocation(location: string, res: Response) {
+    try {
+      const listTours = await this.toursModel.findAll({
+        where: {
+          location: {
+            [Op.like]: "%" + location + "%",
+          },
+        },
+      });
+      const hotels = listTours.map((item) => {
+        return {
+          ...item?.dataValues,
+          images: item?.images.split(","),
+          tags: item?.tags.split(","),
+        };
+      });
+      return res.onSuccess(hotels, {
         message: res.locals.t("get_searched_tours_success"),
       });
     } catch (error) {
