@@ -11,3 +11,4 @@ roomRouter.route("/update-information/:id").put(RoomController.updateRoomInforma
 roomRouter.route("/update-price/:id").put(RoomController.updateRoomPrice);
 roomRouter.route("/delete/:id").put(RoomController.deleteRoom);
 roomRouter.route("/temporarily-stop-working/:id").put(RoomController.temporarilyStopWorking);
+roomRouter.route("/work-again/:id").put(RoomController.workAgain);

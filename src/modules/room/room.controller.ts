@@ -89,6 +89,18 @@ export default class RoomController {
       });
     }
   }
+  
+  static workAgain(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const RoomServiceI = Container.get(RoomService);
+      RoomServiceI.workAgain(Number(id), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 
   static deleteRoom(req: Request, res: Response) {
     try {

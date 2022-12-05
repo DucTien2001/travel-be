@@ -337,6 +337,37 @@ export default class RoomService {
     }
   }
 
+  public async workAgain(roomId: number, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const room = await this.roomsModel.findOne({
+        where: {
+          id: roomId,
+        },
+      });
+      if (!room) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("room_not_found"),
+        });
+      }
+      room.isTemporarilyStopWorking = false;
+
+      await room.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(room, {
+        message: res.locals.t("start_working_again_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
   public async deleteRoom(roomId: number, res: Response) {
     const t = await sequelize.transaction();
     try {

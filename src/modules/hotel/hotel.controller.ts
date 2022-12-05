@@ -75,6 +75,18 @@ export default class HotelController {
       });
     }
   }
+  
+  static workAgain(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const HotelServiceI = Container.get(HotelService);
+      HotelServiceI.workAgain(Number(id), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 
   static deleteHotel(req: Request, res: Response) {
     try {

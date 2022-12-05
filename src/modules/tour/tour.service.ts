@@ -219,6 +219,37 @@ export default class TourService {
     }
   }
 
+  public async workAgain(tourId: number, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const tour = await this.toursModel.findOne({
+        where: {
+          id: tourId,
+        },
+      });
+      if (!tour) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("tour_not_found"),
+        });
+      }
+      tour.isTemporarilyStopWorking = false;
+
+      await tour.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(tour, {
+        message: res.locals.t("start_working_again_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
   public async deleteTour(tourId: number, res: Response) {
     const t = await sequelize.transaction();
     try {

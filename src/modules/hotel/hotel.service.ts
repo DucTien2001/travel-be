@@ -217,6 +217,37 @@ export default class HotelService {
     }
   }
 
+  public async workAgain(hotelId: number, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const hotel = await this.hotelsModel.findOne({
+        where: {
+          id: hotelId,
+        },
+      });
+      if (!hotel) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("hotel_not_found"),
+        });
+      }
+      hotel.isTemporarilyStopWorking = false;
+
+      await hotel.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(hotel, {
+        message: res.locals.t("start_working_again_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
   public async deleteHotel(hotelId: number, res: Response) {
     const t = await sequelize.transaction();
     try {

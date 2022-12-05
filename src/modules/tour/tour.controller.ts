@@ -75,6 +75,18 @@ export default class TourController {
       });
     }
   }
+  
+  static workAgain(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const TourServiceI = Container.get(TourService);
+      TourServiceI.workAgain(Number(id), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 
   static deleteTour(req: Request, res: Response) {
     try {
