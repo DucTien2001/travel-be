@@ -291,6 +291,8 @@ export default class TourService {
           title: {
             [Op.like]: "%" + name + "%",
           },
+          isTemporarilyStopWorking: false,
+          isDeleted: false,
         },
       });
       const tours = listTours.map((item) => {
@@ -321,6 +323,8 @@ export default class TourService {
           location: {
             [Op.like]: "%" + location + "%",
           },
+          isTemporarilyStopWorking: false,
+          isDeleted: false,
         },
       });
       const hotels = listTours.map((item) => {
@@ -331,6 +335,38 @@ export default class TourService {
         };
       });
       return res.onSuccess(hotels, {
+        message: res.locals.t("get_searched_tours_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+  
+  /**
+   * Enterprise search tours by name
+   */
+  public async searchTourOfEnterprise(userId: number, name: string, res: Response) {
+    try {
+      const listTours = await this.toursModel.findAll({
+        where: {
+          title: {
+            [Op.like]: "%" + name + "%",
+          },
+          creator: userId,
+          isDeleted: false,
+        },
+      });
+      const tours = listTours.map((item) => {
+        return {
+          ...item?.dataValues,
+          images: item?.images.split(","),
+          tags: item?.tags.split(","),
+        };
+      });
+      return res.onSuccess(tours, {
         message: res.locals.t("get_searched_tours_success"),
       });
     } catch (error) {

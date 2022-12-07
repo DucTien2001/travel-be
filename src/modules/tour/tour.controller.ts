@@ -123,4 +123,16 @@ export default class TourController {
       });
     }
   }
+
+  static searchToursOfEnterprise(req: Request, res: Response) {
+    try {
+      const { userId ,name } = req.params;
+      const TourServiceI = Container.get(TourService);
+      TourServiceI.searchTourOfEnterprise(Number(userId), name, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

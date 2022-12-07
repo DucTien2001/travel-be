@@ -123,4 +123,16 @@ export default class HotelController {
       });
     }
   }
+
+  static searchHotelsOfEnterprise(req: Request, res: Response) {
+    try {
+      const { userId, name } = req.params;
+      const HotelServiceI = Container.get(HotelService);
+      HotelServiceI.searchHotelOfEnterprise(Number(userId), name, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

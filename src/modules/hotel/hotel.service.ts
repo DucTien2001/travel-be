@@ -289,6 +289,8 @@ export default class HotelService {
           name: {
             [Op.like]: "%" + name + "%",
           },
+          isTemporarilyStopWorking: false,
+          isDeleted: false,
         },
       });
       const hotels = listHotels.map((item) => {
@@ -319,6 +321,40 @@ export default class HotelService {
           location: {
             [Op.like]: "%" + location + "%",
           },
+          isTemporarilyStopWorking: false,
+          isDeleted: false,
+        },
+      });
+      const hotels = listHotels.map((item) => {
+        return {
+          ...item?.dataValues,
+          images: item?.images.split(","),
+          tags: item?.tags.split(","),
+        };
+      });
+      return res.onSuccess(hotels, {
+        message: res.locals.t("get_searched_hotels_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Enterprise search hotels by name
+   */
+  public async searchHotelOfEnterprise(userId: number, name: string, res: Response) {
+    try {
+      const listHotels = await this.hotelsModel.findAll({
+        where: {
+          name: {
+            [Op.like]: "%" + name + "%",
+          },
+          creator: userId,
+          isDeleted: false,
         },
       });
       const hotels = listHotels.map((item) => {

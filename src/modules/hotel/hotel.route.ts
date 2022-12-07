@@ -13,3 +13,4 @@ hotelRouter.route("/temporarily-stop-working/:id").put(HotelController.temporari
 hotelRouter.route("/work-again/:id").put(HotelController.workAgain);
 hotelRouter.route("/search-hotels/:name").get(HotelController.searchHotels);
 hotelRouter.route("/search-by-location/:location").get(HotelController.searchByLocation);
+hotelRouter.route("/enterprise-search-hotels/user/:userId/hotel/:name").get(HotelController.searchHotelsOfEnterprise);

@@ -13,3 +13,4 @@ tourRouter.route("/temporarily-stop-working/:id").put(TourController.temporarily
 tourRouter.route("/work-again/:id").put(TourController.workAgain);
 tourRouter.route("/search-tours/:name").get(TourController.searchTours);
 tourRouter.route("/search-by-location/:location").get(TourController.searchByLocation);
+tourRouter.route("/enterprise-search-tours/user/:userId/tour/:name").get(TourController.searchToursOfEnterprise);

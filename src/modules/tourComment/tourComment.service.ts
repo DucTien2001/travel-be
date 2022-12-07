@@ -266,7 +266,6 @@ export default class TourCommentService {
     }
   }
 
-
   public async deleteTourComment(commentId: number, res: Response) {
     const t = await sequelize.transaction();
     try {
