@@ -39,6 +39,18 @@ export default class TourController {
     }
   }
 
+  static getAllToursByPage(req: Request, res: Response) {
+    try {
+      const { page } = req.params;
+      const TourServiceI = Container.get(TourService);
+      TourServiceI.getAllToursByPage(Number(page) ,res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
   static createNewTour(req: Request, res: Response) {
     try {
       const value = TourValidation.createNewTour(req);

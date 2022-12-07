@@ -112,6 +112,48 @@ export default class TourService {
     }
   }
 
+  /**
+   * Get all tours by page
+   */
+  public async getAllToursByPage(page: number, res: Response) {
+    try {
+      let limit = 9
+      let offset = 0 + (page - 1) * limit
+      let stopCondition = limit * page
+
+      const listTours = await this.toursModel.findAll({
+        where: {
+          isTemporarilyStopWorking: false,
+          isDeleted: false,
+        },
+      });
+      if (!listTours) {
+        return res.onError({
+          status: 404,
+          detail: "Not found",
+        });
+      }
+
+      let tours = []
+      for(offset; offset < stopCondition; offset++){
+        tours.push({
+          ...listTours[offset]?.dataValues,
+          businessHours: listTours[offset]?.businessHours.split(","),
+          images: listTours[offset]?.images.split(","),
+          tags: listTours[offset]?.tags.split(","),
+        })
+      }
+      return res.onSuccess(tours, {
+        message: res.locals.t("get_all_tours_by_page_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
   public async createNewTour(data: ITour, res: Response) {
     const t = await sequelize.transaction();
     try {

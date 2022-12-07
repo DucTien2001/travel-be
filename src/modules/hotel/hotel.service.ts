@@ -109,6 +109,47 @@ export default class HotelService {
     }
   }
 
+  /**
+   * Get all hotels by page
+   */
+  public async getAllHotelsByPage(page: number, res: Response) {
+    try {
+      let limit = 9
+      let offset = 0 + (page - 1) * limit
+      let stopCondition = limit * page
+
+      const listHotels = await this.hotelsModel.findAll({
+        where: {
+          isTemporarilyStopWorking: false,
+          isDeleted: false,
+        },
+      });
+      if (!listHotels) {
+        return res.onError({
+          status: 404,
+          detail: "Not found",
+        });
+      }
+
+      let hotels = []
+      for(offset; offset < stopCondition; offset++) {
+        hotels.push({
+          ...listHotels[offset]?.dataValues,
+          images: listHotels[offset]?.images.split(","),
+          tags: listHotels[offset]?.tags.split(","),
+        })
+      }
+      return res.onSuccess(hotels, {
+        message: res.locals.t("get_all_hotels_by_page_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
   public async createNewHotel(data: ICreateHotel, res: Response) {
     const t = await sequelize.transaction();
     try {

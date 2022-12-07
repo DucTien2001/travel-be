@@ -39,6 +39,18 @@ export default class HotelController {
     }
   }
 
+  static getAllHotelsByPage(req: Request, res: Response) {
+    try {
+      const { page } = req.params;
+      const HotelServiceI = Container.get(HotelService);
+      HotelServiceI.getAllHotelsByPage(Number(page), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
   static createNewHotel(req: Request, res: Response) {
     try {
       const value = HotelValidation.createNewHotel(req);

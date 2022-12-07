@@ -6,6 +6,7 @@ export const hotelRouter = Router();
 hotelRouter.route("/get-hotels/:id").get(HotelController.getHotels);
 hotelRouter.route("/get-hotel/:hotelId").get(HotelController.getHotel);
 hotelRouter.route("/get-all-hotels").get(HotelController.getAllHotels);
+hotelRouter.route("/get-all-hotels-by-page/:page").get(HotelController.getAllHotelsByPage);
 hotelRouter.route("/create").post(HotelController.createNewHotel);
 hotelRouter.route("/update/:id").put(HotelController.updateHotel);
 hotelRouter.route("/delete/:id").put(HotelController.deleteHotel);
