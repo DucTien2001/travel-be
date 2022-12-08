@@ -1,7 +1,7 @@
 import Container, { Inject, Service } from "typedi";
 import { sequelize } from "database/models";
 import { Response } from "express";
-import { ICreateTourComment, IGetAllTourComment, IReplyTourComment, IRequestDeleteTourComment, IUpdateTourComment } from "./tourComment.models";
+import { ICreateTourComment, IDeclineDeleteTourComment, IGetAllTourComment, IReplyTourComment, IRequestDeleteTourComment, IUpdateTourComment } from "./tourComment.models";
 import { Op } from "sequelize";
 
 @Service()
@@ -251,11 +251,44 @@ export default class TourCommentService {
       }
       if (data.reasonForDelete) tourCmt.reasonForDelete = data.reasonForDelete;
       tourCmt.isRequestDelete = true;
+      tourCmt.isDecline = false;
 
       await tourCmt.save({ transaction: t });
       await t.commit();
       return res.onSuccess(tourCmt, {
-        message: res.locals.t("reply_hotel_comment_success"),
+        message: res.locals.t("request_delete_hotel_comment_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async declineDeleteTourComment(commentId: number, data: IDeclineDeleteTourComment, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const tourCmt = await this.tourCommentsModel.findOne({
+        where: {
+          id: commentId,
+        },
+      });
+      if (!tourCmt) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("hotel_comment_not_found"),
+        });
+      }
+      if (data.reasonForDecline) tourCmt.reasonForDecline = data.reasonForDecline;
+      tourCmt.isDecline = true;
+
+      await tourCmt.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(tourCmt, {
+        message: res.locals.t("decline_delete_hotel_comment_success"),
       });
     } catch (error) {
       await t.rollback();
@@ -269,7 +302,23 @@ export default class TourCommentService {
   public async deleteTourComment(commentId: number, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const tourCmtDelete = await this.tourCommentsModel.destroy({
+      const tourCmt = await this.tourCommentsModel.findOne({
+        where: {
+          id: commentId,
+        },
+      });
+      const tour = await this.toursModel.findOne({
+        where: {
+          id: tourCmt?.tourId,
+        },
+      });
+      const newNumberOfReviewer = tour?.numberOfReviewer - 1;
+      const newRate = (tour?.rate * tour?.numberOfReviewer - tourCmt?.rate) / newNumberOfReviewer;
+      tour.numberOfReviewer = newNumberOfReviewer;
+      tour.rate = newRate;
+      
+      await tour.save({ transaction: t });
+      await this.tourCommentsModel.destroy({
         where: {
           id: commentId,
         },

@@ -50,6 +50,9 @@ export default class TourBillService {
         where: {
           tourId: tourId,
         },
+        include: {
+          association: "userInfo",
+        },
       });
       if (!bills) {
         return res.onError({
@@ -81,6 +84,9 @@ export default class TourBillService {
       const bills = await this.tourBillsModel.findAll({
         where: {
           userId: userId,
+        },
+        include: {
+          association: "tourInfo",
         },
       });
       if (!bills) {
@@ -304,11 +310,7 @@ export default class TourBillService {
       const tourBillArr: TourBillAttributes[][] = [];
       data.tourIds.forEach((tourId) => {
         tourBillArr.push(
-          bills.filter(
-            (bill) =>
-              bill?.dataValues?.tourId === tourId &&
-              new Date(bill?.dataValues?.createdAt).getFullYear() === data.year
-          )
+          bills.filter((bill) => bill?.dataValues?.tourId === tourId && new Date(bill?.dataValues?.createdAt).getFullYear() === data.year)
         );
       });
       const tourBillDetailArr: any[][] = [];

@@ -83,8 +83,13 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
   );
   room_bills.associate = (models: { [key: string]: any }) => {
     room_bills.belongsTo(models.users, {
-      as: 'bookedRoom',
+      as: 'userInfo',
       foreignKey: 'userId',
+      constraints: false
+    });
+    room_bills.belongsTo(models.hotels, {
+      as: 'hotelInfo',
+      foreignKey: 'hotelId',
       constraints: false
     });
     room_bills.hasMany(models.room_bill_details, {

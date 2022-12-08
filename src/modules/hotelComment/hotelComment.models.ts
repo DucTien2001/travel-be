@@ -22,3 +22,7 @@ export interface IGetAllHotelComment {
 export interface IRequestDeleteHotelComment {
   reasonForDelete: string;
 }
+
+export interface IDeclineHotelComment {
+  reasonForDecline: string;
+}

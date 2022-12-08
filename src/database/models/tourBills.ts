@@ -85,12 +85,12 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
   );
   tour_bills.associate = (models: { [key: string]: any }) => {
     tour_bills.belongsTo(models.tours, {
-      as: 'bookedTour',
+      as: 'tourInfo',
       foreignKey: 'tourId',
       constraints: false
     });
     tour_bills.belongsTo(models.users, {
-      as: 'userBill',
+      as: 'userInfo',
       foreignKey: 'userId',
       constraints: false
     });

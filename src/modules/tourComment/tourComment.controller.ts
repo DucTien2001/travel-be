@@ -89,6 +89,19 @@ export default class TourCommentController {
       });
     }
   }
+  
+  static declineDeleteTourComment(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = TourCommentValidation.declineDeleteTourComment(req);
+      const TourCommentServiceI = Container.get(TourCommentService);
+      TourCommentServiceI.declineDeleteTourComment(Number(id), value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 
   static deleteTourComment(req: Request, res: Response) {
     try {

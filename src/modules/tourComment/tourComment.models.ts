@@ -21,3 +21,7 @@ export interface IGetAllTourComment {
 export interface IRequestDeleteTourComment {
   reasonForDelete: string;
 }
+
+export interface IDeclineDeleteTourComment {
+  reasonForDecline: string;
+}

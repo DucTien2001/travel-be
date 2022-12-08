@@ -12,6 +12,8 @@ export interface HotelCommentAttributes extends Model {
   replyComment: string;
   isRequestDelete: boolean;
   reasonForDelete: string;
+  isDecline: boolean;
+  reasonForDecline: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -37,6 +39,13 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): HotelComments
         defaultValue: false,
       },
       reasonForDelete: {
+        type: DataTypes.TEXT,
+      },
+      isDecline: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      reasonForDecline: {
         type: DataTypes.TEXT,
       },
       rate: {

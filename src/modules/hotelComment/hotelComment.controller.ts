@@ -89,6 +89,19 @@ export default class HotelCommentController {
       });
     }
   }
+  
+  static declineDeleteHotelComment(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = HotelCommentValidation.declineDeleteHotelComment(req);
+      const HotelCommentServiceI = Container.get(HotelCommentService);
+      HotelCommentServiceI.declineDeleteHotelComment(Number(id), value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 
   static deleteHotelComment(req: Request, res: Response) {
     try {

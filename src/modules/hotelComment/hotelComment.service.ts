@@ -3,6 +3,7 @@ import { sequelize } from "database/models";
 import { Response } from "express";
 import {
   ICreateHotelComment,
+  IDeclineHotelComment,
   IGetAllHotelComment,
   IReplyHotelComment,
   IRequestDeleteHotelComment,
@@ -256,11 +257,44 @@ export default class HotelCommentService {
       }
       if (data.reasonForDelete) hotelCmt.reasonForDelete = data.reasonForDelete;
       hotelCmt.isRequestDelete = true;
+      hotelCmt.isDecline = false;
 
       await hotelCmt.save({ transaction: t });
       await t.commit();
       return res.onSuccess(hotelCmt, {
-        message: res.locals.t("reply_hotel_comment_success"),
+        message: res.locals.t("request_delete_hotel_comment_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async declineDeleteHotelComment(commentId: number, data: IDeclineHotelComment, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const hotelCmt = await this.hotelCommentsModel.findOne({
+        where: {
+          id: commentId,
+        },
+      });
+      if (!hotelCmt) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("hotel_comment_not_found"),
+        });
+      }
+      if (data.reasonForDecline) hotelCmt.reasonForDecline = data.reasonForDecline;
+      hotelCmt.isDecline = true;
+
+      await hotelCmt.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(hotelCmt, {
+        message: res.locals.t("decline-delete_hotel_comment_success"),
       });
     } catch (error) {
       await t.rollback();
@@ -274,7 +308,23 @@ export default class HotelCommentService {
   public async deleteHotelComment(commentId: number, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const hotelCmtDelete = await this.hotelCommentsModel.destroy({
+      const hotelCmt = await this.hotelCommentsModel.findOne({
+        where: {
+          id: commentId,
+        },
+      });
+      const hotel = await this.hotelsModel.findOne({
+        where: {
+          id: hotelCmt?.hotelId,
+        },
+      });
+      const newNumberOfReviewer = hotel?.numberOfReviewer - 1;
+      const newRate = (hotel?.rate * hotel?.numberOfReviewer - hotelCmt?.rate) / newNumberOfReviewer;
+      hotel.numberOfReviewer = newNumberOfReviewer;
+      hotel.rate = newRate;
+      
+      await hotel.save({ transaction: t });
+      await this.hotelCommentsModel.destroy({
         where: {
           id: commentId,
         },

@@ -20,6 +20,12 @@ module.exports = {
       reasonForDelete: {
         type: Sequelize.TEXT,
       },
+      isDecline: {
+        type: Sequelize.BOOLEAN,
+      },
+      reasonForDecline: {
+        type: Sequelize.TEXT,
+      },
       rate: {
         type: Sequelize.INTEGER,
       },

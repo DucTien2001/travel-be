@@ -54,6 +54,9 @@ export default class RoomBillService {
         where: {
           roomId: roomId,
         },
+        include: {
+          association: "userInfo",
+        },
       });
       if (!bills) {
         return res.onError({
@@ -86,9 +89,14 @@ export default class RoomBillService {
         where: {
           userId: userId,
         },
-        include: {
-          association: "roomBillDetail",
-        },
+        include: [
+          {
+            association: "roomBillDetail",
+          },
+          {
+            association: "hotelInfo",
+          },
+        ],
       });
       if (!bills) {
         return res.onError({
