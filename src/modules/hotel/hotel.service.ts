@@ -131,8 +131,10 @@ export default class HotelService {
         });
       }
 
+      const numberOfHotels = listHotels.length
       let hotels = []
       for(offset; offset < stopCondition; offset++) {
+        if(offset >= numberOfHotels) break;
         hotels.push({
           ...listHotels[offset]?.dataValues,
           images: listHotels[offset]?.images.split(","),
