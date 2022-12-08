@@ -134,8 +134,10 @@ export default class TourService {
         });
       }
 
+      const numberOfTours = listTours.length
       let tours = []
       for(offset; offset < stopCondition; offset++){
+        if(offset >= numberOfTours) break;
         tours.push({
           ...listTours[offset]?.dataValues,
           businessHours: listTours[offset]?.businessHours.split(","),
