@@ -60,10 +60,13 @@ export default class TourBillService {
           detail: "not_found",
         });
       }
-      const allBills = bills.map((item) => {
-        return {
-          ...item?.dataValues,
-        };
+      const allBills: any[] = []
+      bills.map((item) => {
+        if (!item?.verifyCode || new Date().getTime() < new Date(item?.expiredDate).getTime()) {
+          allBills.push({
+            ...item?.dataValues,
+          });
+        }
       });
       return res.onSuccess(allBills, {
         message: res.locals.t("get_all_tour_bills_success"),
@@ -95,10 +98,13 @@ export default class TourBillService {
           detail: "not_found",
         });
       }
-      const allBills = bills.map((item) => {
-        return {
-          ...item?.dataValues,
-        };
+      const allBills: any[] = [];
+      bills.map((item) => {
+        if (!item?.verifyCode || new Date().getTime() < new Date(item?.expiredDate).getTime()) {
+          allBills.push({
+            ...item?.dataValues,
+          });
+        }
       });
       return res.onSuccess(allBills, {
         message: res.locals.t("get_all_tour_bills_success"),
