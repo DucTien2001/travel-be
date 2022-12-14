@@ -20,10 +20,10 @@ export class EmailService {
       .sendMail({
         from: '"Travel service" <travelserviceute@gmail.com>', // sender address
         to: receiverEmail, // list of receivers
-        subject: "Hello ✔", // Subject line
-        text: "Hello world?", // plain text body
+        subject: "CONFRIM SIGN UP", // Subject line
+        text: "Thank you for using our service!", // plain text body
         html: `
-        <h1>Test Sign up</h1>
+        <h1>Please click on the link to confirm your sign up:</h1>
         <a href=${authenticationLink} target="_blank">Click here</a>
         `, // html body
       })
@@ -52,10 +52,10 @@ export class EmailService {
       .sendMail({
         from: '"Travel service" <travelserviceute@gmail.com>', // sender address
         to: receiverEmail, // list of receivers
-        subject: "Forgot password", // Subject line
-        text: "Forgot password?", // plain text body
+        subject: "FORGOT PASSWORD", // Subject line
+        text: "Did you forget your password?", // plain text body
         html: `
-        <h1>Test Sign up</h1>
+        <h1>Please use this code to change your password!</h1>
         <p>Code verify: ${verifyCode}</p>
         `, // html body
       })
@@ -84,10 +84,10 @@ export class EmailService {
       .sendMail({
         from: '"Travel service" <travelserviceute@gmail.com>', // sender address
         to: receiverEmail, // list of receivers
-        subject: "Hello ✔", // Subject line
-        text: "Hello world?", // plain text body
+        subject: "CONFRIM BOOK TOUR", // Subject line
+        text: "Thank you for using our service!", // plain text body
         html: `
-        <h1>Test book tour</h1>
+        <h1>Please click on the link to complete your booking:</h1>
         <a href=${authenticationLink} target="_blank">Click here</a>
         `, // html body
       })
@@ -116,10 +116,10 @@ export class EmailService {
       .sendMail({
         from: '"Travel service" <travelserviceute@gmail.com>', // sender address
         to: receiverEmail, // list of receivers
-        subject: "Hello ✔", // Subject line
-        text: "Hello world?", // plain text body
+        subject: "CONFIRM BOOK ROOM", // Subject line
+        text: "Thank you for using our service!", // plain text body
         html: `
-        <h1>Test book room</h1>
+        <h1>Please click on the link to complete your booking:</h1>
         <a href=${authenticationLink} target="_blank">Click here</a>
         `, // html body
       })
