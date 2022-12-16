@@ -18,9 +18,9 @@ export default class RoomOtherPriceController {
 
   static getAllPrices(req: Request, res: Response) {
     try {
-      const value = RoomOtherPriceValidation.getAllPrices(req);
+      const { id } = req.params;
       const RoomOtherPriceServiceI = Container.get(RoomOtherPriceService);
-      RoomOtherPriceServiceI.getAllPrices(value, res);
+      RoomOtherPriceServiceI.getAllPrices(Number(id), res);
     } catch (error) {
       return res.onError({
         detail: error,
@@ -42,9 +42,10 @@ export default class RoomOtherPriceController {
 
   static updatePrice(req: Request, res: Response) {
     try {
+      const { id } = req.params;
       const value = RoomOtherPriceValidation.updatePrice(req);
       const RoomOtherPriceServiceI = Container.get(RoomOtherPriceService);
-      RoomOtherPriceServiceI.updatePrice(value, res);
+      RoomOtherPriceServiceI.updatePrice(Number(id), value, res);
     } catch (error) {
       return res.onError({
         detail: error,
