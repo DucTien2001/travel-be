@@ -3,10 +3,6 @@ export interface IGetPrice {
   roomId: number;
 }
 
-export interface IGetAllPrice {
-  roomId: number;
-}
-
 export interface ICreateRoomOtherPrice {
   date: Date;
   price: number;

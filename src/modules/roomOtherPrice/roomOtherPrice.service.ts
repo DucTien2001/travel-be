@@ -2,7 +2,6 @@ import Container, { Inject, Service } from "typedi";
 import {
   ICreateRoomOtherPrice,
   IDeletePrice,
-  IGetAllPrice,
   IGetPrice,
   IUpdateRoomOtherPrice,
 } from "./roomOtherPrice.models";
@@ -43,11 +42,11 @@ export default class RoomOtherPriceService {
   /**
    * Get the price of all special days of the room
    */
-  public async getAllPrices(data: IGetAllPrice, res: Response) {
+  public async getAllPrices(roomId: number, res: Response) {
     try {
       const allPrices = await this.roomOtherPricesModel.findAll({
         where: {
-          roomId: data?.roomId,
+          roomId: roomId,
         },
       });
       if (!allPrices) {
@@ -99,14 +98,12 @@ export default class RoomOtherPriceService {
     }
   }
 
-  public async updatePrice(data: IUpdateRoomOtherPrice, res: Response) {
+  public async updatePrice(id: number, data: IUpdateRoomOtherPrice, res: Response) {
     const t = await sequelize.transaction();
     try {
       const room = await this.roomOtherPricesModel.findOne({
         where: {
-          roomId: data?.roomId,
-          date: data?.date,
-          isDeleted: false,
+          id: id
         },
       });
       if (!room) {
@@ -116,6 +113,7 @@ export default class RoomOtherPriceService {
           detail: res.locals.t("price_of_room_not_found"),
         });
       }
+      if (data.date) room.date = data.date;
       if (data.price) room.price = data.price;
 
       await room.save({ transaction: t });

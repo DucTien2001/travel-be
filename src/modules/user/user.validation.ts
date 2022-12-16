@@ -146,7 +146,7 @@ export default class UserValidation {
   static updateUserProfile(req: Request) {
     const schema = yup
       .object({
-        avatar: yup.string(),
+        avatar: yup.string().notRequired(),
         firstName: yup.string(),
         lastName: yup.string(),
         address: yup.string(),

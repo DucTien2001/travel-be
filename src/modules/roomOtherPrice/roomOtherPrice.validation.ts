@@ -12,17 +12,6 @@ export default class RoomPriceValidation {
       .required();
     return schema.validateSync(req.body);
   }
-  
-  static getAllPrices(req: Request) {
-    const schema = yup
-      .object({
-        date: yup.date(),
-        roomId: yup.number(),
-      })
-      .noUnknown()
-      .required();
-    return schema.validateSync(req.body);
-  }
 
   static createNewPrice(req: Request) {
     const schema = yup
