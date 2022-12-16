@@ -37,14 +37,14 @@ export default class UserService {
         await t.rollback();
         return res.onError({
           status: 400,
-          detail: res.locals.t("auth_email_address_already_exists"),
+          detail: res.locals.t("Email address already exist!"),
         });
       }
       if (data?.password !== data?.confirmPassword) {
         await t.rollback();
         return res.onError({
           status: 400,
-          detail: res.locals.t("password_and_confirm_password_do_not_match"),
+          detail: res.locals.t("Password and confirm password does not match!"),
         });
       }
       const hashedPassword = await hashUserPassword(data?.password);
@@ -81,7 +81,7 @@ export default class UserService {
       if (emailRes.isSuccess) {
         await t.commit();
         return res.onSuccess(userNew, {
-          message: res.locals.t("user_create_success"),
+          message: res.locals.t("Create user success!"),
         });
       } else {
         await t.rollback();
@@ -167,14 +167,14 @@ export default class UserService {
       if (!authenticated) {
         return res.onError({
           status: 400,
-          detail: res.locals.t("current_password_is_not_correct"),
+          detail: res.locals.t("Current password is not correct!"),
         });
       }
       if (data?.newPassword !== data?.confirmPassword) {
         await t.rollback();
         return res.onError({
           status: 400,
-          detail: res.locals.t("password_and_confirm_password_do_not_match"),
+          detail: res.locals.t("Password and confirm password does not match!"),
         });
       }
       const hashedPassword = await hashUserPassword(data?.newPassword);
@@ -184,7 +184,7 @@ export default class UserService {
 
       await t.commit();
       return res.onSuccess({
-        detail: res.locals.t("complete_change_password"),
+        detail: res.locals.t("Complete change password"),
       });
     } catch (error) {
       await t.rollback();
@@ -434,7 +434,7 @@ export default class UserService {
       if (!item) {
         return res.onError({
           status: 404,
-          detail: res.locals.t("not_found_the_code_verification"),
+          detail: res.locals.t("Not found the code verification"),
         });
       }
 
@@ -443,7 +443,7 @@ export default class UserService {
           await t.rollback();
           return res.onError({
             status: 400,
-            detail: res.locals.t("password_and_confirm_password_do_not_match"),
+            detail: res.locals.t("Password and confirm password does not match!"),
           });
         }
         const hashedPassword = await hashUserPassword(data?.password);

@@ -10,7 +10,7 @@ export default class UserValidation {
         password: yup
           .string()
           .matches(VALIDATION.password, {
-            message: req.t("field_password_vali_password"),
+            message: req.t("Password is invalid"),
             excludeEmptyString: true,
           })
           .required(),
@@ -27,14 +27,14 @@ export default class UserValidation {
         password: yup
           .string()
           .matches(VALIDATION.password, {
-            message: req.t("field_password_vali_password"),
+            message: req.t("Password is invalid"),
             excludeEmptyString: true,
           })
           .required(),
         confirmPassword: yup
           .string()
           .matches(VALIDATION.password, {
-            message: req.t("field_password_vali_password"),
+            message: req.t("Password is invalid"),
             excludeEmptyString: true,
           })
           .required(),
@@ -44,7 +44,7 @@ export default class UserValidation {
         avatar: yup.string().nullable(),
         address: yup.string().nullable(),
         phoneNumber: yup.string().matches(VALIDATION.phone, {
-          message: req.t("field_phone_number_vali_phone"),
+          message: req.t("Phone number is invalid"),
           excludeEmptyString: true,
         }),
         introduction: yup.string().nullable(),
@@ -94,21 +94,21 @@ export default class UserValidation {
         currentPassword: yup
           .string()
           .matches(VALIDATION.password, {
-            message: req.t("field_password_vali_password"),
+            message: req.t("Password is invalid"),
             excludeEmptyString: true,
           })
           .required(),
         newPassword: yup
           .string()
           .matches(VALIDATION.password, {
-            message: req.t("field_password_vali_password"),
+            message: req.t("Password is invalid"),
             excludeEmptyString: true,
           })
           .required(),
         confirmPassword: yup
           .string()
           .matches(VALIDATION.password, {
-            message: req.t("field_password_vali_password"),
+            message: req.t("Password is invalid"),
             excludeEmptyString: true,
           })
           .required(),
@@ -125,14 +125,14 @@ export default class UserValidation {
         password: yup
           .string()
           .matches(VALIDATION.password, {
-            message: req.t("field_password_vali_password"),
+            message: req.t("Password is invalid"),
             excludeEmptyString: true,
           })
           .required(),
         confirmPassword: yup
           .string()
           .matches(VALIDATION.password, {
-            message: req.t("field_password_vali_password"),
+            message: req.t("Password is invalid"),
             excludeEmptyString: true,
           })
           .required(),
@@ -151,7 +151,7 @@ export default class UserValidation {
         lastName: yup.string(),
         address: yup.string(),
         phoneNumber: yup.string().matches(VALIDATION.phone, {
-          message: req.t("field_phone_number_vali_phone"),
+          message: req.t("Phone number is invalid"),
           excludeEmptyString: true,
         }),
       })
