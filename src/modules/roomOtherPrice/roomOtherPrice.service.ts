@@ -130,29 +130,17 @@ export default class RoomOtherPriceService {
     }
   }
 
-  public async deletePrice(data: IDeletePrice, res: Response) {
+  public async deletePrice(id: number, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const room = await this.roomOtherPricesModel.findOne({
+      await this.roomOtherPricesModel.destroy({
         where: {
-          roomId: data?.roomId,
-          date: data?.date,
-          isDeleted: false,
+          id: id
         },
       });
-      if (!room) {
-        await t.rollback();
-        return res.onError({
-          status: 404,
-          detail: res.locals.t("price_of_room_not_found"),
-        });
-      }
-      room.isDeleted = true;
-
-      await room.save({ transaction: t });
       await t.commit();
-      return res.onSuccess(room, {
-        message: res.locals.t("room_other_price_delete_success"),
+      return res.onSuccess("Delete success", {
+        message: res.locals.t("Room other price delete success"),
       });
     } catch (error) {
       await t.rollback();

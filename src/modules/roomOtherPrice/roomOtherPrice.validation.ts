@@ -36,15 +36,4 @@ export default class RoomPriceValidation {
       .required();
     return schema.validateSync(req.body);
   }
-  
-  static deletePrice(req: Request) {
-    const schema = yup
-      .object({
-        date: yup.date(),
-        roomId: yup.number(),
-      })
-      .noUnknown()
-      .required();
-    return schema.validateSync(req.body);
-  }
 }

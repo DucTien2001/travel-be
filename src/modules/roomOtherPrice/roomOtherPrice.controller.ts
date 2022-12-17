@@ -55,9 +55,9 @@ export default class RoomOtherPriceController {
 
   static deletePrice(req: Request, res: Response) {
     try {
-      const value = RoomOtherPriceValidation.deletePrice(req);
+      const { id } = req.params;
       const RoomOtherPriceServiceI = Container.get(RoomOtherPriceService);
-      RoomOtherPriceServiceI.deletePrice(value, res);
+      RoomOtherPriceServiceI.deletePrice(Number(id), res);
     } catch (error) {
       return res.onError({
         detail: error,
