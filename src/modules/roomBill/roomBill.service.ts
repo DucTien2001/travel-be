@@ -50,13 +50,18 @@ export default class RoomBillService {
    */
   public async getAllRoomBills(roomId: number, res: Response) {
     try {
-      const bills = await this.roomBillsModel.findAll({
+      const bills = await this.roomBillDetailsModel.findAll({
         where: {
           roomId: roomId,
         },
-        include: {
-          association: "userInfo",
-        },
+        include: [
+          {
+            association: "detailsOfRoomBill",
+          },
+          {
+            association: "belongsToRoom",
+          },
+        ],
       });
       if (!bills) {
         return res.onError({
@@ -64,13 +69,11 @@ export default class RoomBillService {
           detail: "not_found",
         });
       }
-      const allBills: any[] = []
+      const allBills: any[] = [];
       bills.map((item) => {
-        if (!item?.verifyCode || new Date().getTime() < new Date(item?.expiredDate).getTime()) {
-          allBills.push({
-            ...item?.dataValues,
-          });
-        }
+        allBills.push({
+          ...item?.dataValues,
+        });
       });
       return res.onSuccess(allBills, {
         message: res.locals.t("get_all_room_bills_success"),
@@ -107,7 +110,7 @@ export default class RoomBillService {
           detail: "not_found",
         });
       }
-      const allBills: any[] = []
+      const allBills: any[] = [];
       bills.map((item) => {
         if (!item?.verifyCode || new Date().getTime() < new Date(item?.expiredDate).getTime()) {
           allBills.push({
