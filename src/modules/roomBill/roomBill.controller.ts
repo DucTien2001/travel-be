@@ -99,4 +99,16 @@ export default class RoomBillController {
       });
     }
   }
+  
+  static cancelRoomBill(req: Request, res: Response) {
+    try {
+      const { billId } = req.params;
+      const RoomBillServiceI = Container.get(RoomBillService);
+      RoomBillServiceI.cancelRoomBill(Number(billId), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

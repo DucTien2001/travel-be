@@ -18,6 +18,11 @@ export interface ICreateRoomBill {
   phoneNumber: string;
   firstName: string;
   lastName: string;
+  bankName: string;
+  bankAccountName: string;
+  bankNumber: string;
+  accountExpirationDate: Date;
+  deposit: number;
 }
 
 export interface IVerifyBookRoom {

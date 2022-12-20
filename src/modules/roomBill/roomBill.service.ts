@@ -232,7 +232,7 @@ export default class RoomBillService {
   public async createRoomBill(data: ICreateRoomBill, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const codeVerify = uuidv4();
+      // const codeVerify = uuidv4();
       const newRoomBill = await this.roomBillsModel.create(
         {
           userId: data?.userId,
@@ -245,7 +245,12 @@ export default class RoomBillService {
           phoneNumber: data?.phoneNumber,
           firstName: data?.firstName,
           lastName: data?.lastName,
-          verifyCode: codeVerify,
+          bankName: data?.bankName,
+          bankAccountName: data?.bankAccountName,
+          bankNumber: data?.bankNumber,
+          accountExpirationDate: data?.accountExpirationDate,
+          deposit: data?.deposit,
+          verifyCode: null,
           expiredDate: moment().add(process.env.MAXAGE_TOKEN_ACTIVE, "hours").toDate(),
         },
         {
@@ -274,23 +279,28 @@ export default class RoomBillService {
       this.roomBillDetailsModel.bulkCreate(roomBillDetails, {
         transaction: t,
       });
+      
+      await t.commit();
+      return res.onSuccess(newRoomBill, {
+        message: res.locals.t("room_bill_create_success"),
+      });
       //email
-      const emailRes = await EmailService.sendConfirmBookRoom(
-        data?.userMail,
-        `${process.env.SITE_URL}/book/verifyBookRoom?code=${newRoomBill.verifyCode}&billId=${newRoomBill.id}`
-      );
-      if (emailRes.isSuccess) {
-        await t.commit();
-        return res.onSuccess(newRoomBill, {
-          message: res.locals.t("room_bill_create_success"),
-        });
-      } else {
-        await t.rollback();
-        return res.onError({
-          status: 500,
-          detail: "email_sending_failed",
-        });
-      }
+      // const emailRes = await EmailService.sendConfirmBookRoom(
+      //   data?.userMail,
+      //   `${process.env.SITE_URL}/book/verifyBookRoom?code=${newRoomBill.verifyCode}&billId=${newRoomBill.id}`
+      // );
+      // if (emailRes.isSuccess) {
+      //   await t.commit();
+      //   return res.onSuccess(newRoomBill, {
+      //     message: res.locals.t("room_bill_create_success"),
+      //   });
+      // } else {
+      //   await t.rollback();
+      //   return res.onError({
+      //     status: 500,
+      //     detail: "email_sending_failed",
+      //   });
+      // }
     } catch (error) {
       await t.rollback();
       return res.onError({
@@ -395,6 +405,39 @@ export default class RoomBillService {
       }
     } catch (error) {
       await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+  /**
+   * Cancel room bill
+   */
+  public async cancelRoomBill(billId: number, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const detailRoomBills = await this.roomBillsModel.findAll({
+        where: {
+          id: billId,
+        },
+      });
+      const detailIds = detailRoomBills.map(item=>item?.id)
+      await this.roomBillDetailsModel.destroy({
+        where: {
+          id: detailIds,
+        },
+      });
+      await this.roomBillsModel.destroy({
+        where: {
+          id: billId,
+        },
+      });
+      await t.commit();
+      return res.onSuccess("Cancel successfully", {
+        message: res.locals.t("Cancel successfully"),
+      });
+    } catch (error) {
       return res.onError({
         status: 500,
         detail: error,

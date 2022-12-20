@@ -138,7 +138,7 @@ export default class TourBillService {
       // tour bill
       const discount = data?.discount || 0;
       const totalBill = (data.amount * data.price * (100 - discount)) / 100;
-      const codeVerify = uuidv4();
+      // const codeVerify = uuidv4();
 
       const newTourBill = await this.tourBillsModel.create(
         {
@@ -152,7 +152,12 @@ export default class TourBillService {
           phoneNumber: data?.phoneNumber,
           firstName: data?.firstName,
           lastName: data?.lastName,
-          verifyCode: codeVerify,
+          bankName: data?.bankName,
+          bankAccountName: data?.bankAccountName,
+          bankNumber: data?.bankNumber,
+          accountExpirationDate: data?.accountExpirationDate,
+          deposit: data?.deposit,
+          verifyCode: null,
           expiredDate: moment().add(process.env.MAXAGE_TOKEN_ACTIVE, "hours").toDate(),
         },
         {
@@ -160,23 +165,27 @@ export default class TourBillService {
         }
       );
 
+      await t.commit();
+      return res.onSuccess(newTourBill, {
+        message: res.locals.t("tour_bill_create_success"),
+      });
       //email
-      const emailRes = await EmailService.sendConfirmBookTour(
-        data?.userMail,
-        `${process.env.SITE_URL}/book/verifyBookTour?code=${newTourBill.verifyCode}&billId=${newTourBill.id}`
-      );
-      if (emailRes.isSuccess) {
-        await t.commit();
-        return res.onSuccess(newTourBill, {
-          message: res.locals.t("tour_bill_create_success"),
-        });
-      } else {
-        await t.rollback();
-        return res.onError({
-          status: 500,
-          detail: "email_sending_failed",
-        });
-      }
+      // const emailRes = await EmailService.sendConfirmBookTour(
+      //   data?.userMail,
+      //   `${process.env.SITE_URL}/book/verifyBookTour?code=${newTourBill.verifyCode}&billId=${newTourBill.id}`
+      // );
+      // if (emailRes.isSuccess) {
+      //   await t.commit();
+      //   return res.onSuccess(newTourBill, {
+      //     message: res.locals.t("tour_bill_create_success"),
+      //   });
+      // } else {
+      //   await t.rollback();
+      //   return res.onError({
+      //     status: 500,
+      //     detail: "email_sending_failed",
+      //   });
+      // }
     } catch (error) {
       await t.rollback();
       return res.onError({
@@ -225,6 +234,29 @@ export default class TourBillService {
       }
     } catch (error) {
       await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Cancel tour bill
+   */
+  public async cancelTourBill(billId: number, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      await this.tourBillsModel.destroy({
+        where: {
+          id: billId,
+        },
+      });
+      await t.commit();
+      return res.onSuccess("Cancel successfully", {
+        message: res.locals.t("Cancel successfully"),
+      });
+    } catch (error) {
       return res.onError({
         status: 500,
         detail: error,

@@ -30,6 +30,11 @@ export default class RoomBillValidation {
         }),
         firstName: yup.string(),
         lastName: yup.string(),
+        bankName: yup.string(),
+        bankAccountName: yup.string(),
+        bankNumber: yup.string(),
+        accountExpirationDate: yup.date(),
+        deposit: yup.number(),
       })
       .noUnknown()
       .required();

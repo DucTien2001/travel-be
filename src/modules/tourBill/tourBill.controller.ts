@@ -87,4 +87,16 @@ export default class UserController {
       });
     }
   }
+  
+  static cancelTourBill(req: Request, res: Response) {
+    try {
+      const { billId } = req.params;
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.cancelTourBill(Number(billId), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }
