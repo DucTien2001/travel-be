@@ -1,5 +1,5 @@
 import Container, { Inject, Service } from "typedi";
-import { ICreateRoomBill, IGetHotelsRevenueByMonth, IGetHotelsRevenueByYear, IVerifyBookRoom } from "./roomBill.models";
+import { ICreateRoomBill, IGetBillsAnyRoom, IGetHotelsRevenueByMonth, IGetHotelsRevenueByYear, IVerifyBookRoom } from "./roomBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
 import moment from "moment";
@@ -74,6 +74,60 @@ export default class RoomBillService {
         allBills.push({
           ...item?.dataValues,
         });
+      });
+      return res.onSuccess(allBills, {
+        message: res.locals.t("get_all_room_bills_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Get all room bill of any room and date
+   */
+  public async getAllRoomBillsAnyDate(data: IGetBillsAnyRoom, res: Response) {
+    try {
+      const bills = await this.roomBillsModel.findAll({
+        where: {
+          hotelId: data.hotelId,
+        },
+        include: [
+          {
+            association: "hotelInfo",
+          },
+          {
+            association: "roomBillDetail",
+          },
+          {
+            association: "userInfo",
+          },
+        ],
+      });
+      if (!bills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+      const allBills: any[] = [];
+      const dateRequest = new Date(data.date);
+      const date = dateRequest.getDate();
+      const month = dateRequest.getMonth();
+      const year = dateRequest.getFullYear();
+      bills.map((item) => {
+        const dateCreated = new Date(item?.createdAt);
+        const createDate = dateCreated.getDate();
+        const createMonth = dateCreated.getMonth();
+        const createYear = dateCreated.getFullYear();
+        if (date === createDate && month === createMonth && year === createYear) {
+          allBills.push({
+            ...item?.dataValues,
+          });
+        }
       });
       return res.onSuccess(allBills, {
         message: res.locals.t("get_all_room_bills_success"),
@@ -232,7 +286,7 @@ export default class RoomBillService {
   public async createRoomBill(data: ICreateRoomBill, res: Response) {
     const t = await sequelize.transaction();
     try {
-      // const codeVerify = uuidv4();
+      const codeVerify = uuidv4();
       const newRoomBill = await this.roomBillsModel.create(
         {
           userId: data?.userId,
@@ -250,7 +304,7 @@ export default class RoomBillService {
           bankNumber: data?.bankNumber,
           accountExpirationDate: data?.accountExpirationDate,
           deposit: data?.deposit,
-          verifyCode: null,
+          verifyCode: codeVerify,
           expiredDate: moment().add(process.env.MAXAGE_TOKEN_ACTIVE, "hours").toDate(),
         },
         {
@@ -269,6 +323,7 @@ export default class RoomBillService {
         roomBillDetails.push({
           billId: newRoomBill.id,
           roomId: room.roomId,
+          title: room.title,
           amount: room.amount,
           discount: room.discount,
           price: room.price,
@@ -279,7 +334,7 @@ export default class RoomBillService {
       await this.roomBillDetailsModel.bulkCreate(roomBillDetails, {
         transaction: t,
       });
-      
+
       await t.commit();
       return res.onSuccess(newRoomBill, {
         message: res.locals.t("room_bill_create_success"),
@@ -325,12 +380,12 @@ export default class RoomBillService {
           detail: res.locals.t("room_bill_not_found"),
         });
       }
-      if (!bill.verifyCode) {
-        return res.onError({
-          status: 404,
-          detail: res.locals.t("room_bill_was_verified"),
-        });
-      }
+      // if (!bill.verifyCode) {
+      //   return res.onError({
+      //     status: 404,
+      //     detail: res.locals.t("room_bill_was_verified"),
+      //   });
+      // }
 
       if (new Date() < new Date(bill?.expiredDate)) {
         const roomsOfBill = await this.roomBillDetailsModel.findAll({
@@ -422,7 +477,7 @@ export default class RoomBillService {
           id: billId,
         },
       });
-      const detailIds = detailRoomBills.map(item=>item?.id)
+      const detailIds = detailRoomBills.map((item) => item?.id);
       await this.roomBillDetailsModel.destroy({
         where: {
           id: detailIds,

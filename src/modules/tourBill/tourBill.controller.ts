@@ -39,6 +39,18 @@ export default class UserController {
       });
     }
   }
+  
+  static getAllTourBillsAnyDate(req: Request, res: Response) {
+    try {
+      const value = TourBillValidation.getAllTourBillsAnyDate(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.getAllTourBillsAnyDate(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 
   static createTourBill(req: Request, res: Response) {
     try {

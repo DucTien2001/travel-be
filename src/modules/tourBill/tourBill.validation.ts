@@ -63,4 +63,15 @@ export default class TourBillValidation {
       .required();
     return schema.validateSync(req.body);
   }
+  
+  static getAllTourBillsAnyDate(req: Request) {
+    const schema = yup
+      .object({
+        tourIds: yup.array().of(yup.number()),
+        date: yup.date(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
 }

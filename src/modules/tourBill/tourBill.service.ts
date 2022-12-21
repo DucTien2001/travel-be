@@ -1,5 +1,11 @@
 import Container, { Inject, Service } from "typedi";
-import { ICreateTourBill, IGetToursRevenueByMonth, IGetToursRevenueByYear, IVerifyBookTour } from "./tourBill.models";
+import {
+  ICreateTourBill,
+  IGetAllTourBillsAnyDate,
+  IGetToursRevenueByMonth,
+  IGetToursRevenueByYear,
+  IVerifyBookTour,
+} from "./tourBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
 import { v4 as uuidv4 } from "uuid";
@@ -60,7 +66,7 @@ export default class TourBillService {
           detail: "not_found",
         });
       }
-      const allBills: any[] = []
+      const allBills: any[] = [];
       bills.map((item) => {
         if (!item?.verifyCode || new Date().getTime() < new Date(item?.expiredDate).getTime()) {
           allBills.push({
@@ -101,6 +107,54 @@ export default class TourBillService {
       const allBills: any[] = [];
       bills.map((item) => {
         if (!item?.verifyCode || new Date().getTime() < new Date(item?.expiredDate).getTime()) {
+          allBills.push({
+            ...item?.dataValues,
+          });
+        }
+      });
+      return res.onSuccess(allBills, {
+        message: res.locals.t("get_all_tour_bills_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Get all tour bills of any date
+   */
+  public async getAllTourBillsAnyDate(data: IGetAllTourBillsAnyDate, res: Response) {
+    try {
+      const listTourBills = await this.tourBillsModel.findAll({
+        where: {
+          tourId: {
+            [Op.or]: data.tourIds,
+          },
+        },
+        include: {
+          association: "tourInfo",
+        },
+      });
+      if (!listTourBills) {
+        return res.onError({
+          status: 404,
+          detail: "Not found",
+        });
+      }
+      const allBills: any[] = [];
+      const dateRequest = new Date(data.date);
+      const date = dateRequest.getDate();
+      const month = dateRequest.getMonth();
+      const year = dateRequest.getFullYear();
+      listTourBills.map((item) => {
+        const dateCreated = new Date(item?.createdAt);
+        const createDate = dateCreated.getDate();
+        const createMonth = dateCreated.getMonth();
+        const createYear = dateCreated.getFullYear();
+        if (date === createDate && month === createMonth && year === createYear) {
           allBills.push({
             ...item?.dataValues,
           });

@@ -40,3 +40,8 @@ export interface IGetHotelsRevenueByYear {
   hotelIds: number[];
   year: number;
 }
+
+export interface IGetBillsAnyRoom {
+  hotelId: string;
+  date: Date;
+}

@@ -75,6 +75,18 @@ export default class RoomBillController {
       });
     }
   }
+
+  static getAllRoomBillsAnyDate(req: Request, res: Response) {
+    try {
+      const value = RoomBillValidation.getAllRoomBillsAnyDate(req);
+      const RoomBillServiceI = Container.get(RoomBillService);
+      RoomBillServiceI.getAllRoomBillsAnyDate(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
   
   static getRevenueOfHotelsByMonth(req: Request, res: Response) {
     try {

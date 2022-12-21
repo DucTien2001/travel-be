@@ -6,6 +6,7 @@ export interface RoomBillDetailAttributes extends Model {
   id: number;
   billId: number;
   roomId: string;
+  title: string;
   amount: number;
   discount: number;
   price: number;
@@ -33,6 +34,10 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillDetai
       roomId: {
         allowNull: false,
         type: DataTypes.INTEGER,
+      },
+      title: {
+        allowNull: false,
+        type: DataTypes.STRING,
       },
       amount: {
         allowNull: false,

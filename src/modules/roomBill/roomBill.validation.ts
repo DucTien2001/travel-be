@@ -52,6 +52,17 @@ export default class RoomBillValidation {
     return schema.validateSync(req.body);
   }
   
+  static getAllRoomBillsAnyDate(req: Request) {
+    const schema = yup
+      .object({
+        hotelId: yup.number(),
+        date: yup.date(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+  
   static getRevenueOfHotelsByMonth(req: Request) {
     const schema = yup
       .object({
