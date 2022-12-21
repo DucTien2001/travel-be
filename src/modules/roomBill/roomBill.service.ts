@@ -276,7 +276,7 @@ export default class RoomBillService {
           totalPrice: room.totalPrice,
         });
       });
-      this.roomBillDetailsModel.bulkCreate(roomBillDetails, {
+      await this.roomBillDetailsModel.bulkCreate(roomBillDetails, {
         transaction: t,
       });
       
