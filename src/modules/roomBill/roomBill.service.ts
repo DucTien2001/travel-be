@@ -478,7 +478,6 @@ export default class RoomBillService {
         },
       });
       const detailIds = detailRoomBills.map((item) => item?.id);
-      console.log(detailIds, "=======detailIds=====")
       await this.roomBillDetailsModel.destroy({
         where: {
           id: detailIds,
