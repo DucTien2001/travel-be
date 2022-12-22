@@ -472,12 +472,13 @@ export default class RoomBillService {
   public async cancelRoomBill(billId: number, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const detailRoomBills = await this.roomBillsModel.findAll({
+      const detailRoomBills = await this.roomBillDetailsModel.findAll({
         where: {
-          id: billId,
+          billId: billId,
         },
       });
       const detailIds = detailRoomBills.map((item) => item?.id);
+      console.log(detailIds, "=======detailIds=====")
       await this.roomBillDetailsModel.destroy({
         where: {
           id: detailIds,
