@@ -5,6 +5,7 @@ export interface ICreateRoomBill {
   rooms: {
     roomId: string;
     amount: string;
+    title: string;
     discount: number;
     price: number;
     bookedDate?: Date;
