@@ -1,22 +1,22 @@
-import { Router } from 'express';
+// import { Router } from 'express';
 
-import { mainRouter } from 'modules/index';
+// import { mainRouter } from 'modules/index';
 
-export const restRouter = Router(); 
+// export const restRouter = Router(); 
 
-const initWebRoutes = (app: any) => {
-  // router.get("/", homeController.getHomePage);
-  // router.get("/about", homeController.getAboutPage);
+// const initWebRoutes = (app: any) => {
+//   // router.get("/", homeController.getHomePage);
+//   // router.get("/about", homeController.getAboutPage);
 
-  // // ====== USER ======
-  // router.post("/api/login", userController.handleLogin);
-  // router.post("/api/register", userController.handleRegister);
+//   // // ====== USER ======
+//   // router.post("/api/login", userController.handleLogin);
+//   // router.post("/api/register", userController.handleRegister);
 
-  // // ====== TOUR ======
-  // router.post("/api/tour/create-tour", tourController.handleCreateNewTour);
-  restRouter.use("/v1.0", mainRouter)
+//   // // ====== TOUR ======
+//   // router.post("/api/tour/create-tour", tourController.handleCreateNewTour);
+//   restRouter.use("/v1.0", mainRouter)
 
-  return app.use("/api", restRouter);
-};
+//   return app.use("/api", restRouter);
+// };
 
-export default initWebRoutes
+// export default initWebRoutes
