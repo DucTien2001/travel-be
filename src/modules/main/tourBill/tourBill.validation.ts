@@ -1,28 +1,17 @@
 import * as yup from "yup";
 import { Request } from "express";
-import { VALIDATION } from "../../config/constants";
+import { VALIDATION } from "config/constants";
 
-export default class RoomBillValidation {
-  static createRoomBill(req: Request) {
+export default class TourBillValidation {
+  static createTourBill(req: Request) {
     const schema = yup
       .object({
         userId: yup.number(),
-        hotelId: yup.number(),
         userMail: yup.string().email(),
-        rooms: yup.array(
-          yup.object({
-            roomId: yup.number(),
-            amount: yup.number(),
-            discount: yup.string(),
-            price: yup.string(),
-            bookedDates: yup.string(),
-            totalPrice: yup.number(),
-          })
-        ),
-        startDate: yup.string(),
-        endDate: yup.string(),
-        bookedDates: yup.string().nullable(),
-        totalBill: yup.number(),
+        tourId: yup.number(),
+        amount: yup.number(),
+        price: yup.number(),
+        discount: yup.number(),
         email: yup.string().email(),
         phoneNumber: yup.string().matches(VALIDATION.phone, {
           message: req.t("field_phone_number_vali_phone"),
@@ -41,7 +30,7 @@ export default class RoomBillValidation {
     return schema.validateSync(req.body);
   }
   
-  static verifyBookRoom(req: Request) {
+  static verifyBookTour(req: Request) {
     const schema = yup
       .object({
         code: yup.string(),
@@ -52,21 +41,10 @@ export default class RoomBillValidation {
     return schema.validateSync(req.body);
   }
   
-  static getAllRoomBillsAnyDate(req: Request) {
+  static getRevenueOfToursByMonth(req: Request) {
     const schema = yup
       .object({
-        hotelId: yup.number(),
-        date: yup.date(),
-      })
-      .noUnknown()
-      .required();
-    return schema.validateSync(req.body);
-  }
-  
-  static getRevenueOfHotelsByMonth(req: Request) {
-    const schema = yup
-      .object({
-        hotelIds: yup.array().of(yup.number()),
+        tourIds: yup.array().of(yup.number()),
         month: yup.number(),
         year: yup.number(),
       })
@@ -75,11 +53,22 @@ export default class RoomBillValidation {
     return schema.validateSync(req.body);
   }
   
-  static getRevenueOfHotelsByYear(req: Request) {
+  static getRevenueOfToursByYear(req: Request) {
     const schema = yup
       .object({
-        hotelIds: yup.array().of(yup.number()),
+        tourIds: yup.array().of(yup.number()),
         year: yup.number(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+  
+  static getAllTourBillsAnyDate(req: Request) {
+    const schema = yup
+      .object({
+        tourIds: yup.array().of(yup.number()),
+        date: yup.date(),
       })
       .noUnknown()
       .required();

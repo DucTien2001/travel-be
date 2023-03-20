@@ -2,6 +2,7 @@ import database from "database/models";
 import { Container } from "typedi";
 
 export default () => {
+  Container.set('attachmentsModel', database.attachments);
   Container.set("usersModel", database.users);
   Container.set("verifyCodesModel", database.verify_codes);
   Container.set("toursModel", database.tours);
@@ -13,5 +14,9 @@ export default () => {
   Container.set("roomOtherPricesModel", database.room_other_prices);
   Container.set("checkRoomsModel", database.check_rooms);
   Container.set("tourCommentsModel", database.tour_comments);
+  Container.set("tourOnSalesModel", database.tour_on_sales);
+  Container.set("tourPricesModel", database.tour_prices);
+  Container.set("tourSchedulesModel", database.tour_schedules);
   Container.set("hotelCommentsModel", database.hotel_comments);
+  Container.set("policiesModel", database.policies);
 };

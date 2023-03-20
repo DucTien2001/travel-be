@@ -1,3 +1,9 @@
+export interface FindAll {
+  take: number;
+  page: number;
+  keyword?: string;
+}
+
 export interface ITour {
   title: string;
   description: string;

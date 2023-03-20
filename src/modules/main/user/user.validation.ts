@@ -1,6 +1,6 @@
 import * as yup from "yup";
 import { Request } from "express";
-import { VALIDATION } from "../../config/constants";
+import { VALIDATION } from "config/constants";
 
 export default class UserValidation {
   static login(req: Request) {

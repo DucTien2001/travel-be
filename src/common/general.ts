@@ -11,13 +11,38 @@ export enum SEQUELIZE_SYNC {
 }
 
 export enum ETypeUser {
-  ADMIN = 1,
-  ENTERPRISE = 2,
-  USER = 3,
+  SUPER_ADMIN = 1,
+  ADMIN = 2,
+  ENTERPRISE = 3,
+  STAFF = 4,
+  USER = 5,
 }
 
 export enum ETypeVerifyCode {
   VERIFY_EMAIL = 1,
   RESET_PASSWORD = 2,
   FORGOT_PASSWORD = 3
+}
+
+export enum LANG {
+  VI = 'vi',
+  EN = 'en'
+}
+
+export enum AttachmentObjectTypeId {
+  PROJECT_REPORT = 1,
+  PROJECT_INVOICE_DEMO = 2,
+  SOLUTION_HOW_TO_SET_UP = 3,
+  CONFIG = 4,
+  VIDEO = 5
+}
+
+export enum EServiceType {
+  TOUR = 1,
+  HOTEL = 2
+}
+
+export enum EServicePolicyType {
+  RESCHEDULE = 1,
+  REFUND = 2
 }

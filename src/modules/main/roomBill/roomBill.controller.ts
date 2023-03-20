@@ -56,7 +56,7 @@ export default class RoomBillController {
     try {
       const value = RoomBillValidation.createRoomBill(req);
       const RoomBillServiceI = Container.get(RoomBillService);
-      RoomBillServiceI.createRoomBill(value, res);
+      // RoomBillServiceI.createRoomBill(value, res);
     } catch (error) {
       return res.onError({
         detail: error,

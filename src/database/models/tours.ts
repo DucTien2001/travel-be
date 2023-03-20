@@ -1,23 +1,31 @@
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
+import { LANG } from "common/general";
 
 export interface TourAttributes extends Model {
   dataValues: object;
   id: number;
   title: string;
-  description: string;
-  businessHours: string;
-  location: string;
+  images: string[];
+  quantity: number;
+  numberOfDays: number;
+  numberOfNights: number;
+  city: string;
+  district: string;
+  commune: string;
+  moreLocation: string;
   contact: string;
-  price: number;
-  discount: number;
-  tags: string;
-  images: string;
-  rate: number;
+  description: string;
+  suitablePerson: string;
+  highlight: string;
+  termsAndCondition: string;
   numberOfReviewer: number;
+  rate: number;
+  policyId: number;
   creator: number;
-  isTemporarilyStopWorking: boolean;
   isDeleted: boolean;
+  parentLanguage: number;
+  language: string;
   createdAt: Date,
   updatedAt: Date,
   deletedAt: Date,
@@ -39,35 +47,64 @@ export default (
         allowNull: false,
         type: DataTypes.STRING,
       },
+      images: {
+        type: DataTypes.TEXT({ length: 'long' }),
+        get() {
+            return JSON.parse(this.getDataValue('images') || "[]");
+        },
+        set(value: any) {
+            this.setDataValue('images', JSON.stringify(value || []));
+        }
+      },
+      quantity: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      numberOfDays: {
+        type: DataTypes.INTEGER,
+      },
+      numberOfNights: {
+        type: DataTypes.INTEGER,
+      },
+      city: {
+        type: DataTypes.STRING,
+      },
+      district: {
+        type: DataTypes.STRING,
+      },
+      commune: {
+        type: DataTypes.STRING,
+      },
+      moreLocation: {
+        type: DataTypes.STRING,
+      },
+      contact: {
+        type: DataTypes.STRING,
+      },
       description: {
         allowNull: false,
         type: DataTypes.TEXT,
       },
-      businessHours: {
+      suitablePerson: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
+        get() {
+            return JSON.parse(this.getDataValue('suitablePerson') || "[]");
+        },
+        set(value: any) {
+            this.setDataValue('suitablePerson', JSON.stringify(value || []));
+        }
       },
-      location: {
+      highlight: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
       },
-      contact: {
+      termsAndCondition: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
       },
-      price: {
-        allowNull: false,
-        type: DataTypes.DOUBLE,
-      },
-      discount: {
-        allowNull: false,
-        type: DataTypes.DOUBLE,
-      },
-      tags: {
-        type: DataTypes.STRING,
-      },
-      images: {
-        type: DataTypes.STRING,
+      policyId: {
+        type: DataTypes.INTEGER,
       },
       rate: {
         defaultValue: 0,
@@ -81,22 +118,29 @@ export default (
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      isTemporarilyStopWorking: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
       isDeleted: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      parentLanguage: {
+          type: DataTypes.INTEGER
+      },
+      language: {
+          type: DataTypes.STRING,
+          comment: `VietNam: ${LANG.VI}, English: ${LANG.EN}`
+      }
     },
     {
       paranoid: true,
     }
   );
   tours.associate = (models: { [key: string]: any }) => {
+    tours.hasMany(models.tours, {
+      as: 'languages',
+      foreignKey: 'parentLanguage',
+      constraints: false
+    })
     tours.belongsTo(models.users, {
       as: 'belongToUser',
       foreignKey: 'creator',
@@ -105,6 +149,11 @@ export default (
     tours.hasMany(models.tour_bills, {
       as: 'bookedTour',
       foreignKey: 'tourId',
+      constraints: false
+    });
+    tours.hasMany(models.policies, {
+      as: 'policies',
+      foreignKey: 'policyId',
       constraints: false
     });
   };

@@ -1,0 +1,10 @@
+import { Router } from "express";
+import { staff } from "middlewares";
+import Controller from "./tour.controller";
+
+export const router = Router();
+
+router
+	.route("/")
+		.get(staff, Controller.findAll)
+		.post(staff, Controller.create);

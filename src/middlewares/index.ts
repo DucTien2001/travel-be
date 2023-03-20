@@ -1,23 +1,47 @@
 import passport from "passport";
-// import { Request, Response, NextFunction } from 'express';
-// import { EAdminType } from 'models/general';
+import { Request, Response, NextFunction } from 'express';
+import { ETypeUser } from "common/general";
 
-// const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-//   if (![EAdminType.ADMIN, EAdminType.SUPER_ADMIN].includes(req.user?.adminTypeId || 0)) {
-//     return res.onError({
-//       status: 401,
-//       detail: "The user is not an administrator"
-//     });
-//   }
-//   next();
-// };
+const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (![ETypeUser.ADMIN, ETypeUser.SUPER_ADMIN].includes(req.user?.role || 0)) {
+    return res.onError({
+      status: 401,
+      detail: "The user is not an administrator"
+    });
+  }
+  next();
+};
+
+const isEnterprise = (req: Request, res: Response, next: NextFunction) => {
+  if (![ETypeUser.ENTERPRISE].includes(req.user?.role || 0)) {
+    return res.onError({
+      status: 401,
+      detail: "The user is not an enterprise"
+    });
+  }
+  next();
+};
+
+const isStaff = (req: Request, res: Response, next: NextFunction) => {
+  if (![ETypeUser.ENTERPRISE, ETypeUser.STAFF].includes(req.user?.role || 0)) {
+    return res.onError({
+      status: 401,
+      detail: "The user is not a staff"
+    });
+  }
+  next();
+};
 
 export const auth = passport.authenticate('jwt', { session: false })
 
 
-// export const admin = [auth, isAdmin]
+export const admin = [auth, isAdmin]
+export const enterprise = [auth, isEnterprise]
+export const staff = [auth, isStaff]
 
 export default {
   auth,
-  // admin
+  admin,
+  enterprise,
+  staff
 };

@@ -1,1 +1,0 @@
-export { tourRouter } from './tour.route'

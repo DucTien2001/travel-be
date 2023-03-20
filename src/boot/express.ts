@@ -18,7 +18,7 @@ import { NODE_ENV, SEQUELIZE_SYNC } from 'common/general';
 import database from 'database/models';
 import ResponseHelper from 'helper/response';
 // import TranslationController from 'modules/main/translation/translation.controller';
-// import initConfigs from 'middlewares/configs';
+import initConfigs from 'middlewares/configs';
 
 setDI()
 
@@ -54,7 +54,7 @@ app.use('/static', express.static(path.join(__dirname, "../../static")));
 
 app.use(i18nextMiddleware.handle(i18next))
 
-// app.use(initConfigs)
+app.use(initConfigs)
 
 // app.use(TranslationController.getLocale)
 
