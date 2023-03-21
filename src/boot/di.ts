@@ -3,6 +3,7 @@ import { Container } from "typedi";
 
 export default () => {
   Container.set('attachmentsModel', database.attachments);
+  Container.set('configsModel', database.configs);
   Container.set("usersModel", database.users);
   Container.set("verifyCodesModel", database.verify_codes);
   Container.set("toursModel", database.tours);
