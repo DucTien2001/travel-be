@@ -15,7 +15,6 @@ export default class TourService {
     try {
       let whereOptions: WhereOptions = {
         parentLanguage: null,
-        isTemporarilyStopWorking: false,
         isDeleted: false,
       }
 
@@ -51,17 +50,16 @@ export default class TourService {
   
   public async create(data: Create, files: Express.Multer.File[], user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
-    let fileUploadeds: FileUploaded[] = []
     try {
-      const image = (await FileService.uploadAttachments([(files || []).find(temp => temp.fieldname === 'image')]))[0]
-      if (!image) {
+      const images = await FileService.uploadAttachments([...files])
+      if (!images?.length) {
         await t.rollback()
         return res.onError({
           status: 400,
           detail: 'Image is required'
         })
       }
-      fileUploadeds = fileUploadeds.concat(image)
+      const imageUrls = images?.map((image) => image?.url)
 
       const newTour = await this.toursModel.create(
         {
@@ -69,7 +67,7 @@ export default class TourService {
           quantity: data?.quantity,
           numberOfDays: data?.numberOfDays || "",
           numberOfNights: data?.numberOfNights,
-          images: image?.url,
+          images: imageUrls,
           contact: data?.contact,
           city: data?.city || "",
           district: data?.district || "",

@@ -11,8 +11,7 @@ export default class Validation {
         .min(1)
         .integer()
         .default(1),
-      keyword: yup.string(),
-      categoryId: yup.number()
+      keyword: yup.string()
     })
       .noUnknown()
     return schema.validateSync(req.query)
