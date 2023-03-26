@@ -7,7 +7,6 @@ export interface TourAttributes extends Model {
   id: number;
   title: string;
   images: string[];
-  quantity: number;
   numberOfDays: number;
   numberOfNights: number;
   city: string;
@@ -23,6 +22,7 @@ export interface TourAttributes extends Model {
   rate: number;
   policyId: number;
   creator: number;
+  owner: number;
   isDeleted: boolean;
   parentLanguage: number;
   language: string;
@@ -55,10 +55,6 @@ export default (
         set(value: any) {
             this.setDataValue('images', JSON.stringify(value || []));
         }
-      },
-      quantity: {
-        allowNull: false,
-        type: DataTypes.INTEGER,
       },
       numberOfDays: {
         type: DataTypes.INTEGER,
@@ -118,6 +114,10 @@ export default (
         allowNull: false,
         type: DataTypes.INTEGER,
       },
+      owner: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
       isDeleted: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
@@ -142,8 +142,13 @@ export default (
       constraints: false
     })
     tours.belongsTo(models.users, {
-      as: 'belongToUser',
+      as: 'tourCreator',
       foreignKey: 'creator',
+      constraints: false
+    });
+    tours.belongsTo(models.users, {
+      as: 'tourOwner',
+      foreignKey: 'owner',
       constraints: false
     });
     tours.hasMany(models.tour_bills, {

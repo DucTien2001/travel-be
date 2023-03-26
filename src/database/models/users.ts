@@ -13,6 +13,7 @@ export interface UserAttributes extends Model {
   lastName: string;
   address: string;
   phoneNumber: string;
+  enterpriseId: number;
   isDeleted: boolean;
   isVerified: boolean;
   createdAt: Date,
@@ -61,6 +62,9 @@ export default (
       phoneNumber: {
         type: DataTypes.STRING,
       },
+      enterpriseId: {
+        type: DataTypes.INTEGER,
+      },
       isDeleted: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
@@ -77,6 +81,11 @@ export default (
     }
   );
   users.associate = (models: { [key: string]: any }) => {
+    users.hasMany(models.users, {
+      as: 'staff',
+      foreignKey: 'enterpriseId',
+      constraints: false
+    });
     users.hasMany(models.tours, {
       as: 'ownTours',
       foreignKey: 'creator',
