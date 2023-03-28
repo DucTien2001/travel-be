@@ -159,13 +159,6 @@ export default class TourService {
         await FileService.deleteFiles(data.imagesDeleted);
       }
       const images = await FileService.uploadAttachments([...files]);
-      if (!images?.length) {
-        await t.rollback();
-        return res.onError({
-          status: 400,
-          detail: "Image is required",
-        });
-      }
       const imageUrls = images?.map((image) => image?.url);
 
       const tour = await this.toursModel.findOne({
