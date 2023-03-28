@@ -64,12 +64,30 @@ export default (
       },
       city: {
         type: DataTypes.STRING,
+        get() {
+          return JSON.parse(this.getDataValue('city') || '{}');
+        },
+        set(value: any) {
+          this.setDataValue('city', JSON.stringify(value || {}));
+        }
       },
       district: {
         type: DataTypes.STRING,
+        get() {
+          return JSON.parse(this.getDataValue('district') || '{}');
+        },
+        set(value: any) {
+          this.setDataValue('district', JSON.stringify(value || {}));
+        }
       },
       commune: {
         type: DataTypes.STRING,
+        get() {
+          return JSON.parse(this.getDataValue('commune') || '{}');
+        },
+        set(value: any) {
+          this.setDataValue('commune', JSON.stringify(value || {}));
+        }
       },
       moreLocation: {
         type: DataTypes.STRING,
@@ -141,6 +159,11 @@ export default (
       foreignKey: 'parentLanguage',
       constraints: false
     })
+    tours.hasMany(models.tour_on_sales, {
+      as: 'tourOnSales',
+      foreignKey: 'tourId',
+      constraints: false
+    });
     tours.belongsTo(models.users, {
       as: 'tourCreator',
       foreignKey: 'creator',
