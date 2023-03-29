@@ -159,6 +159,11 @@ export default (
       foreignKey: 'parentLanguage',
       constraints: false
     })
+    tours.hasMany(models.tour_schedules, {
+      as: 'tourSchedules',
+      foreignKey: 'tourId',
+      constraints: false
+    });
     tours.hasMany(models.tour_on_sales, {
       as: 'tourOnSales',
       foreignKey: 'tourId',

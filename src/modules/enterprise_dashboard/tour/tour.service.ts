@@ -69,6 +69,13 @@ export default class TourService {
           {
             association: "languages",
           },
+          {
+            association: "tourOnSales",
+            include: [{ association: "prices" }],
+          },
+          {
+            association: "tourSchedules",
+          },
         ],
       });
 
