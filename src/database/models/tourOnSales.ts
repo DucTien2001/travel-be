@@ -62,6 +62,11 @@ export default (
       foreignKey: 'tourId',
       constraints: false
     });
+    tour_on_sales.hasMany(models.tour_prices, {
+      as: 'prices',
+      foreignKey: 'tourOnSaleId',
+      constraints: false
+    });
   };
   return tour_on_sales;
 };
