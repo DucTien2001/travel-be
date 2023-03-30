@@ -226,6 +226,8 @@ export default class TourService {
               suitablePerson: data?.suitablePerson,
               highlight: data?.highlight,
               termsAndCondition: data?.termsAndCondition,
+              parentLanguage: id,
+              language: data.language,
               rate: 0,
               creator: user?.id,
               owner: user.enterpriseId || user.id,
