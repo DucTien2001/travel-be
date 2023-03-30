@@ -8,13 +8,18 @@ export interface FindOne {
   language?: string;
 }
 
+export interface Ilocation {
+  id: number;
+  name: string;
+}
+
 export interface Create {
   title: string;
   numberOfDays: number;
   numberOfNights: number;
-  city: string;
-  district: string;
-  commune: string;
+  city: Ilocation;
+  district: Ilocation;
+  commune: Ilocation;
   moreLocation: string;
   contact: string;
   description: string;
@@ -27,9 +32,9 @@ export interface Update {
   title: string;
   numberOfDays: number;
   numberOfNights: number;
-  city: string;
-  district: string;
-  commune: string;
+  city: Ilocation;
+  district: Ilocation;
+  commune: Ilocation;
   moreLocation: string;
   contact: string;
   description: string;
@@ -37,6 +42,9 @@ export interface Update {
   highlight: string;
   termsAndCondition: string;
   language: string;
-  images: string[];
-  imagesDeleted: string[];
-}
+  images: string[];         // mảng url image cũ
+  imagesDeleted: string[];  // mảng url image bị xóa
+}                           // image add mới thì gửi append file theo formData giống như lúc create
+            // ví dụ ban đầu có 5 image: [1, 2, 3, 4, 5] và xóa đi image 2 và 4 thì:
+            // field images: [1, 3, 5]
+            // field imagesDeleted: [2, 4]

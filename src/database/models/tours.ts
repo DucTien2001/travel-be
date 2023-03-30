@@ -1,6 +1,7 @@
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 import { LANG } from "common/general";
+import { Ilocation } from "modules/enterprise_dashboard/tour/tour.models";
 
 export interface TourAttributes extends Model {
   dataValues: object;
@@ -9,9 +10,9 @@ export interface TourAttributes extends Model {
   images: string[];
   numberOfDays: number;
   numberOfNights: number;
-  city: string;
-  district: string;
-  commune: string;
+  city: Ilocation;
+  district: Ilocation;
+  commune: Ilocation;
   moreLocation: string;
   contact: string;
   description: string;

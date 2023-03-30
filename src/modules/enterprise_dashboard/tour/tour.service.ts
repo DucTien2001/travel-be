@@ -180,7 +180,7 @@ export default class TourService {
           detail: "Tour not found",
         });
       }
-      const newImageUrls = tour.images.concat(imageUrls);
+      const newImageUrls = data.images.concat(imageUrls);
 
       await this.toursModel.update(
         {
@@ -243,9 +243,9 @@ export default class TourService {
           tourLang.numberOfNights = data?.numberOfNights;
           tourLang.images = newImageUrls;
           tourLang.contact = data?.contact;
-          tourLang.city = data?.city || "";
-          tourLang.district = data?.district || "";
-          tourLang.commune = data?.commune || "";
+          tourLang.city = data?.city;
+          tourLang.district = data?.district;
+          tourLang.commune = data?.commune;
           tourLang.moreLocation = data?.moreLocation || "";
           tourLang.description = data?.description;
           tourLang.suitablePerson = data?.suitablePerson;
@@ -263,9 +263,9 @@ export default class TourService {
       tour.numberOfNights = data?.numberOfNights;
       tour.images = newImageUrls;
       tour.contact = data?.contact;
-      tour.city = data?.city || "";
-      tour.district = data?.district || "";
-      tour.commune = data?.commune || "";
+      tour.city = data?.city;
+      tour.district = data?.district;
+      tour.commune = data?.commune;
       tour.moreLocation = data?.moreLocation || "";
       tour.description = data?.description;
       tour.suitablePerson = data?.suitablePerson;
