@@ -77,8 +77,9 @@ export default class TourService {
           },
           {
             association: "tourSchedules",
+            required: false,
             where: {
-              language: data?.language
+              language: data?.language || null,
             }
           },
         ],
