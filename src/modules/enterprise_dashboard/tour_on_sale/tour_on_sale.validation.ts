@@ -9,6 +9,11 @@ export default class Validation {
         discount: yup.number(),
         quantity: yup.number(),
         startDate: yup.date(),
+        childrenAgeMin: yup.number(),
+        childrenAgeMax: yup.number(),
+        childrenPrice: yup.date(),
+        adultPrice: yup.number(),
+        currency: yup.string(),
       })
       .noUnknown()
       .required();
@@ -21,6 +26,11 @@ export default class Validation {
         discount: yup.number(),
         quantity: yup.number(),
         startDate: yup.date(),
+        childrenAgeMin: yup.number(),
+        childrenAgeMax: yup.number(),
+        childrenPrice: yup.date(),
+        adultPrice: yup.number(),
+        currency: yup.string(),
       })
       .noUnknown()
       .required();

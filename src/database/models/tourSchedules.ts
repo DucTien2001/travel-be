@@ -1,3 +1,4 @@
+import { LANG } from "common/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
@@ -6,9 +7,10 @@ export interface TourScheduleAttributes extends Model {
   id: number;
   tourId: number;
   day: number;
-  startTime: Date;
-  endTime: Date;
+  startTime: number;
+  endTime: number;
   description: string;
+  language: string;
   createdAt: Date,
   updatedAt: Date,
   deletedAt: Date,
@@ -36,15 +38,19 @@ export default (
       },
       startTime: {
         allowNull: false,
-        type: DataTypes.DATE,
+        type: DataTypes.INTEGER,
       },
       endTime: {
         allowNull: false,
-        type: DataTypes.DATE,
+        type: DataTypes.INTEGER,
       },
       description: {
         allowNull: false,
         type: DataTypes.TEXT,
+      },
+      language: {
+          type: DataTypes.STRING,
+          comment: `VietNam: ${LANG.VI}, English: ${LANG.EN}`
       }
     },
     {

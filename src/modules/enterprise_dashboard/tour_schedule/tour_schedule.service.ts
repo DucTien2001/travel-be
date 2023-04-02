@@ -1,7 +1,8 @@
 import { Inject, Service } from "typedi";
-import { CreateMultiple, CreateOne, Update } from "./tour_schedule.models";
+import { CreateMultiple, CreateOne, CreateOrUpdate, ISchedule, Update } from "./tour_schedule.models";
 import { Response } from "express";
 import { sequelize } from "database/models";
+import { LANG } from "common/general";
 
 @Service()
 export default class TourScheduleService {
@@ -66,6 +67,52 @@ export default class TourScheduleService {
     }
   }
 
+  public async createOrUpdate(data: CreateOrUpdate, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const dataCreate: ISchedule[] = [];
+      const dataUpdate: ISchedule[] = [];
+      data.schedule.forEach((item) => {
+        if (item?.id) {
+          dataUpdate.push({ ...item, tourId: data?.tourId, day: data?.day });
+        } else {
+          dataCreate.push({ ...item, tourId: data?.tourId, day: data?.day });
+          dataCreate.push({ ...item, tourId: data?.tourId, day: data?.day, language: LANG.VI });
+          dataCreate.push({ ...item, tourId: data?.tourId, day: data?.day, language: LANG.EN });
+        }
+      });
+      await this.tourSchedulesModel.bulkCreate(dataCreate);
+      await Promise.all(
+        dataUpdate.map(
+          async (item) =>
+            await this.tourSchedulesModel.update(
+              {
+                startTime: item?.startTime,
+                endTime: item?.endTime,
+                description: item?.description,
+              },
+              {
+                where: {
+                  id: item.id,
+                },
+                transaction: t,
+              }
+            )
+        )
+      );
+      await t.commit();
+      return res.onSuccess({
+        message: res.locals.t("common_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
   public async update(id: number, data: Update, res: Response) {
     const t = await sequelize.transaction();
     try {
@@ -111,9 +158,43 @@ export default class TourScheduleService {
           detail: res.locals.t("common_not_found"),
         });
       }
-      await schedule.destroy({ transaction: t })
+      await schedule.destroy({ transaction: t });
       await t.commit();
-      return res.onSuccess(schedule, {
+      return res.onSuccess({
+        message: res.locals.t("common_delete_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async deleteMultiple(tourId: number, day: number, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const schedule = await this.tourSchedulesModel.findAll({
+        where: {
+          tourId: tourId,
+          day: day,
+        },
+      });
+      if (!schedule.length) {
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("common_not_found"),
+        });
+      }
+      const ids = schedule.map((item) => item.id);
+      await this.tourSchedulesModel.destroy({
+        where: {
+          id: ids,
+        },
+      });
+      await t.commit();
+      return res.onSuccess({
         message: res.locals.t("common_delete_success"),
       });
     } catch (error) {

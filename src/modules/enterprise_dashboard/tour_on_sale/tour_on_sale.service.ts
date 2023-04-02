@@ -5,7 +5,10 @@ import { sequelize } from "database/models";
 
 @Service()
 export default class TourOnSaleService {
-  constructor(@Inject("tourOnSalesModel") private tourOnSalesModel: ModelsInstance.TourOnSales) {}
+  constructor(
+    @Inject("tourOnSalesModel") private tourOnSalesModel: ModelsInstance.TourOnSales,
+    @Inject("tourPricesModel") private tourPricesModel: ModelsInstance.TourPrices
+  ) {}
   public async create(data: Create, res: Response) {
     const t = await sequelize.transaction();
     try {
@@ -15,6 +18,11 @@ export default class TourOnSaleService {
           discount: data?.discount || 0,
           quantity: data?.quantity,
           startDate: data?.startDate,
+          childrenAgeMin: data?.quantity,
+          childrenAgeMax: data?.startDate,
+          childrenPrice: data?.quantity,
+          adultPrice: data?.startDate,
+          currency: data?.startDate,
         },
         {
           transaction: t,
@@ -50,6 +58,11 @@ export default class TourOnSaleService {
       tourOnSale.discount = data.discount || 0;
       tourOnSale.quantity = data.quantity || 0;
       tourOnSale.startDate = data.startDate || new Date();
+      tourOnSale.childrenAgeMin = data.childrenAgeMin
+      tourOnSale.childrenAgeMax = data.childrenAgeMax
+      tourOnSale.childrenPrice = data.childrenPrice
+      tourOnSale.adultPrice = data.adultPrice
+      tourOnSale.currency = data.currency
       await tourOnSale.save();
       await t.commit();
       return res.onSuccess(tourOnSale, {

@@ -1,15 +1,27 @@
+export interface ISchedule {
+  id: number;
+  tourId: number;
+  day: number;
+  startTime: number;
+  endTime: number;
+  description: string;
+  language: string;
+}
+
 export interface CreateOne {
   tourId: number;
   day: number;
-  startTime: Date;
-  endTime: Date;
+  startTime: number;
+  endTime: number;
   description: string;
 }
 
 interface scheduleItem {
-  startTime: Date;
-  endTime: Date;
+  id: number;
+  startTime: number;
+  endTime: number;
   description: string;
+  language: string;
 }
 
 export interface CreateMultiple {
@@ -18,8 +30,14 @@ export interface CreateMultiple {
   schedule: scheduleItem[];
 }
 
+export interface CreateOrUpdate {
+  tourId: number;
+  day: number;
+  schedule: scheduleItem[];
+}
+
 export interface Update {
-  startTime: Date;
-  endTime: Date;
+  startTime: number;
+  endTime: number;
   description: string;
 }

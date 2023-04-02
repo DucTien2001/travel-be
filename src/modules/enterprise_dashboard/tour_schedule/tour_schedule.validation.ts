@@ -7,8 +7,8 @@ export default class Validation {
       .object({
         tourId: yup.number(),
         day: yup.number(),
-        startTime: yup.date(),
-        endTime: yup.date(),
+        startTime: yup.number(),
+        endTime: yup.number(),
         description: yup.string(),
       })
       .noUnknown()
@@ -23,9 +23,31 @@ export default class Validation {
         day: yup.number(),
         schedule: yup.array(
           yup.object({
-            startTime: yup.date(),
-            endTime: yup.date(),
+            id: yup.number(),
+            startTime: yup.number(),
+            endTime: yup.number(),
             description: yup.string(),
+            language: yup.string(),
+          })
+        ),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+
+  static createOrUpdate(req: Request) {
+    const schema = yup
+      .object({
+        tourId: yup.number(),
+        day: yup.number(),
+        schedule: yup.array(
+          yup.object({
+            id: yup.number(),
+            startTime: yup.number(),
+            endTime: yup.number(),
+            description: yup.string(),
+            language: yup.string(),
           })
         ),
       })
@@ -37,8 +59,8 @@ export default class Validation {
   static update(req: Request) {
     const schema = yup
       .object({
-        startTime: yup.date(),
-        endTime: yup.date(),
+        startTime: yup.number(),
+        endTime: yup.number(),
         description: yup.string(),
       })
       .noUnknown()

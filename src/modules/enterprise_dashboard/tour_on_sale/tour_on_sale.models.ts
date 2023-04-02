@@ -1,4 +1,5 @@
 interface price {
+  id?: number;
   title: string;
   minOld: number;
   maxOld: number;
@@ -10,11 +11,20 @@ export interface Create {
   discount: number;
   quantity: number;
   startDate: Date;
-  prices: price[];
+  childrenAgeMin: number;
+  childrenAgeMax: number;
+  childrenPrice: number;
+  adultPrice: number;
+  currency: string;
 }
 
 export interface Update {
   discount: number;
   quantity: number;
   startDate: Date;
+  childrenAgeMin: number;
+  childrenAgeMax: number;
+  childrenPrice: number;
+  adultPrice: number;
+  currency: string;
 }

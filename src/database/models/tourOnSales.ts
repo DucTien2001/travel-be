@@ -1,3 +1,4 @@
+import { LANG } from "common/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
@@ -8,6 +9,11 @@ export interface TourOnSaleAttributes extends Model {
   discount: number;
   quantity: number;
   startDate: Date;
+  childrenAgeMin: number;
+  childrenAgeMax: number;
+  childrenPrice: number;
+  adultPrice: number;
+  currency: string;
   tourGuideId: number;
   isDeleted: boolean;
   createdAt: Date,
@@ -42,6 +48,26 @@ export default (
       startDate: {
         allowNull: false,
         type: DataTypes.DATE,
+      },
+      childrenAgeMin: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      childrenAgeMax: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      childrenPrice: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      adultPrice: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      currency: {
+          type: DataTypes.STRING,
+          comment: `VietNam: ${LANG.VI}, English: ${LANG.EN}`
       },
       tourGuideId: {
         type: DataTypes.INTEGER,
