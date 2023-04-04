@@ -5,7 +5,7 @@ import Controller from "./tour_schedule.controller";
 export const router = Router();
 
 // router.route("/").post(staff, Controller.createOne).put(staff, Controller.createOrUpdate);
-router.route("/").put(staff, Controller.createOrUpdate);
+router.route("/").get(staff, Controller.findAll).put(staff, Controller.createOrUpdate);
 
 // router.route("/multi").post(staff, Controller.createMultiple);
 router.route("/multi/:tourId/:day").delete(staff, Controller.deleteMultiple);

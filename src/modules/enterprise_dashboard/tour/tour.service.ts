@@ -75,13 +75,6 @@ export default class TourService {
           {
             association: "tourOnSales",
           },
-          {
-            association: "tourSchedules",
-            required: false,
-            where: {
-              language: data?.language || null,
-            }
-          },
         ],
       });
       if (!tour) {
@@ -91,20 +84,10 @@ export default class TourService {
         });
       }
 
-      // const scheduleWhereOptions: WhereOptions = {
-      //   tourId: id,
-      //   parentLanguage: null,
-      // };
-      // let schedules = await this.tourSchedulesModel.findAll({
-      //   where: scheduleWhereOptions,
-      // });
-
       if (data.language) {
         tour = GetLanguage.getLang(tour.toJSON(), data.language, tourLangFields);
-        // schedules = GetLanguage.getLangListModel<ModelsAttributes.TourSchedule>(schedules, data.language, tourScheduleLangFields);
       }
 
-      // const result = { ...tour, schedules: schedules };
 
       return res.onSuccess(tour);
     } catch (error) {

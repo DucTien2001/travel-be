@@ -36,4 +36,25 @@ export default class Validation {
       .required();
     return schema.validateSync(req.body);
   }
+
+  static createOrUpdate(req: Request) {
+    const schema = yup.array(
+      yup
+        .object({
+          id: yup.number(),
+          tourId: yup.number(),
+          discount: yup.number(),
+          quantity: yup.number(),
+          startDate: yup.date(),
+          childrenAgeMin: yup.number(),
+          childrenAgeMax: yup.number(),
+          childrenPrice: yup.date(),
+          adultPrice: yup.number(),
+          currency: yup.string(),
+        })
+        .noUnknown()
+        .required()
+    );
+    return schema.validateSync(req.body);
+  }
 }

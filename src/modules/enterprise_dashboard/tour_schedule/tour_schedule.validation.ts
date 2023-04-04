@@ -2,6 +2,17 @@ import * as yup from "yup";
 import { Request } from "express";
 
 export default class Validation {
+  static findAll(req: Request) {
+    const schema = yup
+      .object({
+        tourId: yup.number(),
+        language: yup.string(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.query);
+  }
+
   static createOne(req: Request) {
     const schema = yup
       .object({
@@ -41,6 +52,7 @@ export default class Validation {
       .object({
         tourId: yup.number(),
         day: yup.number(),
+        language: yup.string(),
         schedule: yup.array(
           yup.object({
             id: yup.number(),

@@ -28,3 +28,16 @@ export interface Update {
   adultPrice: number;
   currency: string;
 }
+
+export interface ITourOnSale {
+  id?: number;
+  tourId: number;
+  discount: number;
+  quantity: number;
+  startDate: Date;
+  childrenAgeMin: number;
+  childrenAgeMax: number;
+  childrenPrice: number;
+  adultPrice: number;
+  currency: string;
+}

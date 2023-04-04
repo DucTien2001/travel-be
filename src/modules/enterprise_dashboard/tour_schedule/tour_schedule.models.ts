@@ -1,3 +1,7 @@
+export interface FindAll {
+  tourId: number;
+  language?: string;
+}
 export interface ISchedule {
   id: number;
   tourId: number;
@@ -14,6 +18,7 @@ export interface CreateOne {
   startTime: number;
   endTime: number;
   description: string;
+  language?: string;
 }
 
 interface scheduleItem {
@@ -33,11 +38,17 @@ export interface CreateMultiple {
 export interface CreateOrUpdate {
   tourId: number;
   day: number;
+  language?: string;
   schedule: scheduleItem[];
 }
 
 export interface Update {
+  id: number;
+  tourId: number;
+  day: number;
   startTime: number;
   endTime: number;
   description: string;
+  parentLanguage?: number;
+  language?: string;
 }

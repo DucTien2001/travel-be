@@ -10,6 +10,7 @@ export interface TourScheduleAttributes extends Model {
   startTime: number;
   endTime: number;
   description: string;
+  parentLanguage: number;
   language: string;
   createdAt: Date,
   updatedAt: Date,
@@ -37,16 +38,17 @@ export default (
         type: DataTypes.INTEGER,
       },
       startTime: {
-        allowNull: false,
         type: DataTypes.INTEGER,
       },
       endTime: {
-        allowNull: false,
         type: DataTypes.INTEGER,
       },
       description: {
         allowNull: false,
         type: DataTypes.TEXT,
+      },
+      parentLanguage: {
+          type: DataTypes.INTEGER
       },
       language: {
           type: DataTypes.STRING,
@@ -58,6 +60,11 @@ export default (
     }
   );
   tour_schedules.associate = (models: { [key: string]: any }) => {
+    tour_schedules.hasMany(models.tour_schedules, {
+      as: 'languages',
+      foreignKey: 'parentLanguage',
+      constraints: false
+    })
     tour_schedules.belongsTo(models.tours, {
       as: 'scheduleItem',
       foreignKey: 'tourId',

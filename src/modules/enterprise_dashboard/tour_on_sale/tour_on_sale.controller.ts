@@ -28,4 +28,16 @@ export default class Controller {
       });
     }
   }
+  
+  static createOrUpdate(req: Request, res: Response) {
+    try {
+      const value = Validation.createOrUpdate(req)
+      const ServiceI = Container.get(Service);
+      ServiceI.createOrUpdate(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }
