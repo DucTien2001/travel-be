@@ -11,7 +11,7 @@ export default class Validation {
         startDate: yup.date(),
         childrenAgeMin: yup.number(),
         childrenAgeMax: yup.number(),
-        childrenPrice: yup.date(),
+        childrenPrice: yup.number(),
         adultPrice: yup.number(),
         currency: yup.string(),
       })
@@ -28,7 +28,7 @@ export default class Validation {
         startDate: yup.date(),
         childrenAgeMin: yup.number(),
         childrenAgeMax: yup.number(),
-        childrenPrice: yup.date(),
+        childrenPrice: yup.number(),
         adultPrice: yup.number(),
         currency: yup.string(),
       })
