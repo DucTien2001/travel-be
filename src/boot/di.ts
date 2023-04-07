@@ -19,6 +19,7 @@ export default () => {
   Container.set("tourOnSalesModel", database.tour_on_sales);
   Container.set("tourPricesModel", database.tour_prices);
   Container.set("tourSchedulesModel", database.tour_schedules);
+  Container.set("eventsModel", database.events);
   Container.set("hotelCommentsModel", database.hotel_comments);
   Container.set("policiesModel", database.policies);
 };
