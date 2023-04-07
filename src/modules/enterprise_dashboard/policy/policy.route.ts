@@ -4,8 +4,6 @@ import Controller from "./policy.controller";
 
 export const router = Router();
 
-router.route("/").post(staff, Controller.create);
+router.route("/").get(staff, Controller.findAll).put(staff, Controller.createOrUpdate);
 
-router.route("/:id")
-    .put(staff, Controller.update)
-    .delete(staff, Controller.delete);
+router.route("/:id").delete(staff, Controller.delete);

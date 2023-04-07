@@ -4,24 +4,23 @@ import Validation from "./policy.validation";
 import { Request, Response } from "express";
 
 export default class Controller {
-  static create(req: Request, res: Response) {
+  static findAll(req: Request, res: Response) {
     try {
-      const value = Validation.create(req)
+      const value = Validation.findAll(req)
       const ServiceI = Container.get(Service);
-      ServiceI.create(value, res);
+      ServiceI.findAll(value, res);
     } catch (error) {
       return res.onError({
         detail: error,
       });
     }
   }
-  
-  static update(req: Request, res: Response) {
+
+  static createOrUpdate(req: Request, res: Response) {
     try {
-      const { id } = req.params
-      const value = Validation.update(req)
+      const value = Validation.createOrUpdate(req)
       const ServiceI = Container.get(Service);
-      ServiceI.update(Number(id), value, res);
+      ServiceI.createOrUpdate(value, res);
     } catch (error) {
       return res.onError({
         detail: error,

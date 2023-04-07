@@ -1,14 +1,14 @@
 import { EServicePolicyType, EServiceType } from "common/general";
 
-export interface Create {
+export interface FindAll {
   serviceId: number;
   serviceType: EServiceType;
-  policyType: EServicePolicyType;
-  dayRange: number;
-  moneyRate: number;
 }
 
-export interface Update {
+export interface CreateOrUpdate {
+  id?: number;
+  serviceId: number;
+  serviceType: EServiceType;
   policyType: EServicePolicyType;
   dayRange: number;
   moneyRate: number;
