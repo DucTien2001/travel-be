@@ -8,11 +8,13 @@ import { tourRouter } from "./tour";
 import { tourBillRouter } from "./tourBill";
 import { tourCommentRouter } from "./tourComment";
 import { userRouter } from "./user";
+import { tourScheduleRouter } from "./tour_schedule";
 
 export const mainRouter = Router();
 
 mainRouter.use("/user", userRouter);
 mainRouter.use("/tour", tourRouter);
+mainRouter.use("/tour-schedule", tourScheduleRouter);
 mainRouter.use("/hotel", hotelRouter);
 mainRouter.use("/room", roomRouter);
 mainRouter.use("/room-other-price", roomOtherPriceRouter);
