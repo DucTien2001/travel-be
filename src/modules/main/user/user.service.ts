@@ -1,6 +1,6 @@
 import Container, { Inject, Service } from "typedi";
 import bcrypt from "bcryptjs";
-import { IChangePassForgot, IChangePassword, ILogin, IRegister, IReSendVerifySignup, ISendEmailForgotPassword, IUpdateUserProfile, IVerifySignup } from "./user.models";
+import { ChangeLanguage, IChangePassForgot, IChangePassword, ILogin, IRegister, IReSendVerifySignup, ISendEmailForgotPassword, IUpdateUserProfile, IVerifySignup } from "./user.models";
 import database, { sequelize } from "database/models";
 import { Response } from "express";
 import EmailService from "services/emailService";
@@ -588,6 +588,37 @@ export default class UserService {
         status: 500,
         detail: error,
       });
+    }
+  }
+
+  
+  
+  /**
+   * v1.2
+   */
+  public async changeLanguage(_user: ModelsAttributes.User, data: ChangeLanguage, res: Response) {
+    try {
+      const user = await this.usersModel.findOne({
+        where: {
+          id: _user.id
+        }
+      })
+      if (!user) {
+        return res.onError({
+          status: 404,
+          detail: res.locals.t('auth_user_not_found')
+        })
+      }
+      user.language = data.language
+      await user.save({ silent: true })
+      return res.onSuccess({}, {
+        message: res.locals.t('common_update_success')
+      })
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error
+      })
     }
   }
 }

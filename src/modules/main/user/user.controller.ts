@@ -140,4 +140,17 @@ export default class UserController {
       });
     }
   }
+  
+
+  static changeLanguage(req: Request, res: Response) {
+    try {
+      const value = UserValidation.changeLanguage(req)
+      const UserServiceI = Container.get(UserService)
+      UserServiceI.changeLanguage(req.user, value, res)
+    } catch (error) {
+      return res.onError({
+        detail: error
+      })
+    }
+  }
 }

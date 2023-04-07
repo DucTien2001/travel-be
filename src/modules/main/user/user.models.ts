@@ -52,3 +52,9 @@ export interface IUpdateUserProfile {
   address: string;
   phoneNumber: string;
 }
+
+
+
+export interface ChangeLanguage {
+  language: string
+}

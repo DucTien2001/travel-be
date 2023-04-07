@@ -17,7 +17,7 @@ import { restRouter } from 'routes';
 import { NODE_ENV, SEQUELIZE_SYNC } from 'common/general';
 import database from 'database/models';
 import ResponseHelper from 'helper/response';
-// import TranslationController from 'modules/main/translation/translation.controller';
+import TranslationController from 'modules/main/translation/translation.controller';
 import initConfigs from 'middlewares/configs';
 
 setDI()
@@ -56,7 +56,7 @@ app.use(i18nextMiddleware.handle(i18next))
 
 app.use(initConfigs)
 
-// app.use(TranslationController.getLocale)
+app.use(TranslationController.getLocale)
 
 app.disable('x-powered-by');
 

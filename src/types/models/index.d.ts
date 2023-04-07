@@ -14,6 +14,7 @@ import { TourOnSaleAttributes, TourOnSalesInstance } from "database/models/tourO
 import { TourPriceAttributes, TourPricesInstance } from "database/models/tourPrices";
 import { TourAttributes, ToursInstance } from "database/models/tours";
 import { TourScheduleAttributes, TourSchedulesInstance } from "database/models/tourSchedules";
+import { TranslationAttributes, TranslationsInstance } from "database/models/translations";
 import { UserAttributes, UsersInstance } from "database/models/users";
 import { VerifyCodeAttributes, VerifyCodesInstance } from "database/models/verifyCodes";
 
@@ -30,6 +31,7 @@ declare global {
     export type RoomOtherPrice = RoomOtherPriceAttributes;
     export type RoomBill = RoomBillAttributes;
     export type RoomBillDetail = RoomBillDetailAttributes;
+    export type Translation = TranslationAttributes;
     export type TourBill = TourBillAttributes;
     export type TourComment = TourCommentAttributes;
     export type TourOnSale = TourOnSaleAttributes;
@@ -51,6 +53,7 @@ declare global {
     export type RoomOtherPrices = RoomOtherPricesInstance;
     export type RoomBills = RoomBillsInstance;
     export type RoomBillDetails = RoomBillDetailsInstance;
+    export type Translations = TranslationsInstance;
     export type TourBills = TourBillsInstance;
     export type TourComments = TourCommentsInstance;
     export type TourOnSales = TourOnSalesInstance;

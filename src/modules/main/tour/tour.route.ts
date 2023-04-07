@@ -1,7 +1,13 @@
-// import { Router } from "express";
-// import TourController from "./tour.controller";
+import { Router } from "express";
+import TourController from "./tour.controller";
 
-// export const tourRouter = Router();
+export const tourRouter = Router();
+
+tourRouter.route("/").get(TourController.findAll);
+tourRouter.route("/:id").get(TourController.findOne);
+
+
+
 
 // tourRouter.route("/get-tours/:id").get(TourController.getTours);
 // tourRouter.route("/get-tour/:tourId").get(TourController.getTour);

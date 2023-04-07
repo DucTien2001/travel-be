@@ -14,6 +14,7 @@ export default () => {
   Container.set("roomBillDetailsModel", database.room_bill_details);
   Container.set("roomOtherPricesModel", database.room_other_prices);
   Container.set("checkRoomsModel", database.check_rooms);
+  Container.set('translationsModel', database.translations);
   Container.set("tourCommentsModel", database.tour_comments);
   Container.set("tourOnSalesModel", database.tour_on_sales);
   Container.set("tourPricesModel", database.tour_prices);

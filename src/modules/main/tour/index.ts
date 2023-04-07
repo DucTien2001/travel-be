@@ -1,1 +1,1 @@
-// export { tourRouter } from './tour.route'
+export { tourRouter } from './tour.route'

@@ -1,6 +1,7 @@
 import * as yup from "yup";
 import { Request } from "express";
 import { VALIDATION } from "config/constants";
+import { LANG } from "common/general";
 
 export default class UserValidation {
   static login(req: Request) {
@@ -158,5 +159,13 @@ export default class UserValidation {
       .noUnknown()
       .required();
     return schema.validateSync(req.body);
+  }
+  
+
+  static changeLanguage(req: Request) {
+    const schema = yup.object({
+      language: yup.string().oneOf([LANG.VI, LANG.EN]).required(),
+    })
+    return schema.validateSync(req.body)
   }
 }

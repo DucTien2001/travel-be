@@ -1,6 +1,6 @@
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
-import { ETypeUser } from "common/general";
+import { ETypeUser, LANG } from "common/general";
 
 export interface UserAttributes extends Model {
   dataValues: any;
@@ -16,9 +16,10 @@ export interface UserAttributes extends Model {
   enterpriseId: number;
   isDeleted: boolean;
   isVerified: boolean;
-  createdAt: Date,
-  updatedAt: Date,
-  deletedAt: Date,
+  language: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 }
 
 export type UsersInstance = typeof Model & {
@@ -26,10 +27,7 @@ export type UsersInstance = typeof Model & {
   associate?: Function;
 };
 
-export default (
-  sequelize: Sequelize,
-  DataTypes: typeof DataType
-): UsersInstance => {
+export default (sequelize: Sequelize, DataTypes: typeof DataType): UsersInstance => {
   const users = <UsersInstance>sequelize.define(
     "users",
     {
@@ -75,6 +73,11 @@ export default (
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      language: {
+        type: DataTypes.STRING,
+        defaultValue: LANG.VI,
+        comment: `VietNam: ${LANG.VI}, English: ${LANG.EN}`,
+      },
     },
     {
       paranoid: true,
@@ -82,29 +85,29 @@ export default (
   );
   users.associate = (models: { [key: string]: any }) => {
     users.hasMany(models.users, {
-      as: 'staff',
-      foreignKey: 'enterpriseId',
-      constraints: false
+      as: "staff",
+      foreignKey: "enterpriseId",
+      constraints: false,
     });
     users.hasMany(models.tours, {
-      as: 'ownTours',
-      foreignKey: 'creator',
-      constraints: false
+      as: "ownTours",
+      foreignKey: "creator",
+      constraints: false,
     });
     users.hasMany(models.hotels, {
-      as: 'ownHotels',
-      foreignKey: 'creator',
-      constraints: false
+      as: "ownHotels",
+      foreignKey: "creator",
+      constraints: false,
     });
     users.hasMany(models.tour_bills, {
-      as: 'bookTours',
-      foreignKey: 'userId',
-      constraints: false
+      as: "bookTours",
+      foreignKey: "userId",
+      constraints: false,
     });
     users.hasMany(models.room_bills, {
-      as: 'bookRooms',
-      foreignKey: 'userId',
-      constraints: false
+      as: "bookRooms",
+      foreignKey: "userId",
+      constraints: false,
     });
   };
   return users;
