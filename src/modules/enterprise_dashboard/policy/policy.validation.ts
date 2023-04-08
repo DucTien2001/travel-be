@@ -10,7 +10,7 @@ export default class Validation {
       })
       .noUnknown()
       .required();
-    return schema.validateSync(req.body);
+    return schema.validateSync(req.query);
   }
 
   static createOrUpdate(req: Request) {
