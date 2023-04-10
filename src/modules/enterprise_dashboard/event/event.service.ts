@@ -9,9 +9,7 @@ import { eventLangFields, tourLangFields, tourScheduleLangFields } from "models/
 
 @Service()
 export default class EventService {
-  constructor(
-    @Inject("eventsModel") private eventsModel: ModelsInstance.Events
-  ) {}
+  constructor(@Inject("eventsModel") private eventsModel: ModelsInstance.Events) {}
   /**
    * Find all
    */
@@ -84,7 +82,6 @@ export default class EventService {
         event = GetLanguage.getLang(event.toJSON(), data.language, eventLangFields);
       }
 
-
       return res.onSuccess(event);
     } catch (error) {
       return res.onError({
@@ -98,9 +95,9 @@ export default class EventService {
     const t = await sequelize.transaction();
     try {
       const images = await FileService.uploadAttachments([...files]);
-      let imageUrl = null
+      let imageUrl = null;
       if (!!images?.length) {
-        imageUrl = images[0].url
+        imageUrl = images[0].url;
       }
 
       const newTour = await this.eventsModel.create(
@@ -140,12 +137,6 @@ export default class EventService {
   public async update(id: number, data: Update, files: Express.Multer.File[], user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
-      let imageUrl = null
-      if(!!files.length) {
-        const images = await FileService.uploadAttachments([...files]);
-        imageUrl = images[0].url
-      }
-
       const event = await this.eventsModel.findOne({
         where: {
           id: id,
@@ -159,9 +150,18 @@ export default class EventService {
         });
       }
 
+      let imageUrl = null;
+      if (!!files.length) {
+        if (event?.banner) {
+          await FileService.deleteFile(event.banner);
+        }
+        const images = await FileService.uploadAttachments([...files]);
+        imageUrl = images[0].url;
+      }
+
       event.startTime = data?.startTime;
       event.endTime = data?.endTime;
-      if(imageUrl) event.banner = imageUrl;
+      if (imageUrl) event.banner = imageUrl;
       event.hotelIds = data?.hotelIds;
       event.tourIds = data?.tourIds;
       event.numberOfCodes = data?.numberOfCodes;
@@ -183,6 +183,8 @@ export default class EventService {
               creator: user?.id,
               owner: user.enterpriseId || user.id,
               isDeleted: false,
+              parentLanguage: id,
+              language: data.language,
             },
             { transaction: t }
           );
