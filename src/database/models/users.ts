@@ -85,7 +85,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): UsersInstance
   );
   users.associate = (models: { [key: string]: any }) => {
     users.hasMany(models.users, {
-      as: "staff",
+      as: "enterprise",
       foreignKey: "enterpriseId",
       constraints: false,
     });
