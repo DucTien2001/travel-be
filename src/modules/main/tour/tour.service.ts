@@ -5,6 +5,7 @@ import { Response } from "express";
 import { Op, WhereOptions } from "sequelize";
 import GetLanguage from "services/getLanguage";
 import { tourLangFields } from "models/langField";
+import { EServiceType } from "common/general";
 
 @Service()
 export default class TourService {
@@ -27,6 +28,12 @@ export default class TourService {
           },
           {
             association: "tourOnSales",
+          },
+          {
+            association: "tourPolicies",
+            where: {
+              serviceType: EServiceType.TOUR
+            }
           },
         ],
         limit: data.take,
@@ -68,6 +75,12 @@ export default class TourService {
           },
           {
             association: "tourOnSales",
+          },
+          {
+            association: "tourPolicies",
+            where: {
+              serviceType: EServiceType.TOUR
+            }
           },
         ],
       });

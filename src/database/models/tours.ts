@@ -170,6 +170,11 @@ export default (
       foreignKey: 'tourId',
       constraints: false
     });
+    tours.hasMany(models.policies, {
+      as: 'tourPolicies',
+      foreignKey: 'serviceId',
+      constraints: false
+    });
     tours.belongsTo(models.users, {
       as: 'tourCreator',
       foreignKey: 'creator',
