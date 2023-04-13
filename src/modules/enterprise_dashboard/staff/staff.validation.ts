@@ -13,4 +13,13 @@ export default class Validation {
       .noUnknown();
     return schema.validateSync(req.query);
   }
+  
+  static sendOffer(req: Request) {
+    const schema = yup
+      .object({
+        email: yup.string().email().required(),
+      })
+      .noUnknown();
+    return schema.validateSync(req.query);
+  }
 }

@@ -18,9 +18,9 @@ export default class StaffController {
 
   static sendOffer(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const value = Validation.sendOffer(req);
       const ServiceI = Container.get(Service);
-      ServiceI.sendOffer(Number(id), req.user, res);
+      ServiceI.sendOffer(value, req.user, res);
     } catch (error) {
       return res.onError({
         detail: error,

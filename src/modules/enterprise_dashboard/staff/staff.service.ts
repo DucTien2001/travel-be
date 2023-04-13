@@ -1,5 +1,5 @@
 import  { Inject, Service } from "typedi";
-import { ChangeRole, FindAll } from "./staff.models";
+import { ChangeRole, FindAll, SendOffer } from "./staff.models";
 import { Response } from "express";
 import { WhereOptions } from "sequelize/types";
 import EmailService from "services/emailService";
@@ -51,12 +51,13 @@ export default class StaffService {
   /**
    * offer staff
    */
-  public async sendOffer(staffId: number, user: ModelsAttributes.User, res: Response) {
+  public async sendOffer(data: SendOffer, user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
       const staff = await this.usersModel.findOne({
         where: {
-          id: staffId
+          username: data.email,
+          enterpriseId: null,
         }
       })
       if (!staff) {
@@ -70,7 +71,7 @@ export default class StaffService {
           userId: user.id,
           type: ETypeVerifyCode.VERIFY_EMAIL,
           expiredDate: moment().add(process.env.MAXAGE_TOKEN_ACTIVE, "hours").toDate(),
-          staffId: staffId,
+          staffId: staff.id,
         },
         {
           transaction: t,

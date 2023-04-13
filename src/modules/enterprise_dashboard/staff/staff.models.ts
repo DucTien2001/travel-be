@@ -6,6 +6,10 @@ export interface FindAll {
   keyword?: string;
 }
 
+export interface SendOffer {
+  email: string;
+}
+
 export interface ChangeRole {
   userId: number;
   role: ETypeUser;
