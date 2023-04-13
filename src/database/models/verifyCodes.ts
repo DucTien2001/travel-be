@@ -8,6 +8,7 @@ export interface VerifyCodeAttributes extends Model {
     userId: number;
     type: ETypeVerifyCode;
     expiredDate: Date;
+    staffId: number;
     createdAt: Date,
     updatedAt: Date,
     deletedAt: Date,
@@ -27,6 +28,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): VerifyCodesIn
         userId: {
             type: DataTypes.INTEGER,
             allowNull: false,
+            comment: `if (type = 4): ~enterpriseID`
         },
         expiredDate: {
             type: DataTypes.DATE,
@@ -35,10 +37,19 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): VerifyCodesIn
         type: {
             type: DataTypes.INTEGER,
             allowNull: false,
-        }
+        },
+        staffId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
     }, {
     });
     verify_codes.associate = (models: { [key: string]: any }) => {
+        verify_codes.hasMany(models.users, {
+          as: "offers",
+          foreignKey: "staffId",
+          constraints: false,
+        });
     }
     return verify_codes;
 }

@@ -21,7 +21,8 @@ export enum ETypeUser {
 export enum ETypeVerifyCode {
   VERIFY_EMAIL = 1,
   RESET_PASSWORD = 2,
-  FORGOT_PASSWORD = 3
+  FORGOT_PASSWORD = 3,
+  OFFER_STAFF = 4,
 }
 
 export enum LANG {

@@ -130,5 +130,37 @@ export class EmailService {
         return { isSuccess: false };
       });
   }
+  
+  static async sendResquestStaff(receiverEmail: string, authenticationLink: string) {
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // true for 465, false for other ports
+      auth: {
+        user: process.env.EMAIL_APP, // generated ethereal user
+        pass: process.env.EMAIL_APP_PASSWORD, // generated ethereal password
+      },
+    });
+
+    // send mail with defined transport object
+    return await transporter
+      .sendMail({
+        from: '"Travel service" <travelserviceute@gmail.com>', // sender address
+        to: receiverEmail, // list of receivers
+        subject: "JOB OFFER", // Subject line
+        text: "Invitation to be an staff!", // plain text body
+        html: `
+        <h1>Please click on the link to accept:</h1>
+        <a href=${authenticationLink} target="_blank">Click here</a>
+        `, // html body
+      })
+      .then(() => {
+        return { isSuccess: true };
+      })
+      .catch(() => {
+        return { isSuccess: false };
+      });
+  }
 }
 export default EmailService;
