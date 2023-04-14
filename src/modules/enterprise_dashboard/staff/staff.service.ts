@@ -69,7 +69,7 @@ export default class StaffService {
       const offerStaff = await this.verifyCodesModel.create(
         {
           userId: user.id,
-          type: ETypeVerifyCode.VERIFY_EMAIL,
+          type: ETypeVerifyCode.OFFER_STAFF,
           expiredDate: moment().add(process.env.MAXAGE_TOKEN_ACTIVE, "hours").toDate(),
           staffId: staff.id,
         },
