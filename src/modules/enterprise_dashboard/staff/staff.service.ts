@@ -243,6 +243,7 @@ export default class StaffService {
         });
       }
       staff.enterpriseId = null;
+      staff.role = ETypeUser.USER;
       await staff.save({ silent: true });
       return res.onSuccess(
         {},
