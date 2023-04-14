@@ -20,6 +20,6 @@ export default class Validation {
         email: yup.string().email().required(),
       })
       .noUnknown();
-    return schema.validateSync(req.query);
+    return schema.validateSync(req.body);
   }
 }
