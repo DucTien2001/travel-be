@@ -86,7 +86,7 @@ export default class StaffService {
       }
       const emailRes = await EmailService.sendResquestStaff(
         staff?.username,
-        `${process.env.SITE_URL}/auth/verifySignup?offerId=${offerStaff.id}`
+        `${process.env.SITE_URL}/auth/verifyStaff?offerId=${offerStaff.id}`
       );
       if (!emailRes.isSuccess) {
         await t.rollback();
