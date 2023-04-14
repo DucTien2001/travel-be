@@ -95,6 +95,7 @@ export default class StaffService {
           detail: "email_sending_failed",
         });
       }
+      await t.commit();
       return res.onSuccess({}, {
         message: res.locals.t('common_success')
       })
