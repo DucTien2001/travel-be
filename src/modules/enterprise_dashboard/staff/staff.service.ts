@@ -1,10 +1,10 @@
-import  { Inject, Service } from "typedi";
+import { Inject, Service } from "typedi";
 import { ChangeRole, FindAll, SendOffer } from "./staff.models";
 import { Response } from "express";
 import { WhereOptions } from "sequelize/types";
 import EmailService from "services/emailService";
 import { sequelize } from "database/models";
-import { ETypeVerifyCode } from "common/general";
+import { ETypeUser, ETypeVerifyCode } from "common/general";
 import moment from "moment";
 
 @Service()
@@ -16,7 +16,7 @@ export default class StaffService {
   /**
    * Get all user profile
    */
-   public async findAll(data: FindAll, user: ModelsAttributes.User, res: Response) {
+  public async findAll(data: FindAll, user: ModelsAttributes.User, res: Response) {
     try {
       let whereOptions: WhereOptions = {
         isDeleted: false,
@@ -58,13 +58,13 @@ export default class StaffService {
         where: {
           username: data.email,
           enterpriseId: null,
-        }
-      })
+        },
+      });
       if (!staff) {
         return res.onError({
           status: 404,
-          detail: res.locals.t('auth_user_not_found')
-        })
+          detail: res.locals.t("auth_user_not_found"),
+        });
       }
       const offerStaff = await this.verifyCodesModel.create(
         {
@@ -77,7 +77,7 @@ export default class StaffService {
           transaction: t,
         }
       );
-      if(!offerStaff) {
+      if (!offerStaff) {
         await t.rollback();
         return res.onError({
           status: 500,
@@ -96,14 +96,17 @@ export default class StaffService {
         });
       }
       await t.commit();
-      return res.onSuccess({}, {
-        message: res.locals.t('common_success')
-      })
+      return res.onSuccess(
+        {},
+        {
+          message: res.locals.t("common_success"),
+        }
+      );
     } catch (error) {
       return res.onError({
         status: 500,
-        detail: error
-      })
+        detail: error,
+      });
     }
   }
 
@@ -115,14 +118,14 @@ export default class StaffService {
     try {
       const offer = await this.verifyCodesModel.findOne({
         where: {
-          id: offerId
-        }
-      })
+          id: offerId,
+        },
+      });
       if (!offer) {
         return res.onError({
           status: 404,
-          detail: res.locals.t('common_not_found')
-        })
+          detail: res.locals.t("common_not_found"),
+        });
       }
       await offer.destroy({ transaction: t });
       await t.commit();
@@ -132,8 +135,8 @@ export default class StaffService {
     } catch (error) {
       return res.onError({
         status: 500,
-        detail: error
-      })
+        detail: error,
+      });
     }
   }
 
@@ -146,30 +149,31 @@ export default class StaffService {
       const offer = await this.verifyCodesModel.findOne({
         where: {
           id: offerId,
-          staffId: user.id
-        }
-      })
+          staffId: user.id,
+        },
+      });
       if (!offer) {
         return res.onError({
           status: 404,
-          detail: res.locals.t('common_not_found')
-        })
+          detail: res.locals.t("common_not_found"),
+        });
       }
       const staff = await this.usersModel.findOne({
         where: {
           id: user.id,
           isDeleted: false,
-        }
-      })
+        },
+      });
       if (!staff) {
         return res.onError({
           status: 404,
-          detail: res.locals.t('staff_not_found')
-        })
+          detail: res.locals.t("staff_not_found"),
+        });
       }
-      staff.enterpriseId = user.id
+      staff.enterpriseId = offer.userId;
+      staff.role = ETypeUser.STAFF;
       await offer.destroy({ transaction: t });
-      await user.save({ transaction: t });
+      await staff.save({ transaction: t });
       await t.commit();
       return res.onSuccess({
         message: res.locals.t("common_success"),
@@ -177,14 +181,14 @@ export default class StaffService {
     } catch (error) {
       return res.onError({
         status: 500,
-        detail: error
-      })
+        detail: error,
+      });
     }
   }
   /**
    * Get all offer
    */
-   public async findAllOffers(data: FindAll, user: ModelsAttributes.User, res: Response) {
+  public async findAllOffers(data: FindAll, user: ModelsAttributes.User, res: Response) {
     try {
       let whereOptions: WhereOptions = {
         userId: user.id,
@@ -230,24 +234,27 @@ export default class StaffService {
         where: {
           id: staffId,
           enterpriseId: user.id,
-        }
-      })
+        },
+      });
       if (!staff) {
         return res.onError({
           status: 404,
-          detail: res.locals.t('auth_user_not_found')
-        })
+          detail: res.locals.t("auth_user_not_found"),
+        });
       }
-      staff.enterpriseId = null
-      await staff.save({ silent: true })
-      return res.onSuccess({}, {
-        message: res.locals.t('common_update_success')
-      })
+      staff.enterpriseId = null;
+      await staff.save({ silent: true });
+      return res.onSuccess(
+        {},
+        {
+          message: res.locals.t("common_update_success"),
+        }
+      );
     } catch (error) {
       return res.onError({
         status: 500,
-        detail: error
-      })
+        detail: error,
+      });
     }
   }
 }
