@@ -9,6 +9,8 @@ import { tourBillRouter } from "./tourBill";
 import { tourCommentRouter } from "./tourComment";
 import { userRouter } from "./user";
 import { tourScheduleRouter } from "./tour_schedule";
+import { voucherRouter } from "./voucher";
+import { eventRouter } from "./event";
 
 export const mainRouter = Router();
 
@@ -22,3 +24,5 @@ mainRouter.use("/tour-bill", tourBillRouter);
 mainRouter.use("/room-bill", roomBillRouter);
 mainRouter.use("/tour-comment", tourCommentRouter);
 mainRouter.use("/hotel-comment", hotelCommentRouter);
+mainRouter.use("/voucher", voucherRouter);
+mainRouter.use("/event", eventRouter);

@@ -14,27 +14,19 @@ export default class Validation {
     return schema.validateSync(req.query);
   }
 
-  static findOne(req: Request) {
-    const schema = yup
-      .object({
-        language: yup.string().oneOf([LANG.VI, LANG.EN]).notRequired(),
-      })
-      .noUnknown();
-    return schema.validateSync(req.query);
-  }
-
   static create(req: Request) {
     const schema = yup
       .object({
-        name: yup.string(),
-        description: yup.string(),
         startTime: yup.date(),
         endTime: yup.date(),
-        code: yup.string(),
-        policy: yup.string(),
         hotelIds: yup.array(yup.number()),
         tourIds: yup.array(yup.number()),
         numberOfCodes: yup.number(),
+        discountType: yup.number(),
+        discountValue: yup.number(),
+        minOrder: yup.number(),
+        maxDiscount: yup.number(),
+        isQuantityLimit: yup.number(),
       })
       .noUnknown()
       .required();
@@ -44,15 +36,16 @@ export default class Validation {
   static update(req: Request) {
     const schema = yup
       .object({
-        name: yup.string(),
-        description: yup.string(),
         startTime: yup.date(),
         endTime: yup.date(),
-        code: yup.string(),
-        policy: yup.string(),
         hotelIds: yup.array(yup.number()),
         tourIds: yup.array(yup.number()),
         numberOfCodes: yup.number(),
+        discountType: yup.number(),
+        discountValue: yup.number(),
+        minOrder: yup.number(),
+        maxDiscount: yup.number(),
+        isQuantityLimit: yup.number(),
         language: yup.string().oneOf([LANG.VI, LANG.EN]).notRequired(),
       })
       .noUnknown()

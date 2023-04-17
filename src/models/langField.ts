@@ -15,5 +15,4 @@ export const tourScheduleLangFields: string[] = ["description"];
 export const eventLangFields: string[] = [
   "name",
   "description",
-  "policy",
 ];

@@ -8,7 +8,7 @@ export default class Controller {
     try {
       const value = Validation.findAll(req);
       const ServiceI = Container.get(Service);
-      ServiceI.findAll(value, req.user, res);
+      ServiceI.findAll(value, res);
     } catch (error) {
       return res.onError({
         detail: error,
@@ -21,7 +21,7 @@ export default class Controller {
       const { id } = req.params;
       const value = Validation.findOne(req);
       const ServiceI = Container.get(Service);
-      ServiceI.findOne(Number(id), value, req.user, res);
+      ServiceI.findOne(Number(id), value, res);
     } catch (error) {
       return res.onError({
         detail: error,
@@ -58,7 +58,7 @@ export default class Controller {
     try {
       const { id } = req.params;
       const ServiceI = Container.get(Service);
-      ServiceI.delete(Number(id), req.user, res);
+      ServiceI.delete(Number(id), res);
     } catch (error) {
       return res.onError({
         detail: error,

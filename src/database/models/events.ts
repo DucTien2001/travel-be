@@ -1,19 +1,23 @@
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
-import { LANG } from "common/general";
+import { EDiscountType, LANG } from "common/general";
 
 export interface EventAttributes extends Model {
   dataValues: object;
   id: number;
-  name: string;
-  description: string;
+  name: string;               //event
+  description: string;        //event
   startTime: Date;
   endTime: Date;
-  banner: string;
-  code: string;
-  policy: string;
+  banner: string;             //event
+  code: string;               //event
   hotelIds: number[];
   tourIds: number[];
+  discountType: EDiscountType;
+  discountValue: number;
+  minOrder: number;
+  maxDiscount: number;
+  isQuantityLimit: boolean;
   numberOfCodes: number;
   numberOfCodesUsed: number;
   creator: number;
@@ -36,11 +40,9 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): EventsInstanc
     "events",
     {
       name: {
-        allowNull: false,
         type: DataTypes.STRING,
       },
       description: {
-        allowNull: false,
         type: DataTypes.TEXT,
       },
       startTime: {
@@ -54,10 +56,6 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): EventsInstanc
       },
       code: {
         type: DataTypes.STRING,
-      },
-      policy: {
-        allowNull: false,
-        type: DataTypes.TEXT,
       },
       hotelIds: {
         type: DataTypes.TEXT({ length: "long" }),
@@ -78,6 +76,25 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): EventsInstanc
           this.setDataValue("tourIds", JSON.stringify(value || []));
         },
         comment: `All: [-1]`,
+      },
+      discountType: {
+        type: DataTypes.INTEGER,
+        comment: "1: money, 2: percent",
+      },
+      discountValue: {
+        type: DataTypes.DOUBLE,
+        defaultValue: 0,
+      },
+      minOrder: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      maxDiscount: {
+        type: DataTypes.INTEGER,
+      },
+      isQuantityLimit: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
       numberOfCodes: {
         type: DataTypes.INTEGER,

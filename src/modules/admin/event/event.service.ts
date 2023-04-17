@@ -13,14 +13,12 @@ export default class EventService {
   /**
    * Find all
    */
-  public async findAll(data: FindAll, user: ModelsAttributes.User, res: Response) {
+  public async findAll(data: FindAll, res: Response) {
     try {
-      let enterpriseId = user.enterpriseId || user.id;
-
       let whereOptions: WhereOptions = {
         parentLanguage: null,
         isDeleted: false,
-        owner: enterpriseId,
+        owner: null,
       };
 
       let offset = data.take * (data.page - 1);
@@ -53,15 +51,13 @@ export default class EventService {
     }
   }
 
-  public async findOne(id: number, data: FindOne, user: ModelsAttributes.User, res: Response) {
+  public async findOne(id: number, data: FindOne, res: Response) {
     try {
-      let enterpriseId = user.enterpriseId || user.id;
-
       let eventWhereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
         isDeleted: false,
-        owner: enterpriseId,
+        owner: null,
       };
       let event = await this.eventsModel.findOne({
         where: eventWhereOptions,
@@ -100,7 +96,7 @@ export default class EventService {
         imageUrl = images[0].url;
       }
 
-      const newTour = await this.eventsModel.create(
+      const newEvent = await this.eventsModel.create(
         {
           name: data?.name,
           description: data?.description,
@@ -108,13 +104,16 @@ export default class EventService {
           endTime: data?.endTime,
           banner: imageUrl,
           code: data?.code,
-          policy: data?.policy,
           hotelIds: data?.hotelIds,
           tourIds: data?.tourIds,
           numberOfCodes: data?.numberOfCodes,
+          discountType: data?.discountType,
+          discountValue: data?.discountValue,
+          minOrder: data?.minOrder,
+          maxDiscount: data?.maxDiscount,
+          isQuantityLimit: data?.isQuantityLimit,
           numberOfCodesUsed: 0,
           creator: user?.id,
-          owner: user.enterpriseId || user.id,
           isDeleted: false,
         },
         {
@@ -122,7 +121,7 @@ export default class EventService {
         }
       );
       await t.commit();
-      return res.onSuccess(newTour, {
+      return res.onSuccess(newEvent, {
         message: res.locals.t("event_create_success"),
       });
     } catch (error) {
@@ -161,10 +160,16 @@ export default class EventService {
 
       event.startTime = data?.startTime;
       event.endTime = data?.endTime;
+      event.code = data?.code;
       if (imageUrl) event.banner = imageUrl;
       event.hotelIds = data?.hotelIds;
       event.tourIds = data?.tourIds;
       event.numberOfCodes = data?.numberOfCodes;
+      event.discountType = data?.discountType;
+      event.discountValue = data?.discountValue;
+      event.minOrder = data?.minOrder;
+      event.maxDiscount = data?.maxDiscount;
+      event.isQuantityLimit = data?.isQuantityLimit;
       await event.save({ transaction: t });
 
       if (data?.language) {
@@ -181,7 +186,6 @@ export default class EventService {
               description: data?.description,
               policy: data?.policy,
               creator: user?.id,
-              owner: user.enterpriseId || user.id,
               isDeleted: false,
               parentLanguage: id,
               language: data.language,
@@ -195,7 +199,6 @@ export default class EventService {
         } else {
           eventLang.name = data?.name;
           eventLang.description = data?.description;
-          eventLang.policy = data?.policy;
           await eventLang.save({ transaction: t });
           await t.commit();
           return res.onSuccess(eventLang, {
@@ -205,7 +208,6 @@ export default class EventService {
       }
       event.name = data?.name;
       event.description = data?.description;
-      event.policy = data?.policy;
       await event.save({ transaction: t });
       await t.commit();
       return res.onSuccess(event, {
@@ -220,15 +222,14 @@ export default class EventService {
     }
   }
 
-  public async delete(id: number, user: ModelsAttributes.User, res: Response) {
+  public async delete(id: number, res: Response) {
     const t = await sequelize.transaction();
     try {
-      let enterpriseId = user.enterpriseId || user.id;
       let whereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
         isDeleted: false,
-        owner: enterpriseId,
+        owner: null,
       };
 
       let event = await this.eventsModel.findOne({

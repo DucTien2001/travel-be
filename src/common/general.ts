@@ -47,3 +47,8 @@ export enum EServicePolicyType {
   RESCHEDULE = 1,
   REFUND = 2
 }
+
+export enum EDiscountType {
+  MONEY = 1,
+  PERCENT = 2
+}

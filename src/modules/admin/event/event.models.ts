@@ -1,3 +1,5 @@
+import { EDiscountType } from "common/general";
+
 export interface FindAll {
   take: number;
   page: number;
@@ -14,10 +16,14 @@ export interface Create {
   startTime: Date;
   endTime: Date;
   code: string;
-  policy: string;
   hotelIds: number[];
   tourIds: number[];
   numberOfCodes: number;
+  discountType: EDiscountType;
+  discountValue: number;
+  minOrder: number;
+  maxDiscount: number;
+  isQuantityLimit: boolean;
 }
 
 export interface Update {
@@ -30,5 +36,10 @@ export interface Update {
   hotelIds: number[];
   tourIds: number[];
   numberOfCodes: number;
+  discountType: EDiscountType;
+  discountValue: number;
+  minOrder: number;
+  maxDiscount: number;
+  isQuantityLimit: boolean;
   language?: string;
 }
