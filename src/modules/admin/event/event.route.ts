@@ -1,16 +1,16 @@
 import { Router } from "express";
-import { staff } from "middlewares";
+import { admin } from "middlewares";
 import Controller from "./event.controller";
 
 export const router = Router();
 
 router
   .route("/")
-  .get(staff, Controller.findAll)
-  .post(staff, Controller.create);
+  .get(admin, Controller.findAll)
+  .post(admin, Controller.create);
 
 router
   .route("/:id")
-  .get(staff, Controller.findOne)
-  .put(staff, Controller.update)
-  .delete(staff, Controller.delete)
+  .get(admin, Controller.findOne)
+  .put(admin, Controller.update)
+  .delete(admin, Controller.delete)
