@@ -86,7 +86,6 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): EventsInstanc
         defaultValue: 0,
       },
       minOrder: {
-        allowNull: false,
         type: DataTypes.INTEGER,
       },
       maxDiscount: {

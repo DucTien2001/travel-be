@@ -15,13 +15,13 @@ export default class EventService {
    */
   public async findAll(data: FindAll, res: Response) {
     try {
-      let whereOptions: WhereOptions = {
+      const whereOptions: WhereOptions = {
         parentLanguage: null,
         isDeleted: false,
         owner: null,
       };
 
-      let offset = data.take * (data.page - 1);
+      const offset = data.take * (data.page - 1);
 
       const listEvents = await this.eventsModel.findAndCountAll({
         where: whereOptions,
@@ -53,7 +53,7 @@ export default class EventService {
 
   public async findOne(id: number, data: FindOne, res: Response) {
     try {
-      let eventWhereOptions: WhereOptions = {
+      const eventWhereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
         isDeleted: false,
@@ -92,6 +92,7 @@ export default class EventService {
     try {
       const images = await FileService.uploadAttachments([...files]);
       let imageUrl = null;
+      // eslint-disable-next-line no-extra-boolean-cast
       if (!!images?.length) {
         imageUrl = images[0].url;
       }
@@ -150,6 +151,7 @@ export default class EventService {
       }
 
       let imageUrl = null;
+      // eslint-disable-next-line no-extra-boolean-cast
       if (!!files.length) {
         if (event?.banner) {
           await FileService.deleteFile(event.banner);
@@ -225,14 +227,14 @@ export default class EventService {
   public async delete(id: number, res: Response) {
     const t = await sequelize.transaction();
     try {
-      let whereOptions: WhereOptions = {
+      const whereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
         isDeleted: false,
         owner: null,
       };
 
-      let event = await this.eventsModel.findOne({
+      const event = await this.eventsModel.findOne({
         where: whereOptions,
       });
       if (!event) {
