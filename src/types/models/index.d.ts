@@ -18,6 +18,7 @@ import { TourScheduleAttributes, TourSchedulesInstance } from "database/models/t
 import { TranslationAttributes, TranslationsInstance } from "database/models/translations";
 import { UserAttributes, UsersInstance } from "database/models/users";
 import { VerifyCodeAttributes, VerifyCodesInstance } from "database/models/verifyCodes";
+import { VNPayAttributes, VNPaysInstance } from "database/models/vnpays";
 
 declare global {
   namespace ModelsAttributes {
@@ -41,6 +42,7 @@ declare global {
     export type Event = EventAttributes;
     export type HotelComment = HotelCommentAttributes;
     export type Policy = policyAttributes;
+    export type VNPay = VNPayAttributes;
   }
 
   namespace ModelsInstance {
@@ -64,5 +66,6 @@ declare global {
     export type Events = EventsInstance;
     export type HotelComments = HotelCommentsInstance;
     export type Policies = policiesInstance;
+    export type VNPays = VNPaysInstance;
   }
 }

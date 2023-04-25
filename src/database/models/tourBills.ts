@@ -1,12 +1,13 @@
+import { EPaymentStatus } from "models/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
 export interface TourBillAttributes extends Model {
-  dataValues: any;
   id: number;
   userId: number;
   tourId: number;
-  amount: number;
+  amountChild: number;
+  amountAdult: number;
   price: number;
   discount: number;
   totalBill: number;
@@ -14,13 +15,17 @@ export interface TourBillAttributes extends Model {
   phoneNumber: string;
   firstName: string;
   lastName: string;
-  bankName: string;
-  bankAccountName: string;
-  bankNumber: string;
-  accountExpirationDate: Date;
-  deposit: number;
-  verifyCode: string;
-  expiredDate: Date;
+  tourData: ModelsAttributes.Tour;
+  tourOnSaleData: ModelsAttributes.TourOnSale;
+  status: EPaymentStatus;
+  // adminEventId: number;
+  // enterpriseEventId: number;
+  // bankName: string;
+  // bankAccountName: string;
+  // bankNumber: string;
+  // accountExpirationDate: Date;
+  // deposit: number;
+  // expiredDate: Date;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -28,6 +33,7 @@ export interface TourBillAttributes extends Model {
 
 export type TourBillsInstance = typeof Model & {
   new (values?: object, options?: BuildOptions): TourBillAttributes;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   associate?: Function;
 };
 
@@ -43,7 +49,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      amount: {
+      amountChild: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      amountAdult: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
@@ -75,48 +85,72 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
         allowNull: false,
         type: DataTypes.STRING,
       },
-      bankName: {
+      // bankName: {
+      //   type: DataTypes.STRING,
+      // },
+      // bankAccountName: {
+      //   type: DataTypes.STRING,
+      // },
+      // bankNumber: {
+      //   type: DataTypes.STRING,
+      // },
+      // deposit: {
+      //   type: DataTypes.DOUBLE,
+      // },
+      // accountExpirationDate: {
+      //   type: DataTypes.DATE,
+      // },
+      tourData: {
+        type: DataTypes.TEXT({ length: "long" }),
         allowNull: false,
-        type: DataTypes.STRING,
+        get() {
+          return JSON.parse(this.getDataValue("tourData") || "{}");
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        set(value: any) {
+          this.setDataValue("tourData", JSON.stringify(value || {}));
+        },
       },
-      bankAccountName: {
+      tourOnSaleData: {
+        type: DataTypes.TEXT({ length: "long" }),
         allowNull: false,
-        type: DataTypes.STRING,
+        get() {
+          return JSON.parse(this.getDataValue("tourOnSaleData") || "{}");
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        set(value: any) {
+          this.setDataValue("tourOnSaleData", JSON.stringify(value || {}));
+        },
       },
-      bankNumber: {
+      status: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
       },
-      deposit: {
-        allowNull: false,
-        type: DataTypes.DOUBLE,
-      },
-      accountExpirationDate: {
-        type: DataTypes.DATE,
-      },
-      verifyCode: {
-        allowNull: true,
-        type: DataTypes.STRING,
-      },
-      expiredDate: {
-          type: DataTypes.DATE,
-          allowNull: false,
-      },
+      // adminEventId: {
+      //   type: DataTypes.INTEGER,
+      // },
+      // adminEventId: {
+      //   type: DataTypes.INTEGER,
+      // },
+      // expiredDate: {
+      //   type: DataTypes.DATE,
+      // },
     },
     {
       paranoid: true,
     }
   );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tour_bills.associate = (models: { [key: string]: any }) => {
     tour_bills.belongsTo(models.tours, {
-      as: 'tourInfo',
-      foreignKey: 'tourId',
-      constraints: false
+      as: "tourInfo",
+      foreignKey: "tourId",
+      constraints: false,
     });
     tour_bills.belongsTo(models.users, {
-      as: 'userInfo',
-      foreignKey: 'userId',
-      constraints: false
+      as: "userInfo",
+      foreignKey: "userId",
+      constraints: false,
     });
   };
   return tour_bills;
