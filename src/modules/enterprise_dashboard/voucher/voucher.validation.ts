@@ -26,7 +26,7 @@ export default class Validation {
         discountValue: yup.number(),
         minOrder: yup.number(),
         maxDiscount: yup.number(),
-        isQuantityLimit: yup.number(),
+        isQuantityLimit: yup.boolean(),
       })
       .noUnknown()
       .required();
@@ -45,7 +45,7 @@ export default class Validation {
         discountValue: yup.number(),
         minOrder: yup.number(),
         maxDiscount: yup.number(),
-        isQuantityLimit: yup.number(),
+        isQuantityLimit: yup.boolean(),
         language: yup.string().oneOf([LANG.VI, LANG.EN]).notRequired(),
       })
       .noUnknown()
