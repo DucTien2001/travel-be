@@ -5,7 +5,7 @@ import DataType from "sequelize";
 export interface TourBillAttributes extends Model {
   id: number;
   userId: number;
-  tourId: number;
+  tourOnSaleId: number;
   amountChild: number;
   amountAdult: number;
   price: number;
@@ -46,6 +46,10 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
         type: DataTypes.INTEGER,
       },
       tourId: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      tourOnSaleId: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },

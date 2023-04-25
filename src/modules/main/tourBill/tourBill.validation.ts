@@ -25,6 +25,40 @@ export default class TourBillValidation {
       .required();
     return schema.validateSync(req.body);
   }
+  
+  static update(req: Request) {
+    const schema = yup
+      .object({
+        tourOnSaleId: yup.number(),
+        amountChild: yup.number(),
+        amountAdult: yup.number(),
+        price: yup.number(),
+        discount: yup.number(),
+        totalBill: yup.number(),
+        status: yup.number(),
+        email: yup.string().email(),
+        phoneNumber: yup.string().matches(VALIDATION.phone, {
+          message: req.t("field_phone_number_vali_phone"),
+          excludeEmptyString: true,
+        }),
+        firstName: yup.string(),
+        lastName: yup.string(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+  
+  static findAll(req: Request) {
+    const schema = yup
+      .object({
+        take: yup.number().integer().default(10),
+        page: yup.number().min(1).integer().default(1),
+        keyword: yup.string(),
+      })
+      .noUnknown();
+    return schema.validateSync(req.query);
+  }
 
   // static createTourBill(req: Request) {
   //   const schema = yup

@@ -16,6 +16,55 @@ export default class UserController {
     }
   }
 
+  static update(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = TourBillValidation.update(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.update(Number(id), value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static againLink(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.againLink(Number(id), req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static findAll(req: Request, res: Response) {
+    try {
+      const value = TourBillValidation.findAll(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.findAll(value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static findOne(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.findOne(Number(id), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
   // static getTourBill(req: Request, res: Response) {
   //   try {
   //     const { billId } = req.params;
@@ -27,7 +76,7 @@ export default class UserController {
   //     });
   //   }
   // }
-  
+
   // static getAllTourBills(req: Request, res: Response) {
   //   try {
   //     const { tourId } = req.params;
@@ -51,7 +100,7 @@ export default class UserController {
   //     });
   //   }
   // }
-  
+
   // static getAllTourBillsAnyDate(req: Request, res: Response) {
   //   try {
   //     const value = TourBillValidation.getAllTourBillsAnyDate(req);
@@ -75,7 +124,7 @@ export default class UserController {
   //     });
   //   }
   // }
-  
+
   // static verifyBookTour(req: Request, res: Response) {
   //   try {
   //     const value = TourBillValidation.verifyBookTour(req);
@@ -87,7 +136,7 @@ export default class UserController {
   //     });
   //   }
   // }
-  
+
   // static getRevenueOfToursByMonth(req: Request, res: Response) {
   //   try {
   //     const value = TourBillValidation.getRevenueOfToursByMonth(req);
@@ -99,7 +148,7 @@ export default class UserController {
   //     });
   //   }
   // }
-  
+
   // static getRevenueOfToursByYear(req: Request, res: Response) {
   //   try {
   //     const value = TourBillValidation.getRevenueOfToursByYear(req);
@@ -111,7 +160,7 @@ export default class UserController {
   //     });
   //   }
   // }
-  
+
   // static cancelTourBill(req: Request, res: Response) {
   //   try {
   //     const { billId } = req.params;

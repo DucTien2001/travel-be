@@ -8,6 +8,7 @@ export interface TourOnSaleAttributes extends Model {
   tourId: number;
   discount: number;
   quantity: number;
+  quantityOrdered: number;
   startDate: Date;
   childrenAgeMin: number;
   childrenAgeMax: number;
@@ -23,6 +24,7 @@ export interface TourOnSaleAttributes extends Model {
 
 export type TourOnSalesInstance = typeof Model & {
   new (values?: object, options?: BuildOptions): TourOnSaleAttributes;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   associate?: Function;
 };
 
@@ -44,6 +46,11 @@ export default (
       quantity: {
         allowNull: false,
         type: DataTypes.INTEGER,
+      },
+      quantityOrdered: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
       },
       startDate: {
         allowNull: false,

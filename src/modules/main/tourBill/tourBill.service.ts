@@ -3,6 +3,8 @@ import {
   CheckoutPayload,
   Create,
   EVNPayStatus,
+  FindAll,
+  Update,
 } from "./tourBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
@@ -113,6 +115,14 @@ export default class TourBillService {
           detail: "Tour on sale not found",
         });
       }
+      if(tourOnSale.quantityOrdered + data.amountAdult + data.amountChild > tourOnSale.quantity) {
+        return res.onError({
+          status: 400,
+          detail: "Not enough quantity",
+        });
+      }
+      tourOnSale.quantityOrdered = tourOnSale.quantityOrdered + data.amountAdult + data.amountChild
+      await tourOnSale.save({ transaction: t });
 
       const newTourBill = await this.tourBillsModel.create(
         {
@@ -148,6 +158,156 @@ export default class TourBillService {
       });
     } catch (error) {
       await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async againLink(billId: number,user: ModelsAttributes.User, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const tourBill = await this.tourBillsModel.findOne({
+        where: {
+          id: billId,
+        },
+      })
+      if (!tourBill) {
+        return res.onError({
+          status: 404,
+          detail: "Tour bill not found",
+        });
+      }
+
+      const payload = {
+        amount: tourBill.totalBill,
+        orderId: `${tourBill.id}`,
+        clientIp: `${user.id}`,
+      }
+      const checkoutUrl = await this.buildCheckoutUrl(user.id, payload)
+      await t.commit();
+      return res.onSuccess({tourBill, checkoutUrl}, {
+        message: res.locals.t("get_again_link_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  
+  public async update(billId: number, data: Update ,user: ModelsAttributes.User, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const tourBill = await this.tourBillsModel.findOne({
+        where: {
+          id: billId,
+        },
+      })
+      if (!tourBill) {
+        return res.onError({
+          status: 404,
+          detail: "Tour bill not found",
+        });
+      }
+
+      // ============ Handle change schedule ==========
+      // const tourOnSale = await this.tourOnSalesModel.findOne({
+      //   where: {
+      //     id: data.tourOnSaleId,
+      //     isDeleted: false,
+      //   },
+      // })
+      // if (!tourOnSale) {
+      //   return res.onError({
+      //     status: 404,
+      //     detail: "Tour on sale not found",
+      //   });
+      // }
+      // if(tourOnSale.quantityOrdered + data.amountAdult + data.amountChild > tourOnSale.quantity) {
+      //   return res.onError({
+      //     status: 400,
+      //     detail: "Not enough quantity",
+      //   });
+      // }
+      // tourOnSale.quantityOrdered = tourOnSale.quantityOrdered + data.amountAdult + data.amountChild
+      // await tourOnSale.save({ transaction: t });
+
+      if(data?.status) tourBill.status = data.status
+
+      await tourBill.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(tourBill, {
+        message: res.locals.t("tour_bill_update_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+  
+  public async findAll(data: FindAll ,user: ModelsAttributes.User, res: Response) {
+    try {
+      const offset = data.take * (data.page - 1);
+      const bills = await this.tourBillsModel.findAndCountAll({
+        where: {
+          userId: user.id,
+        },
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+      });
+      if (!bills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+
+      // ====== Handle expiredDate =====
+      // const allBills: any[] = [];
+      // bills.rows.map((item) => {
+      //   if (new Date().getTime() < new Date(item?.expiredDate).getTime()) {
+      //     allBills.push({
+      //       ...item?.dataValues,
+      //     });
+      //   }
+      // });
+      return res.onSuccess(bills, {
+        message: res.locals.t("get_all_tour_bills_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+  
+  public async findOne(billId: number, res: Response) {
+    try {
+      const bill = await this.tourBillsModel.findOne({
+        where: {
+          id: billId,
+        },
+      });
+      if (!bill) {
+        return res.onError({
+          status: 404,
+          detail: "bill_not_found",
+        });
+      }
+      return res.onSuccess(bill, {
+        message: res.locals.t("get_tour_bill_success"),
+      });
+    } catch (error) {
       return res.onError({
         status: 500,
         detail: error,

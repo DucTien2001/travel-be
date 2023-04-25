@@ -24,6 +24,20 @@ export interface CheckoutPayload {
   clientIp: string,
 }
 
+export interface Update {
+  tourOnSaleId: number;
+  amountChild: number;
+  amountAdult: number;
+  price: number;
+  discount: number;
+  totalBill: number;
+  status: number;
+  email: string;
+  phoneNumber: string;
+  firstName: string;
+  lastName: string;
+}
+
 export enum EVNPayStatus {
   CREATE = 0,
   SUCCESS,
