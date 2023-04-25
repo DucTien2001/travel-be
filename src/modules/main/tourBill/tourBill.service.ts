@@ -280,8 +280,13 @@ export default class TourBillService {
       //     });
       //   }
       // });
-      return res.onSuccess(bills, {
-        message: res.locals.t("get_all_tour_bills_success"),
+      return res.onSuccess(bills.rows, {
+        meta: {
+          take: data.take,
+          itemCount: bills.count,
+          page: data.page,
+          pageCount: Math.ceil(bills.count / data.take),
+        },
       });
     } catch (error) {
       return res.onError({
