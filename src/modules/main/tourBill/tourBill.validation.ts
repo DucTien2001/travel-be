@@ -25,17 +25,47 @@ export default class TourBillValidation {
       .required();
     return schema.validateSync(req.body);
   }
-  
+
   static update(req: Request) {
     const schema = yup
       .object({
+        status: yup.number(),
+        participantsInfo: yup.array(
+          yup.object({
+            fullName: yup.string(),
+            phoneNumber: yup.string().matches(VALIDATION.phone, {
+              message: req.t("field_phone_number_vali_phone"),
+              excludeEmptyString: true,
+            }),
+          })
+        ),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
+
+  static findAll(req: Request) {
+    const schema = yup
+      .object({
+        take: yup.number().integer().default(10),
+        page: yup.number().min(1).integer().default(1),
+        keyword: yup.string(),
+      })
+      .noUnknown();
+    return schema.validateSync(req.query);
+  }
+  
+  static reSchedule(req: Request) {
+    const schema = yup
+      .object({
+        tourId: yup.number(),
         tourOnSaleId: yup.number(),
         amountChild: yup.number(),
         amountAdult: yup.number(),
         price: yup.number(),
         discount: yup.number(),
         totalBill: yup.number(),
-        status: yup.number(),
         email: yup.string().email(),
         phoneNumber: yup.string().matches(VALIDATION.phone, {
           message: req.t("field_phone_number_vali_phone"),
@@ -49,15 +79,14 @@ export default class TourBillValidation {
     return schema.validateSync(req.body);
   }
   
-  static findAll(req: Request) {
+  static cancel(req: Request) {
     const schema = yup
       .object({
-        take: yup.number().integer().default(10),
-        page: yup.number().min(1).integer().default(1),
-        keyword: yup.string(),
+        moneyRefund: yup.number(),
       })
-      .noUnknown();
-    return schema.validateSync(req.query);
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
   }
 
   // static createTourBill(req: Request) {
@@ -86,7 +115,7 @@ export default class TourBillValidation {
   //     .required();
   //   return schema.validateSync(req.body);
   // }
-  
+
   // static verifyBookTour(req: Request) {
   //   const schema = yup
   //     .object({
@@ -97,7 +126,7 @@ export default class TourBillValidation {
   //     .required();
   //   return schema.validateSync(req.body);
   // }
-  
+
   // static getRevenueOfToursByMonth(req: Request) {
   //   const schema = yup
   //     .object({
@@ -109,7 +138,7 @@ export default class TourBillValidation {
   //     .required();
   //   return schema.validateSync(req.body);
   // }
-  
+
   // static getRevenueOfToursByYear(req: Request) {
   //   const schema = yup
   //     .object({
@@ -120,7 +149,7 @@ export default class TourBillValidation {
   //     .required();
   //   return schema.validateSync(req.body);
   // }
-  
+
   // static getAllTourBillsAnyDate(req: Request) {
   //   const schema = yup
   //     .object({

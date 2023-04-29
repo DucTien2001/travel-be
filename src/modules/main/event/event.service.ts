@@ -13,16 +13,16 @@ export default class EventService {
    */
   public async findAll(data: FindAll, res: Response) {
     try {
-      let whereOptions: WhereOptions = {
+      const whereOptions: WhereOptions = {
         parentLanguage: null,
         isDeleted: false,
         owner: null,
         endTime: {
           [Op.gte]: new Date(),
-        }
+        },
       };
 
-      let offset = data.take * (data.page - 1);
+      const offset = data.take * (data.page - 1);
 
       const listEvents = await this.eventsModel.findAndCountAll({
         where: whereOptions,
@@ -31,7 +31,7 @@ export default class EventService {
             association: "languages",
           },
         ],
-        order: [['startTime', 'ASC']],
+        order: [["startTime", "ASC"]],
         limit: data.take,
         offset: offset,
         distinct: true,
@@ -55,7 +55,7 @@ export default class EventService {
 
   public async findOne(id: number, data: FindOne, res: Response) {
     try {
-      let eventWhereOptions: WhereOptions = {
+      const eventWhereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
         isDeleted: false,
@@ -78,6 +78,37 @@ export default class EventService {
 
       if (data.language) {
         event = GetLanguage.getLang(event.toJSON(), data.language, eventLangFields);
+      }
+
+      return res.onSuccess(event);
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async findByCode(code: string, res: Response) {
+    try {
+      const eventWhereOptions: WhereOptions = {
+        code: code,
+        isDeleted: false,
+        owner: null,
+      };
+      const event = await this.eventsModel.findOne({
+        where: eventWhereOptions,
+        include: [
+          {
+            association: "languages",
+          },
+        ],
+      });
+      if (!event) {
+        return res.onError({
+          status: 404,
+          detail: "Event not found",
+        });
       }
 
       return res.onSuccess(event);

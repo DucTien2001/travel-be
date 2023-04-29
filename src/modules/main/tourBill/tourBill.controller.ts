@@ -65,6 +65,32 @@ export default class UserController {
     }
   }
 
+  static reSchedule(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = TourBillValidation.reSchedule(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.reSchedule(Number(id), value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static cancel(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = TourBillValidation.cancel(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.cancel(Number(id), value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
   // static getTourBill(req: Request, res: Response) {
   //   try {
   //     const { billId } = req.params;

@@ -24,18 +24,32 @@ export interface CheckoutPayload {
   clientIp: string,
 }
 
+export interface IParticipantInfo {
+  fullName: string;
+  phoneNumber: string;
+}
+
 export interface Update {
+  status: number;
+  participantsInfo: IParticipantInfo[];
+}
+
+export interface ReSchedule {
+  tourId: number;
   tourOnSaleId: number;
   amountChild: number;
   amountAdult: number;
   price: number;
   discount: number;
   totalBill: number;
-  status: number;
   email: string;
   phoneNumber: string;
   firstName: string;
   lastName: string;
+}
+
+export interface Cancel {
+  moneyRefund: number;
 }
 
 export enum EVNPayStatus {

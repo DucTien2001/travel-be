@@ -1,21 +1,11 @@
-import Container, { Inject, Service } from "typedi";
-import {
-  CheckoutPayload,
-  Create,
-  EVNPayStatus,
-  FindAll,
-  Update,
-} from "./tourBill.models";
+import { Inject, Service } from "typedi";
+import { Cancel, CheckoutPayload, Create, FindAll, ReSchedule, Update } from "./tourBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
-import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
-import EmailService from "services/emailService";
-import { Op } from "sequelize";
-import { TourBillAttributes } from "database/models/tourBills";
 import { EPaymentStatus } from "models/general";
-import querystring from "qs"
-import crypto from "crypto"
+import querystring from "qs";
+import crypto from "crypto";
 
 @Service()
 export default class TourBillService {
@@ -23,7 +13,7 @@ export default class TourBillService {
     @Inject("tourBillsModel") private tourBillsModel: ModelsInstance.TourBills,
     @Inject("toursModel") private toursModel: ModelsInstance.Tours,
     @Inject("tourOnSalesModel") private tourOnSalesModel: ModelsInstance.TourOnSales,
-    @Inject("vnPaysModel") private vnPaysModel: ModelsInstance.VNPays,
+    @Inject("vnPaysModel") private vnPaysModel: ModelsInstance.VNPays
   ) {}
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async sortObject(obj: any) {
@@ -31,17 +21,17 @@ export default class TourBillService {
     let sorted = {};
     const str = [];
     let key;
-    for (key in obj){
+    for (key in obj) {
       // eslint-disable-next-line no-prototype-builtins
       if (obj.hasOwnProperty(key)) {
-      str.push(encodeURIComponent(key));
+        str.push(encodeURIComponent(key));
       }
     }
     str.sort();
-      for (key = 0; key < str.length; key++) {
-          sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
-      }
-      return sorted;
+    for (key = 0; key < str.length; key++) {
+      sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+    }
+    return sorted;
   }
   private async buildCheckoutUrl(userPaymentId: number, payload: CheckoutPayload) {
     // await this.vnPaysModel.create({
@@ -54,19 +44,19 @@ export default class TourBillService {
     //   vpc_OrderInfo: payload.orderId,
     //   vpc_TicketNo: payload.clientIp,
     // })
-    
-    const createDate = moment().format('YYYYMMDDHHmmss');
-    const locale = 'vn';
-    const currCode = 'VND';
+
+    const createDate = moment().format("YYYYMMDDHHmmss");
+    const locale = "vn";
+    const currCode = "VND";
     let vnp_Params = {
-      vnp_Version: '2.1.0',
-      vnp_Command: 'pay',
+      vnp_Version: "2.1.0",
+      vnp_Command: "pay",
       vnp_TmnCode: process.env.vnp_TmnCode,
       vnp_Locale: locale,
       vnp_CurrCode: currCode,
       vnp_TxnRef: payload.orderId,
-      vnp_OrderInfo: 'Thanh toan cho ma GD:' + payload.orderId,
-      vnp_OrderType: 'other',
+      vnp_OrderInfo: "Thanh toan cho ma GD:" + payload.orderId,
+      vnp_OrderType: "other",
       vnp_Amount: payload.amount * 100,
       vnp_ReturnUrl: process.env.vnp_ReturnUrl,
       vnp_IpAddr: payload.clientIp,
@@ -76,13 +66,13 @@ export default class TourBillService {
     vnp_Params = await this.sortObject(vnp_Params);
     const signData = querystring.stringify(vnp_Params, { encode: false });
     const hmac = crypto.createHmac("sha512", process.env.vnp_HashSecret);
-    const signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex"); 
-    vnp_Params['vnp_SecureHash'] = signed;
-    let vnpUrl = process.env.vnp_Url
-    vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
-    return vnpUrl
+    const signed = hmac.update(new Buffer(signData, "utf-8")).digest("hex");
+    vnp_Params["vnp_SecureHash"] = signed;
+    let vnpUrl = process.env.vnp_Url;
+    vnpUrl += "?" + querystring.stringify(vnp_Params, { encode: false });
+    return vnpUrl;
   }
-  public async create(data: Create ,user: ModelsAttributes.User, res: Response) {
+  public async create(data: Create, user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
       const tour = await this.toursModel.findOne({
@@ -96,7 +86,7 @@ export default class TourBillService {
             association: "languages",
           },
         ],
-      })
+      });
       if (!tour) {
         return res.onError({
           status: 404,
@@ -108,20 +98,20 @@ export default class TourBillService {
           id: data.tourOnSaleId,
           isDeleted: false,
         },
-      })
+      });
       if (!tourOnSale) {
         return res.onError({
           status: 404,
           detail: "Tour on sale not found",
         });
       }
-      if(tourOnSale.quantityOrdered + data.amountAdult + data.amountChild > tourOnSale.quantity) {
+      if (tourOnSale.quantityOrdered + data.amountAdult + data.amountChild > tourOnSale.quantity) {
         return res.onError({
           status: 400,
           detail: "Not enough quantity",
         });
       }
-      tourOnSale.quantityOrdered = tourOnSale.quantityOrdered + data.amountAdult + data.amountChild
+      tourOnSale.quantityOrdered = tourOnSale.quantityOrdered + data.amountAdult + data.amountChild;
       await tourOnSale.save({ transaction: t });
 
       const newTourBill = await this.tourBillsModel.create(
@@ -141,6 +131,7 @@ export default class TourBillService {
           status: EPaymentStatus.NOT_PAID,
           tourData: tour,
           tourOnSaleData: tourOnSale,
+          expiredTime: moment().add(process.env.MAXAGE_TOKEN_BOOK_SERVICE, "minutes"),
         },
         {
           transaction: t,
@@ -150,12 +141,15 @@ export default class TourBillService {
         amount: data?.totalBill,
         orderId: `${newTourBill.id}`,
         clientIp: `${user.id}`,
-      }
-      const checkoutUrl = await this.buildCheckoutUrl(user.id, payload)
+      };
+      const checkoutUrl = await this.buildCheckoutUrl(user.id, payload);
       await t.commit();
-      return res.onSuccess({newTourBill, checkoutUrl}, {
-        message: res.locals.t("tour_bill_create_success"),
-      });
+      return res.onSuccess(
+        { newTourBill, checkoutUrl },
+        {
+          message: res.locals.t("tour_bill_create_success"),
+        }
+      );
     } catch (error) {
       await t.rollback();
       return res.onError({
@@ -165,14 +159,14 @@ export default class TourBillService {
     }
   }
 
-  public async againLink(billId: number,user: ModelsAttributes.User, res: Response) {
+  public async againLink(billId: number, user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
       const tourBill = await this.tourBillsModel.findOne({
         where: {
           id: billId,
         },
-      })
+      });
       if (!tourBill) {
         return res.onError({
           status: 404,
@@ -184,12 +178,15 @@ export default class TourBillService {
         amount: tourBill.totalBill,
         orderId: `${tourBill.id}`,
         clientIp: `${user.id}`,
-      }
-      const checkoutUrl = await this.buildCheckoutUrl(user.id, payload)
+      };
+      const checkoutUrl = await this.buildCheckoutUrl(user.id, payload);
       await t.commit();
-      return res.onSuccess({tourBill, checkoutUrl}, {
-        message: res.locals.t("get_again_link_success"),
-      });
+      return res.onSuccess(
+        { tourBill, checkoutUrl },
+        {
+          message: res.locals.t("get_again_link_success"),
+        }
+      );
     } catch (error) {
       await t.rollback();
       return res.onError({
@@ -199,15 +196,14 @@ export default class TourBillService {
     }
   }
 
-  
-  public async update(billId: number, data: Update ,user: ModelsAttributes.User, res: Response) {
+  public async update(billId: number, data: Update, user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
       const tourBill = await this.tourBillsModel.findOne({
         where: {
           id: billId,
         },
-      })
+      });
       if (!tourBill) {
         return res.onError({
           status: 404,
@@ -215,29 +211,27 @@ export default class TourBillService {
         });
       }
 
-      // ============ Handle change schedule ==========
-      // const tourOnSale = await this.tourOnSalesModel.findOne({
-      //   where: {
-      //     id: data.tourOnSaleId,
-      //     isDeleted: false,
-      //   },
-      // })
-      // if (!tourOnSale) {
-      //   return res.onError({
-      //     status: 404,
-      //     detail: "Tour on sale not found",
-      //   });
-      // }
-      // if(tourOnSale.quantityOrdered + data.amountAdult + data.amountChild > tourOnSale.quantity) {
-      //   return res.onError({
-      //     status: 400,
-      //     detail: "Not enough quantity",
-      //   });
-      // }
-      // tourOnSale.quantityOrdered = tourOnSale.quantityOrdered + data.amountAdult + data.amountChild
-      // await tourOnSale.save({ transaction: t });
-
-      if(data?.status) tourBill.status = data.status
+      if (data?.status) {
+        tourBill.status = data.status;
+        if (data.status === EPaymentStatus.PAID && tourBill.oldBillId) {
+          const oldBill = tourBill.oldBillData;
+          const tourOnSale = await this.tourOnSalesModel.findOne({
+            where: {
+              id: oldBill.tourOnSaleId,
+              isDeleted: false,
+            },
+          });
+          if (!tourOnSale) {
+            return res.onError({
+              status: 404,
+              detail: "Tour on sale not found",
+            });
+          }
+          tourOnSale.quantityOrdered = tourOnSale.quantityOrdered + oldBill.amountAdult + oldBill.amountChild;
+          await tourOnSale.save({ transaction: t });
+        }
+      }
+      if (data?.participantsInfo) tourBill.participantsInfo = data.participantsInfo;
 
       await tourBill.save({ transaction: t });
       await t.commit();
@@ -252,8 +246,8 @@ export default class TourBillService {
       });
     }
   }
-  
-  public async findAll(data: FindAll ,user: ModelsAttributes.User, res: Response) {
+
+  public async findAll(data: FindAll, user: ModelsAttributes.User, res: Response) {
     try {
       const offset = data.take * (data.page - 1);
       const bills = await this.tourBillsModel.findAndCountAll({
@@ -295,7 +289,7 @@ export default class TourBillService {
       });
     }
   }
-  
+
   public async findOne(billId: number, res: Response) {
     try {
       const bill = await this.tourBillsModel.findOne({
@@ -320,8 +314,148 @@ export default class TourBillService {
     }
   }
 
+  public async reSchedule(billId: number, data: ReSchedule, user: ModelsAttributes.User, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      // handle old bill
+      const tourBill = await this.tourBillsModel.findOne({
+        where: {
+          id: billId,
+        },
+      });
+      if (!tourBill) {
+        return res.onError({
+          status: 404,
+          detail: "Tour bill not found",
+        });
+      }
 
+      tourBill.isReScheduled = true;
+      await tourBill.save({ transaction: t });
 
+      // handle minus ticket of tour on sale
+      const tourOnSale = await this.tourOnSalesModel.findOne({
+        where: {
+          id: data.tourOnSaleId,
+          isDeleted: false,
+        },
+      });
+      if (!tourOnSale) {
+        return res.onError({
+          status: 404,
+          detail: "Tour on sale not found",
+        });
+      }
+      if (tourOnSale.quantityOrdered + data.amountAdult + data.amountChild > tourOnSale.quantity) {
+        return res.onError({
+          status: 400,
+          detail: "Not enough quantity",
+        });
+      }
+      tourOnSale.quantityOrdered = tourOnSale.quantityOrdered + data.amountAdult + data.amountChild;
+      await tourOnSale.save({ transaction: t });
+
+      // handle re-schedule
+      const newTourBill = await this.tourBillsModel.create(
+        {
+          userId: user?.id,
+          tourId: data?.tourId,
+          tourOnSaleId: data?.tourOnSaleId,
+          amountChild: data?.amountChild,
+          amountAdult: data?.amountAdult,
+          price: data?.price,
+          discount: data?.discount,
+          totalBill: data?.totalBill,
+          email: data?.email,
+          phoneNumber: data?.phoneNumber,
+          firstName: data?.firstName,
+          lastName: data?.lastName,
+          status: EPaymentStatus.NOT_PAID,
+          tourData: tourBill.tourData,
+          participantsInfo: tourBill.participantsInfo,
+          tourOnSaleData: tourOnSale,
+          expiredTime: moment().add(process.env.MAXAGE_TOKEN_BOOK_SERVICE, "minutes"),
+          oldBillId: tourBill.id,
+          oldBillData: tourBill,
+        },
+        {
+          transaction: t,
+        }
+      );
+
+      const payload = {
+        amount: data?.totalBill,
+        orderId: `${newTourBill.id}`,
+        clientIp: `${user.id}`,
+      };
+      const checkoutUrl = await this.buildCheckoutUrl(user.id, payload);
+      await t.commit();
+      return res.onSuccess(
+        { tourBill: newTourBill, checkoutUrl: checkoutUrl },
+        {
+          message: res.locals.t("tour_bill_update_success"),
+        }
+      );
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  // Cancel the booked ticket
+  public async cancel(billId: number, data: Cancel, user: ModelsAttributes.User, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const tourBill = await this.tourBillsModel.findOne({
+        where: {
+          id: billId,
+        },
+      });
+      if (!tourBill) {
+        return res.onError({
+          status: 404,
+          detail: "Tour bill not found",
+        });
+      }
+
+      tourBill.isCanceled = true;
+      tourBill.moneyRefund = data.moneyRefund;
+      await tourBill.save({ transaction: t });
+
+      // handle minus ticket of tour on sale
+      const tourOnSale = await this.tourOnSalesModel.findOne({
+        where: {
+          id: tourBill.tourOnSaleId,
+          isDeleted: false,
+        },
+      });
+      if (!tourOnSale) {
+        return res.onError({
+          status: 404,
+          detail: "Tour on sale not found",
+        });
+      }
+      tourOnSale.quantityOrdered = tourOnSale.quantityOrdered + tourBill.amountAdult + tourBill.amountChild;
+      await tourOnSale.save({ transaction: t });
+
+      await t.commit();
+      return res.onSuccess(
+        tourBill,
+        {
+          message: res.locals.t("cancel_tour_bill_success"),
+        }
+      );
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
 
   // /**
   //  * Get a tour bill

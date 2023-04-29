@@ -28,4 +28,16 @@ export default class Controller {
       });
     }
   }
+
+  static findByCode(req: Request, res: Response) {
+    try {
+      const { code } = req.params;
+      const ServiceI = Container.get(Service);
+      ServiceI.findByCode(code, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

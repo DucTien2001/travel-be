@@ -5,6 +5,7 @@ import DataType from "sequelize";
 export interface TourBillAttributes extends Model {
   id: number;
   userId: number;
+  tourId: number;
   tourOnSaleId: number;
   amountChild: number;
   amountAdult: number;
@@ -18,14 +19,14 @@ export interface TourBillAttributes extends Model {
   tourData: ModelsAttributes.Tour;
   tourOnSaleData: ModelsAttributes.TourOnSale;
   status: EPaymentStatus;
-  // adminEventId: number;
-  // enterpriseEventId: number;
-  // bankName: string;
-  // bankAccountName: string;
-  // bankNumber: string;
-  // accountExpirationDate: Date;
-  // deposit: number;
-  // expiredDate: Date;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  participantsInfo: any;
+  expiredTime: Date;
+  isReScheduled: boolean;
+  oldBillId: number;
+  oldBillData: ModelsAttributes.TourBill;
+  isCanceled: boolean;
+  moneyRefund: number;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -89,21 +90,6 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
         allowNull: false,
         type: DataTypes.STRING,
       },
-      // bankName: {
-      //   type: DataTypes.STRING,
-      // },
-      // bankAccountName: {
-      //   type: DataTypes.STRING,
-      // },
-      // bankNumber: {
-      //   type: DataTypes.STRING,
-      // },
-      // deposit: {
-      //   type: DataTypes.DOUBLE,
-      // },
-      // accountExpirationDate: {
-      //   type: DataTypes.DATE,
-      // },
       tourData: {
         type: DataTypes.TEXT({ length: "long" }),
         allowNull: false,
@@ -126,19 +112,44 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
           this.setDataValue("tourOnSaleData", JSON.stringify(value || {}));
         },
       },
+      participantsInfo: {
+        type: DataTypes.TEXT({ length: "long" }),
+        get() {
+          return JSON.parse(this.getDataValue("participantsInfo") || "{}");
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        set(value: any) {
+          this.setDataValue("participantsInfo", JSON.stringify(value || {}));
+        },
+      },
       status: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      // adminEventId: {
-      //   type: DataTypes.INTEGER,
-      // },
-      // adminEventId: {
-      //   type: DataTypes.INTEGER,
-      // },
-      // expiredDate: {
-      //   type: DataTypes.DATE,
-      // },
+      isReScheduled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      expiredTime: {
+        type: DataTypes.DATE,
+      },
+      oldBillData: {
+        type: DataTypes.TEXT({ length: "long" }),
+        get() {
+          return JSON.parse(this.getDataValue("oldBillData") || "{}");
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        set(value: any) {
+          this.setDataValue("oldBillData", JSON.stringify(value || {}));
+        },
+      },
+      isCanceled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      moneyRefund: {
+        type: DataTypes.DOUBLE,
+      },
     },
     {
       paranoid: true,

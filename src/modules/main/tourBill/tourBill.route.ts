@@ -7,6 +7,8 @@ export const tourBillRouter = Router();
 tourBillRouter.route("/").get(auth, TourBillController.findAll).post(auth ,TourBillController.create);
 tourBillRouter.route("/:id").get(auth, TourBillController.findOne).put(auth ,TourBillController.update);
 tourBillRouter.route("/pay-again/:id").get(auth ,TourBillController.againLink);
+tourBillRouter.route("/re-schedule/:id").put(auth ,TourBillController.reSchedule);
+tourBillRouter.route("/cancel/:id").put(auth ,TourBillController.cancel);
 // tourBillRouter.route("/get-tour-bill/:billId").get(TourBillController.getTourBill);
 // tourBillRouter.route("/get-all-tour-bills/:tourId").get(TourBillController.getAllTourBills);
 // tourBillRouter.route("/get-all-user-tour-bills/:userId").get(TourBillController.getAllUserTourBills);
