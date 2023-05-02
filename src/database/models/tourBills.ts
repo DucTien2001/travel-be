@@ -133,7 +133,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
       status: {
         allowNull: false,
         type: DataTypes.INTEGER,
-        defaultValue: 0
+        defaultValue: EBillStatus.NOT_CONTACTED_YET
       },
       expiredTime: {
         type: DataTypes.DATE,
