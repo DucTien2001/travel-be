@@ -15,7 +15,9 @@
     "seed": "node_modules/.bin/sequelize db:seed --seed",
     "seed:all": "node_modules/.bin/sequelize db:seed:all",
     "seed:undo": "node_modules/.bin/sequelize db:seed:undo --seed",
-    "seed:undo:all": "node_modules/.bin/sequelize db:seed:undo:all"
+    "seed:undo:all": "node_modules/.bin/sequelize db:seed:undo:all",
+    "seed:translation": "node_modules/.bin/sequelize db:seed --seed 20220421042730-translations.js",
+    "seed:undo:translation": "node_modules/.bin/sequelize db:seed:undo --seed 20220421042730-translations.js"
   },
   "keywords": [],
   "author": "",

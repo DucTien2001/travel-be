@@ -3,9 +3,10 @@ import { Cancel, CheckoutPayload, Create, FindAll, ReSchedule, Update } from "./
 import { sequelize } from "database/models";
 import { Response } from "express";
 import moment from "moment";
-import { EPaymentStatus } from "models/general";
+import { EBillStatus, EPaymentStatus } from "models/general";
 import querystring from "qs";
 import crypto from "crypto";
+import { Op } from "sequelize";
 
 @Service()
 export default class TourBillService {
@@ -128,7 +129,8 @@ export default class TourBillService {
           phoneNumber: data?.phoneNumber,
           firstName: data?.firstName,
           lastName: data?.lastName,
-          status: EPaymentStatus.NOT_PAID,
+          paymentStatus: EPaymentStatus.NOT_PAID,
+          status: EBillStatus.NOT_CONTACTED_YET,
           tourData: tour,
           tourOnSaleData: tourOnSale,
           expiredTime: moment().add(process.env.MAXAGE_TOKEN_BOOK_SERVICE, "minutes"),
@@ -211,9 +213,9 @@ export default class TourBillService {
         });
       }
 
-      if (data?.status) {
-        tourBill.status = data.status;
-        if (data.status === EPaymentStatus.PAID && tourBill.oldBillId) {
+      if (data?.paymentStatus) {
+        tourBill.paymentStatus = data.paymentStatus;
+        if (data.paymentStatus === EPaymentStatus.PAID && tourBill.oldBillId) {
           const oldBill = tourBill.oldBillData;
           const tourOnSale = await this.tourOnSalesModel.findOne({
             where: {
@@ -253,6 +255,7 @@ export default class TourBillService {
       const bills = await this.tourBillsModel.findAndCountAll({
         where: {
           userId: user.id,
+          status: {[Op.not]: EBillStatus.RESCHEDULED}
         },
         limit: data.take,
         offset: offset,
@@ -330,7 +333,7 @@ export default class TourBillService {
         });
       }
 
-      tourBill.isReScheduled = true;
+      tourBill.status = EBillStatus.RESCHEDULED;
       await tourBill.save({ transaction: t });
 
       // handle minus ticket of tour on sale
@@ -370,7 +373,8 @@ export default class TourBillService {
           phoneNumber: data?.phoneNumber,
           firstName: data?.firstName,
           lastName: data?.lastName,
-          status: EPaymentStatus.NOT_PAID,
+          paymentStatus: EPaymentStatus.NOT_PAID,
+          status: EBillStatus.NOT_CONTACTED_YET,
           tourData: tourBill.tourData,
           participantsInfo: tourBill.participantsInfo,
           tourOnSaleData: tourOnSale,
@@ -421,7 +425,7 @@ export default class TourBillService {
         });
       }
 
-      tourBill.isCanceled = true;
+      tourBill.status = EBillStatus.CANCELED;
       tourBill.moneyRefund = data.moneyRefund;
       await tourBill.save({ transaction: t });
 

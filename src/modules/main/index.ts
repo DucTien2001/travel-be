@@ -11,6 +11,7 @@ import { userRouter } from "./user";
 import { tourScheduleRouter } from "./tour_schedule";
 import { voucherRouter } from "./voucher";
 import { eventRouter } from "./event";
+import { translationRouter } from "./translation";
 
 export const mainRouter = Router();
 
@@ -26,3 +27,4 @@ mainRouter.use("/tour-comment", tourCommentRouter);
 mainRouter.use("/hotel-comment", hotelCommentRouter);
 mainRouter.use("/voucher", voucherRouter);
 mainRouter.use("/event", eventRouter);
+mainRouter.use('/translation', translationRouter);

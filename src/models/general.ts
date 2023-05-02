@@ -82,6 +82,15 @@ export enum EPaymentStatus {
   FAILED
 }
 
+export enum EBillStatus {
+  RESCHEDULED = 0,
+  CANCELED,
+  NOT_CONTACTED_YET,
+  CONTACTED,
+  USED,
+  NOT_USE
+}
+
 export enum ECurrency {
   USD = 'USD',
   VND = 'VND',

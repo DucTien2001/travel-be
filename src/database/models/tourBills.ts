@@ -1,4 +1,4 @@
-import { EPaymentStatus } from "models/general";
+import { EBillStatus, EPaymentStatus } from "models/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
@@ -6,6 +6,7 @@ export interface TourBillAttributes extends Model {
   id: number;
   userId: number;
   tourId: number;
+  tourOwnerId: number;
   tourOnSaleId: number;
   amountChild: number;
   amountAdult: number;
@@ -18,14 +19,13 @@ export interface TourBillAttributes extends Model {
   lastName: string;
   tourData: ModelsAttributes.Tour;
   tourOnSaleData: ModelsAttributes.TourOnSale;
-  status: EPaymentStatus;
+  paymentStatus: EPaymentStatus;
+  status: EBillStatus;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   participantsInfo: any;
   expiredTime: Date;
-  isReScheduled: boolean;
   oldBillId: number;
   oldBillData: ModelsAttributes.TourBill;
-  isCanceled: boolean;
   moneyRefund: number;
   createdAt: Date;
   updatedAt: Date;
@@ -47,6 +47,10 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
         type: DataTypes.INTEGER,
       },
       tourId: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      tourOwnerId: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
@@ -122,13 +126,14 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
           this.setDataValue("participantsInfo", JSON.stringify(value || {}));
         },
       },
-      status: {
+      paymentStatus: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      isReScheduled: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+      status: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        defaultValue: 0
       },
       expiredTime: {
         type: DataTypes.DATE,
@@ -142,10 +147,6 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
         set(value: any) {
           this.setDataValue("oldBillData", JSON.stringify(value || {}));
         },
-      },
-      isCanceled: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
       },
       moneyRefund: {
         type: DataTypes.DOUBLE,

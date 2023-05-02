@@ -30,7 +30,7 @@ export interface IParticipantInfo {
 }
 
 export interface Update {
-  status: number;
+  paymentStatus: number;
   participantsInfo: IParticipantInfo[];
 }
 

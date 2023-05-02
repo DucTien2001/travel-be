@@ -29,7 +29,7 @@ export default class TourBillValidation {
   static update(req: Request) {
     const schema = yup
       .object({
-        status: yup.number(),
+        paymentStatus: yup.number(),
         participantsInfo: yup.array(
           yup.object({
             fullName: yup.string(),
