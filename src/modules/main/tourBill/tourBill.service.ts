@@ -119,6 +119,7 @@ export default class TourBillService {
         {
           userId: user?.id,
           tourId: data?.tourId,
+          tourOwnerId: tour.owner,
           tourOnSaleId: data?.tourOnSaleId,
           amountChild: data?.amountChild,
           amountAdult: data?.amountAdult,
@@ -320,6 +321,24 @@ export default class TourBillService {
   public async reSchedule(billId: number, data: ReSchedule, user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
+      const tour = await this.toursModel.findOne({
+        where: {
+          id: data.tourId,
+          parentLanguage: null,
+          isDeleted: false,
+        },
+        include: [
+          {
+            association: "languages",
+          },
+        ],
+      });
+      if (!tour) {
+        return res.onError({
+          status: 404,
+          detail: "Tour not found",
+        });
+      }
       // handle old bill
       const tourBill = await this.tourBillsModel.findOne({
         where: {
@@ -363,6 +382,7 @@ export default class TourBillService {
         {
           userId: user?.id,
           tourId: data?.tourId,
+          tourOwnerId: tour.owner,
           tourOnSaleId: data?.tourOnSaleId,
           amountChild: data?.amountChild,
           amountAdult: data?.amountAdult,
