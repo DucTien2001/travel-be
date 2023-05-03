@@ -256,7 +256,7 @@ export default class TourBillService {
       const bills = await this.tourBillsModel.findAndCountAll({
         where: {
           userId: user.id,
-          status: {[Op.not]: EBillStatus.RESCHEDULED}
+          status: { [Op.not]: EBillStatus.RESCHEDULED },
         },
         limit: data.take,
         offset: offset,
@@ -308,6 +308,33 @@ export default class TourBillService {
         });
       }
       return res.onSuccess(bill, {
+        message: res.locals.t("get_tour_bill_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async findLatest(tourId: number, user: ModelsAttributes.User, res: Response) {
+    try {
+      const bill = await this.tourBillsModel.findAll({
+        where: {
+          userId: user.id,
+          tourId: tourId,
+        },
+        order: [["createdAt", "DESC"]],
+      });
+      if (!bill) {
+        return res.onError({
+          status: 404,
+          detail: "bill_not_found",
+        });
+      }
+      const result = bill.length > 0 ? bill[0] : null;
+      return res.onSuccess(result, {
         message: res.locals.t("get_tour_bill_success"),
       });
     } catch (error) {
@@ -466,12 +493,9 @@ export default class TourBillService {
       await tourOnSale.save({ transaction: t });
 
       await t.commit();
-      return res.onSuccess(
-        tourBill,
-        {
-          message: res.locals.t("cancel_tour_bill_success"),
-        }
-      );
+      return res.onSuccess(tourBill, {
+        message: res.locals.t("cancel_tour_bill_success"),
+      });
     } catch (error) {
       await t.rollback();
       return res.onError({

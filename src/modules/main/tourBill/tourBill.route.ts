@@ -6,6 +6,7 @@ export const tourBillRouter = Router();
 
 tourBillRouter.route("/").get(auth, TourBillController.findAll).post(auth ,TourBillController.create);
 tourBillRouter.route("/:id").get(auth, TourBillController.findOne).put(auth ,TourBillController.update);
+tourBillRouter.route("/latest/:tourId").get(auth, TourBillController.findLatest);
 tourBillRouter.route("/pay-again/:id").get(auth ,TourBillController.againLink);
 tourBillRouter.route("/re-schedule/:id").put(auth ,TourBillController.reSchedule);
 tourBillRouter.route("/cancel/:id").put(auth ,TourBillController.cancel);

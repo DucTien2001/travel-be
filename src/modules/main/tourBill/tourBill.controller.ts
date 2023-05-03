@@ -65,6 +65,18 @@ export default class UserController {
     }
   }
 
+  static findLatest(req: Request, res: Response) {
+    try {
+      const { tourId } = req.params;
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.findLatest(Number(tourId), req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
   static reSchedule(req: Request, res: Response) {
     try {
       const { id } = req.params;
