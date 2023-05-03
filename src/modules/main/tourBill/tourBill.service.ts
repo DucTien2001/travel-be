@@ -324,6 +324,7 @@ export default class TourBillService {
         where: {
           userId: user.id,
           tourId: tourId,
+          status: EBillStatus.USED,
         },
         order: [["createdAt", "DESC"]],
       });
