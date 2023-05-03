@@ -1,38 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { EServiceType } from "common/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
-export interface TourCommentAttributes extends Model {
+export interface CommentAttributes extends Model {
   dataValues: any;
   id: number;
-  tourId: number;
+  serviceId: number;
+  serviceType: EServiceType;
   userId: number;
   billId: number;
-  comment: string;
+  content: string;
   images: string[];
   rate: number;
   commentRepliedId: number;
-  // replyComment: string;
-  // isRequestDelete: boolean;
-  // reasonForDelete: string;
-  // isDecline: boolean;
-  // reasonForDecline: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
 }
 
-export type TourCommentsInstance = typeof Model & {
-  new (values?: object, options?: BuildOptions): TourCommentAttributes;
+export type CommentsInstance = typeof Model & {
+  new (values?: object, options?: BuildOptions): CommentAttributes;
   // eslint-disable-next-line @typescript-eslint/ban-types
   associate?: Function;
 };
 
-export default (sequelize: Sequelize, DataTypes: typeof DataType): TourCommentsInstance => {
-  const tour_comments = <TourCommentsInstance>sequelize.define(
-    "tour_comments",
+export default (sequelize: Sequelize, DataTypes: typeof DataType): CommentsInstance => {
+  const comments = <CommentsInstance>sequelize.define(
+    "comments",
     {
-      tourId: {
+      serviceId: {
+        type: DataTypes.INTEGER,
+      },
+      serviceType: {
         type: DataTypes.INTEGER,
       },
       userId: {
@@ -41,7 +41,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourCommentsI
       billId: {
         type: DataTypes.INTEGER,
       },
-      comment: {
+      content: {
         type: DataTypes.TEXT,
       },
       images: {
@@ -59,49 +59,42 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourCommentsI
       commentRepliedId: {
         type: DataTypes.INTEGER,
       },
-      // replyComment: {
-      //   type: DataTypes.TEXT,
-      // },
-      // isRequestDelete: {
-      //   type: DataTypes.BOOLEAN,
-      //   defaultValue: false,
-      // },
-      // reasonForDelete: {
-      //   type: DataTypes.TEXT,
-      // },
-      // isDecline: {
-      //   type: DataTypes.BOOLEAN,
-      //   defaultValue: false,
-      // },
-      // reasonForDecline: {
-      //   type: DataTypes.TEXT,
-      // },
     },
     {
       paranoid: true,
     }
   );
-  tour_comments.associate = (models: { [key: string]: any }) => {
-    tour_comments.belongsTo(models.tours, {
+  comments.associate = (models: { [key: string]: any }) => {
+    comments.belongsTo(models.tours, {
       as: 'tourInfo',
-      foreignKey: 'tourId',
+      foreignKey: 'serviceId',
       constraints: false
     });
-    tour_comments.belongsTo(models.users, {
-      as: 'tourReviewer',
+    comments.belongsTo(models.tours, {
+      as: 'stayInfo',
+      foreignKey: 'serviceId',
+      constraints: false
+    });
+    comments.belongsTo(models.users, {
+      as: 'reviewer',
       foreignKey: 'userId',
       constraints: false
     });
-    tour_comments.belongsTo(models.tour_bills, {
+    comments.belongsTo(models.tour_bills, {
       as: 'tourBillData',
       foreignKey: 'billId',
       constraints: false
     });
-    tour_comments.hasMany(models.tour_comments, {
+    comments.belongsTo(models.room_bills, {
+      as: 'roomBillData',
+      foreignKey: 'billId',
+      constraints: false
+    });
+    comments.hasMany(models.comments, {
       as: 'replies',
       foreignKey: 'commentRepliedId',
       constraints: false
     })
   };
-  return tour_comments;
+  return comments;
 };

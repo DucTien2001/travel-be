@@ -77,6 +77,7 @@ export default class TourBillService {
       });
     }
   }
+  
   public async update(billId: number, data: Update, user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {

@@ -23,4 +23,5 @@ export default () => {
   Container.set("hotelCommentsModel", database.hotel_comments);
   Container.set("policiesModel", database.policies);
   Container.set("vnPaysModel", database.vnpays);
+  Container.set("commentsModel", database.comments);
 };

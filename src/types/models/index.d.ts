@@ -1,5 +1,6 @@
 import { AttachmentAttributes, AttachmentsInstance } from "database/models/attachments";
 import { CheckRoomAttributes, CheckRoomsInstance } from "database/models/checkRooms";
+import { CommentAttributes, CommentsInstance } from "database/models/comments";
 import { ConfigAttributes, ConfigsInstance } from "database/models/configs";
 import { EventAttributes, EventsInstance } from "database/models/events";
 import { HotelCommentAttributes, HotelCommentsInstance } from "database/models/hotelComments";
@@ -25,6 +26,7 @@ declare global {
     export type Attachment = AttachmentAttributes;
     export type User = UserAttributes;
     export type Config = ConfigAttributes
+    export type Comment = CommentAttributes
     export type VerifyCode = VerifyCodeAttributes;
     export type Tour = TourAttributes;
     export type Hotel = HotelAttributes;
@@ -49,6 +51,7 @@ declare global {
     export type Attachments = AttachmentsInstance;
     export type Users = UsersInstance;
     export type Configs = ConfigsInstance
+    export type Comments = CommentsInstance
     export type VerifyCodes = VerifyCodesInstance;
     export type Tours = ToursInstance;
     export type Hotels = HotelsInstance;
