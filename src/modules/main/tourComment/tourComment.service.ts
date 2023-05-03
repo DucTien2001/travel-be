@@ -218,7 +218,7 @@ export default class TourCommentService {
           detail: res.locals.t("tour_comment_not_found"),
         });
       }
-      if (data.replyComment) tourCmt.replyComment = data.replyComment;
+      // if (data.replyComment) tourCmt.replyComment = data.replyComment;
 
       await tourCmt.save({ transaction: t });
       await t.commit();
@@ -249,9 +249,9 @@ export default class TourCommentService {
           detail: res.locals.t("hotel_comment_not_found"),
         });
       }
-      if (data.reasonForDelete) tourCmt.reasonForDelete = data.reasonForDelete;
-      tourCmt.isRequestDelete = true;
-      tourCmt.isDecline = false;
+      // if (data.reasonForDelete) tourCmt.reasonForDelete = data.reasonForDelete;
+      // tourCmt.isRequestDelete = true;
+      // tourCmt.isDecline = false;
 
       await tourCmt.save({ transaction: t });
       await t.commit();
@@ -282,8 +282,8 @@ export default class TourCommentService {
           detail: res.locals.t("hotel_comment_not_found"),
         });
       }
-      if (data.reasonForDecline) tourCmt.reasonForDecline = data.reasonForDecline;
-      tourCmt.isDecline = true;
+      // if (data.reasonForDecline) tourCmt.reasonForDecline = data.reasonForDecline;
+      // tourCmt.isDecline = true;
 
       await tourCmt.save({ transaction: t });
       await t.commit();
