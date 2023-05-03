@@ -61,7 +61,7 @@ export default class CommentService {
         offset: offset,
         distinct: true,
       });
-      return res.onSuccess(listComments, {
+      return res.onSuccess(listComments.rows, {
         meta: {
           take: data.take,
           itemCount: listComments.count,
