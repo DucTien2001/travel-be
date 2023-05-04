@@ -13,6 +13,8 @@ export interface TourBillAttributes extends Model {
   price: number;
   discount: number;
   totalBill: number;
+  commissionRate: number;
+  commission: number;
   email: string;
   phoneNumber: string;
   firstName: string;
@@ -75,6 +77,14 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
         type: DataTypes.INTEGER,
       },
       totalBill: {
+        allowNull: false,
+        type: DataTypes.DOUBLE,
+      },
+      commissionRate: {
+        allowNull: false,
+        type: DataTypes.DOUBLE,
+      },
+      commission: {
         allowNull: false,
         type: DataTypes.DOUBLE,
       },

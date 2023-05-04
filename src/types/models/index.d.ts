@@ -1,6 +1,7 @@
 import { AttachmentAttributes, AttachmentsInstance } from "database/models/attachments";
 import { CheckRoomAttributes, CheckRoomsInstance } from "database/models/checkRooms";
 import { CommentAttributes, CommentsInstance } from "database/models/comments";
+import { commissionsInstance, commissionAttributes } from "database/models/commission";
 import { ConfigAttributes, ConfigsInstance } from "database/models/configs";
 import { EventAttributes, EventsInstance } from "database/models/events";
 import { HotelCommentAttributes, HotelCommentsInstance } from "database/models/hotelComments";
@@ -44,6 +45,7 @@ declare global {
     export type Event = EventAttributes;
     export type HotelComment = HotelCommentAttributes;
     export type Policy = policyAttributes;
+    export type CommissionPolicy = commissionAttributes;
     export type VNPay = VNPayAttributes;
   }
 
@@ -69,6 +71,7 @@ declare global {
     export type Events = EventsInstance;
     export type HotelComments = HotelCommentsInstance;
     export type Policies = policiesInstance;
+    export type Commissions = commissionsInstance;
     export type VNPays = VNPaysInstance;
   }
 }
