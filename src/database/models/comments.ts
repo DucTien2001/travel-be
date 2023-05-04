@@ -65,6 +65,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): CommentsInsta
     }
   );
   comments.associate = (models: { [key: string]: any }) => {
+    comments.belongsTo(models.comments, {
+      as: 'userInfo',
+      foreignKey: 'userId',
+      constraints: false
+    });
     comments.belongsTo(models.tours, {
       as: 'tourInfo',
       foreignKey: 'serviceId',
