@@ -45,7 +45,20 @@ export default class Controller {
     try {
       const value = Validation.reply(req);
       const ServiceI = Container.get(Service);
-      ServiceI.reply(value, req.files as Express.Multer.File[], req.user, res);
+      ServiceI.reply(value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static updateReply(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = Validation.updateReply(req);
+      const ServiceI = Container.get(Service);
+      ServiceI.updateReply(Number(id), value, req.user, res);
     } catch (error) {
       return res.onError({
         detail: error,

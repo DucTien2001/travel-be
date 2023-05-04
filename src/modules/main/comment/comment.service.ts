@@ -2,7 +2,7 @@
 import { Inject, Service } from "typedi";
 import { sequelize } from "database/models";
 import { Response } from "express";
-import { Create, FindAll, Reply, Update } from "./comment.models";
+import { Create, FindAll, Reply, Update, UpdateReply } from "./comment.models";
 import { WhereOptions } from "sequelize";
 import { EServiceType } from "common/general";
 import FileService from "services/file";
@@ -192,7 +192,7 @@ export default class CommentService {
     }
   }
 
-  public async reply(data: Reply, files: Express.Multer.File[], user: ModelsAttributes.User, res: Response) {
+  public async reply(data: Reply, user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
       const comment = await this.commentsModel.findOne({
@@ -208,14 +208,11 @@ export default class CommentService {
         });
       }
 
-      const images = await FileService.uploadAttachments([...files]);
-      const imageUrls = images?.map((image) => image?.url);
-
       await this.commentsModel.create(
         {
           userId: user.id,
           content: data.content || "",
-          images: imageUrls,
+          commentRepliedId: data.commentId,
         },
         {
           transaction: t,
@@ -225,6 +222,38 @@ export default class CommentService {
       await t.commit();
       return res.onSuccess({
         message: res.locals.t("reply_comment_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async updateReply(commentId: number, data: UpdateReply, user: ModelsAttributes.User, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const comment = await this.commentsModel.findOne({
+        where: {
+          id: commentId,
+          userId: user.id,
+        },
+      });
+      if (!comment) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("comment_not_found"),
+        });
+      }
+      comment.content = data.content;
+
+      await comment.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(comment, {
+        message: res.locals.t("comment_update_success"),
       });
     } catch (error) {
       await t.rollback();

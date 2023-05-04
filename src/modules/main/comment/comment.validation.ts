@@ -52,4 +52,14 @@ export default class Validation {
       .required();
     return schema.validateSync(req.body);
   }
+
+  static updateReply(req: Request) {
+    const schema = yup
+      .object({
+        content: yup.string().required(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
 }

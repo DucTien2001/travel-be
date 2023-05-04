@@ -25,3 +25,7 @@ export interface Reply {
   commentId: number;
   content: string;
 }
+
+export interface UpdateReply {
+  content: string;
+}
