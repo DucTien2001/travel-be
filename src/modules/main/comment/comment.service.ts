@@ -24,9 +24,6 @@ export default class CommentService {
       if (data.serviceType === EServiceType.TOUR) {
         includeOption = [
           {
-            association: "userInfo",
-          },
-          {
             association: "tourInfo",
           },
           {
@@ -39,16 +36,13 @@ export default class CommentService {
             association: "replies",
             include: [
               {
-                association: "userInfo",
+                association: "reviewer",
               },
             ],
           },
         ];
       } else {
         includeOption = [
-          {
-            association: "userInfo",
-          },
           {
             association: "stayInfo",
           },
@@ -62,7 +56,7 @@ export default class CommentService {
             association: "replies",
             include: [
               {
-                association: "userInfo",
+                association: "reviewer",
               },
             ],
           },
