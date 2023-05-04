@@ -7,6 +7,7 @@ import { tourScheduleRouter } from "./tour_schedule";
 import { voucherRouter } from "./voucher";
 import { staffRouter } from "./staff";
 import { tourBillRouter } from "./tourBill";
+import { commissionRouter } from "./commission";
 
 export const enterpriseRouter = Router();
 
@@ -18,3 +19,4 @@ enterpriseRouter.use("/tour-bill", tourBillRouter);
 enterpriseRouter.use("/policy", policyRouter);
 enterpriseRouter.use("/voucher", voucherRouter);
 enterpriseRouter.use("/staff", staffRouter);
+enterpriseRouter.use("/staff", commissionRouter);
