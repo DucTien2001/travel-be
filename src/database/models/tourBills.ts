@@ -178,6 +178,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
       foreignKey: "userId",
       constraints: false,
     });
+    tour_bills.belongsTo(models.tour_on_sales, {
+      as: "tourOnSaleInfo",
+      foreignKey: "tourOnSaleId",
+      constraints: false,
+    });
   };
   return tour_bills;
 };

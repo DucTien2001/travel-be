@@ -7,6 +7,7 @@ import { EBillStatus, EPaymentStatus } from "models/general";
 import querystring from "qs";
 import crypto from "crypto";
 import { Op } from "sequelize";
+import { EServiceType } from "common/general";
 
 @Service()
 export default class TourBillService {
@@ -14,8 +15,26 @@ export default class TourBillService {
     @Inject("tourBillsModel") private tourBillsModel: ModelsInstance.TourBills,
     @Inject("toursModel") private toursModel: ModelsInstance.Tours,
     @Inject("tourOnSalesModel") private tourOnSalesModel: ModelsInstance.TourOnSales,
-    @Inject("vnPaysModel") private vnPaysModel: ModelsInstance.VNPays
+    @Inject("vnPaysModel") private vnPaysModel: ModelsInstance.VNPays,
+    @Inject("commissionPoliciesModel") private commissionPoliciesModel: ModelsInstance.CommissionPolicies
   ) {}
+  public async getCommissionRate(price: number) {
+    const commissions = await this.commissionPoliciesModel.findAll({
+      where: {
+        serviceType: EServiceType.TOUR,
+      },
+    });
+    let rate = 0;
+    commissions.forEach((item) => {
+      if (!item.maxPrice && price >= item.minPrice) {
+        rate = item.rate;
+      } else if (price >= item.minPrice && price < item.maxPrice) {
+        rate = item.rate;
+      }
+    });
+    return rate;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async sortObject(obj: any) {
     // eslint-disable-next-line prefer-const
@@ -115,6 +134,7 @@ export default class TourBillService {
       tourOnSale.quantityOrdered = tourOnSale.quantityOrdered + data.amountAdult + data.amountChild;
       await tourOnSale.save({ transaction: t });
 
+      const commissionRate = await this.getCommissionRate(data.totalBill);
       const newTourBill = await this.tourBillsModel.create(
         {
           userId: user?.id,
@@ -126,6 +146,8 @@ export default class TourBillService {
           price: data?.price,
           discount: data?.discount,
           totalBill: data?.totalBill,
+          commissionRate: commissionRate,
+          commission: data?.totalBill * commissionRate,
           email: data?.email,
           phoneNumber: data?.phoneNumber,
           firstName: data?.firstName,
@@ -406,6 +428,7 @@ export default class TourBillService {
       await tourOnSale.save({ transaction: t });
 
       // handle re-schedule
+      const commissionRate = await this.getCommissionRate(data.totalBill);
       const newTourBill = await this.tourBillsModel.create(
         {
           userId: user?.id,
@@ -417,6 +440,8 @@ export default class TourBillService {
           price: data?.price,
           discount: data?.discount,
           totalBill: data?.totalBill,
+          commissionRate: commissionRate,
+          commission: data?.totalBill * commissionRate,
           email: data?.email,
           phoneNumber: data?.phoneNumber,
           firstName: data?.firstName,

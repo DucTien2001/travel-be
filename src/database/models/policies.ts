@@ -17,6 +17,7 @@ export interface policyAttributes extends Model {
 
 export type policiesInstance = typeof Model & {
   new (values?: object, options?: BuildOptions): policyAttributes;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   associate?: Function;
 };
 

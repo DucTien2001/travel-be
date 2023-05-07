@@ -40,4 +40,29 @@ export default class UserController {
       });
     }
   }
+
+  static statisticAll(req: Request, res: Response) {
+    try {
+      const value = TourBillValidation.statisticAll(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.statisticAll(value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static statisticOneTour(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = TourBillValidation.statisticOneTour(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.statisticOneTour(Number(id), value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

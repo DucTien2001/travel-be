@@ -22,4 +22,29 @@ export default class TourBillValidation {
       .noUnknown();
     return schema.validateSync(req.query);
   }
+
+  static statisticAll(req: Request) {
+    const schema = yup
+      .object({
+        take: yup.number().integer().default(10),
+        page: yup.number().min(1).integer().default(1),
+        keyword: yup.string(),
+        month: yup.number().integer(),
+        year: yup.number().integer(),
+      })
+      .noUnknown();
+    return schema.validateSync(req.query);
+  }
+
+  static statisticOneTour(req: Request) {
+    const schema = yup
+      .object({
+        take: yup.number().integer().default(10),
+        page: yup.number().min(1).integer().default(1),
+        month: yup.number().integer(),
+        year: yup.number().integer(),
+      })
+      .noUnknown();
+    return schema.validateSync(req.query);
+  }
 }
