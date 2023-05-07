@@ -16,10 +16,10 @@ export default class TourBillService {
     @Inject("toursModel") private toursModel: ModelsInstance.Tours,
     @Inject("tourOnSalesModel") private tourOnSalesModel: ModelsInstance.TourOnSales,
     @Inject("vnPaysModel") private vnPaysModel: ModelsInstance.VNPays,
-    @Inject("commissionPoliciesModel") private commissionPoliciesModel: ModelsInstance.CommissionPolicies
+    @Inject("commissionsModel") private commissionsModel: ModelsInstance.Commissions
   ) {}
   public async getCommissionRate(price: number) {
-    const commissions = await this.commissionPoliciesModel.findAll({
+    const commissions = await this.commissionsModel.findAll({
       where: {
         serviceType: EServiceType.TOUR,
       },
