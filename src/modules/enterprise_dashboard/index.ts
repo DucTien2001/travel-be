@@ -19,4 +19,4 @@ enterpriseRouter.use("/tour-bill", tourBillRouter);
 enterpriseRouter.use("/policy", policyRouter);
 enterpriseRouter.use("/voucher", voucherRouter);
 enterpriseRouter.use("/staff", staffRouter);
-enterpriseRouter.use("/staff", commissionRouter);
+enterpriseRouter.use("/commission", commissionRouter);
