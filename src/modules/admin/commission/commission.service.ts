@@ -20,11 +20,6 @@ export default class CommissionService {
 
       const listCommissions = await this.commissionsModel.findAndCountAll({
         where: whereOptions,
-        include: [
-          {
-            association: "languages",
-          },
-        ],
         limit: data.take,
         offset: offset,
         distinct: true,
