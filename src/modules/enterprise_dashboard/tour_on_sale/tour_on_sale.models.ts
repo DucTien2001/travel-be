@@ -1,3 +1,9 @@
+export interface FindAll {
+  take: number;
+  page: number;
+  isPast: boolean;
+}
+
 interface price {
   id?: number;
   title: string;

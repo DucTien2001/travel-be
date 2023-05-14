@@ -5,7 +5,7 @@ import { WhereOptions } from "sequelize";
 import { sequelize } from "database/models";
 import FileService from "services/file";
 import GetLanguage from "services/getLanguage";
-import { tourLangFields, tourScheduleLangFields } from "models/langField";
+import { tourLangFields } from "models/langField";
 
 @Service()
 export default class TourService {
@@ -18,15 +18,15 @@ export default class TourService {
    */
   public async findAll(data: FindAll, user: ModelsAttributes.User, res: Response) {
     try {
-      let enterpriseId = user.enterpriseId || user.id;
+      const enterpriseId = user.enterpriseId || user.id;
 
-      let whereOptions: WhereOptions = {
+      const whereOptions: WhereOptions = {
         parentLanguage: null,
         isDeleted: false,
         owner: enterpriseId,
       };
 
-      let offset = data.take * (data.page - 1);
+      const offset = data.take * (data.page - 1);
 
       const listTours = await this.toursModel.findAndCountAll({
         where: whereOptions,
@@ -58,9 +58,9 @@ export default class TourService {
 
   public async findOne(id: number, data: FindOne, user: ModelsAttributes.User, res: Response) {
     try {
-      let enterpriseId = user.enterpriseId || user.id;
+      const enterpriseId = user.enterpriseId || user.id;
 
-      let tourWhereOptions: WhereOptions = {
+      const tourWhereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
         isDeleted: false,
@@ -279,15 +279,15 @@ export default class TourService {
   public async delete(id: number, user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
-      let enterpriseId = user.enterpriseId || user.id;
-      let whereOptions: WhereOptions = {
+      const enterpriseId = user.enterpriseId || user.id;
+      const whereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
         isDeleted: false,
         owner: enterpriseId,
       };
 
-      let tour = await this.toursModel.findOne({
+      const tour = await this.toursModel.findOne({
         where: whereOptions,
       });
       if (!tour) {
