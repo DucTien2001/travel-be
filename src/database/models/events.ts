@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 import { EDiscountType, LANG } from "common/general";
@@ -32,6 +33,7 @@ export interface EventAttributes extends Model {
 
 export type EventsInstance = typeof Model & {
   new (values?: object, options?: BuildOptions): EventAttributes;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   associate?: Function;
 };
 

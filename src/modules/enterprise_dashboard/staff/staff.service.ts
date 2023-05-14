@@ -18,12 +18,12 @@ export default class StaffService {
    */
   public async findAll(data: FindAll, user: ModelsAttributes.User, res: Response) {
     try {
-      let whereOptions: WhereOptions = {
+      const whereOptions: WhereOptions = {
         isDeleted: false,
         enterpriseId: user.id,
       };
 
-      let offset = data.take * (data.page - 1);
+      const offset = data.take * (data.page - 1);
 
       const listUsers = await this.usersModel.findAndCountAll({
         where: whereOptions,
@@ -170,6 +170,7 @@ export default class StaffService {
           detail: res.locals.t("staff_not_found"),
         });
       }
+      staff.becomeStaffDate = new Date();
       staff.enterpriseId = offer.userId;
       staff.role = ETypeUser.STAFF;
       await offer.destroy({ transaction: t });
@@ -190,12 +191,12 @@ export default class StaffService {
    */
   public async findAllOffers(data: FindAll, user: ModelsAttributes.User, res: Response) {
     try {
-      let whereOptions: WhereOptions = {
+      const whereOptions: WhereOptions = {
         userId: user.id,
         type: ETypeVerifyCode.OFFER_STAFF,
       };
 
-      let offset = data.take * (data.page - 1);
+      const offset = data.take * (data.page - 1);
 
       const listOffers = await this.verifyCodesModel.findAndCountAll({
         where: whereOptions,
@@ -242,6 +243,7 @@ export default class StaffService {
           detail: res.locals.t("auth_user_not_found"),
         });
       }
+      staff.becomeStaffDate = null;
       staff.enterpriseId = null;
       staff.role = ETypeUser.USER;
       await staff.save({ silent: true });

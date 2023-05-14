@@ -5,7 +5,7 @@ import { LANG } from "common/general";
 import { Ilocation } from "modules/enterprise_dashboard/tour/tour.models";
 
 export interface TourAttributes extends Model {
-  dataValues: object;
+  dataValues: ModelsAttributes.Tour;
   id: number;
   title: string;
   images: string[];
@@ -28,6 +28,7 @@ export interface TourAttributes extends Model {
   isDeleted: boolean;
   parentLanguage: number;
   language: string;
+  tourOnSales: ModelsAttributes.TourOnSale[];
   createdAt: Date,
   updatedAt: Date,
   deletedAt: Date,

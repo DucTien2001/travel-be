@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 import { ETypeUser, LANG } from "common/general";
@@ -13,6 +14,7 @@ export interface UserAttributes extends Model {
   lastName: string;
   address: string;
   phoneNumber: string;
+  becomeStaffDate: Date;
   enterpriseId: number;
   isDeleted: boolean;
   isVerified: boolean;
@@ -24,6 +26,7 @@ export interface UserAttributes extends Model {
 
 export type UsersInstance = typeof Model & {
   new (values?: object, options?: BuildOptions): UserAttributes;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   associate?: Function;
 };
 
@@ -59,6 +62,9 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): UsersInstance
       },
       phoneNumber: {
         type: DataTypes.STRING,
+      },
+      becomeStaffDate: {
+        type: DataTypes.DATE,
       },
       enterpriseId: {
         type: DataTypes.INTEGER,

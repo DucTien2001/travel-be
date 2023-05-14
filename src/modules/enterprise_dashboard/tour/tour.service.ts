@@ -34,13 +34,49 @@ export default class TourService {
           {
             association: "languages",
           },
+          {
+            attributes: ["id", "startDate", "childrenPrice", "adultPrice"],
+            association: "tourOnSales",
+          },
         ],
         limit: data.take,
         offset: offset,
         distinct: true,
       });
 
-      return res.onSuccess(listTours.rows, {
+      const result = listTours.rows.map((tour) => {
+        let numberOfUpcomingTours = 0;
+        let numberOfTookPlaceTours = 0;
+        let minPrice = tour.tourOnSales?.[0]?.childrenPrice || 0;
+        let maxPrice = tour.tourOnSales?.[0]?.adultPrice || 0;
+        tour.tourOnSales.map((item) => {
+          if (new Date(item.startDate) > new Date()) {
+            numberOfUpcomingTours++;
+          } else {
+            numberOfTookPlaceTours++;
+          }
+          if (item.childrenPrice < minPrice) minPrice = item.childrenPrice;
+          if (item.adultPrice > maxPrice) maxPrice = item.adultPrice;
+        });
+        let isCanDelete = false;
+        const latestTourOnSale = tour.tourOnSales?.[tour.tourOnSales?.length - 1];
+        if (!latestTourOnSale || new Date(latestTourOnSale?.startDate) < new Date()) {
+          isCanDelete = true;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { tourOnSales, ...rest } = { ...tour.dataValues };
+        return {
+          // test: 0,
+            ...rest,
+            numberOfUpcomingTours,
+            numberOfTookPlaceTours,
+            minPrice,
+            maxPrice,
+            isCanDelete,
+        };
+      });
+
+      return res.onSuccess(result, {
         meta: {
           take: data.take,
           itemCount: listTours.count,
@@ -87,7 +123,6 @@ export default class TourService {
       if (data.language) {
         tour = GetLanguage.getLang(tour.toJSON(), data.language, tourLangFields);
       }
-
 
       return res.onSuccess(tour);
     } catch (error) {
