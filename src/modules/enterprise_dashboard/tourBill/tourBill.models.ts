@@ -30,6 +30,11 @@ export interface StatisticOneTour {
   year: number;
 }
 
+export interface StatisticTourOnSale {
+  take: number;
+  page: number;
+}
+
 export interface StaffStatisticTourOnSales {
   take: number;
   page: number;

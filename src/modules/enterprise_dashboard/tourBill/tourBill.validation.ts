@@ -59,4 +59,14 @@ export default class TourBillValidation {
       .noUnknown();
     return schema.validateSync(req.query);
   }
+
+  static getAllBillOfOneTourOnSale(req: Request) {
+    const schema = yup
+      .object({
+        take: yup.number().integer().default(10),
+        page: yup.number().min(1).integer().default(1),
+      })
+      .noUnknown();
+    return schema.validateSync(req.query);
+  }
 }

@@ -77,4 +77,17 @@ export default class UserController {
       });
     }
   }
+
+  static getAllBillOfOneTourOnSale(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = TourBillValidation.getAllBillOfOneTourOnSale(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.getAllBillOfOneTourOnSale(Number(id), value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
-import { Filter, FindAll, StaffStatisticTourOnSales, StatisticAll, StatisticOneTour, Update } from "./tourBill.models";
+import { Filter, FindAll, StaffStatisticTourOnSales, StatisticAll, StatisticOneTour, StatisticTourOnSale, Update } from "./tourBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
 import { Op, Sequelize, WhereOptions } from "sequelize";
@@ -576,7 +576,7 @@ export default class TourBillService {
     }
   }
 
-  public async getAllBillOfOneTourOnSale(tourOnSaleId: number, data: FindAll, user: ModelsAttributes.User, res: Response) {
+  public async getAllBillOfOneTourOnSale(tourOnSaleId: number, data: StatisticTourOnSale, user: ModelsAttributes.User, res: Response) {
     try {
       const enterpriseId = user.id;
       const offset = data.take * (data.page - 1);
