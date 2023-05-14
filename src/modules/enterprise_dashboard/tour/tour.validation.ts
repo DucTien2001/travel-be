@@ -9,6 +9,7 @@ export default class Validation {
         take: yup.number().integer().default(10),
         page: yup.number().min(1).integer().default(1),
         keyword: yup.string(),
+        status: yup.number().integer(),
       })
       .noUnknown();
     return schema.validateSync(req.query);

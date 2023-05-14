@@ -1,5 +1,5 @@
 import { Inject, Service } from "typedi";
-import { Create, FindAll, FindOne, Update } from "./tour.models";
+import { Create, ETourStatusFilter, FindAll, FindOne, Update } from "./tour.models";
 import { Response } from "express";
 import { WhereOptions } from "sequelize";
 import { sequelize } from "database/models";
@@ -20,11 +20,24 @@ export default class TourService {
     try {
       const enterpriseId = user.enterpriseId || user.id;
 
-      const whereOptions: WhereOptions = {
+      let whereOptions: WhereOptions = {
         parentLanguage: null,
-        isDeleted: false,
         owner: enterpriseId,
       };
+
+      if(data.status === ETourStatusFilter.ACTIVED) {
+        whereOptions = {
+          ...whereOptions,
+          isDeleted: false,
+        }
+      }
+
+      if(data.status === ETourStatusFilter.IN_ACTIVED) {
+        whereOptions = {
+          ...whereOptions,
+          isDeleted: true,
+        }
+      }
 
       const offset = data.take * (data.page - 1);
 

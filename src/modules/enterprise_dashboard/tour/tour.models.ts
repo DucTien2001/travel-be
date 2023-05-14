@@ -1,7 +1,14 @@
+export enum ETourStatusFilter {
+  ALL = -1,
+  ACTIVED = 0,
+  IN_ACTIVED = 1,
+}
+
 export interface FindAll {
   take: number;
   page: number;
   keyword?: string;
+  status: ETourStatusFilter;
 }
 
 export interface FindOne {
