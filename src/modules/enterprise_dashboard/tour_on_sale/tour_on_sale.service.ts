@@ -2,7 +2,7 @@ import { Inject, Service } from "typedi";
 import { Create, FindAll, ITourOnSale, Update } from "./tour_on_sale.models";
 import { Response } from "express";
 import { sequelize } from "database/models";
-import { Op, WhereOptions } from "sequelize/types";
+import { Op, WhereOptions } from "sequelize";
 
 @Service()
 export default class TourOnSaleService {
