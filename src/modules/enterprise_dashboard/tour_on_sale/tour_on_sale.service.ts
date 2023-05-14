@@ -24,6 +24,7 @@ export default class TourOnSaleService {
       if (!data.isPast) {
         const tourOnSales = await this.tourOnSalesModel.findAll({
           where: tourOnSaleWhereOptions,
+          order: [["startDate", "ASC"]],
         });
 
         return res.onSuccess(tourOnSales);
@@ -39,6 +40,7 @@ export default class TourOnSaleService {
       }
       const tourOnSales = await this.tourOnSalesModel.findAndCountAll({
         where: tourOnSaleWhereOptions,
+        order: [["startDate", "DESC"]],
         limit: data.take,
         offset: offset,
         distinct: true,
