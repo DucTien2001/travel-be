@@ -12,12 +12,24 @@ export default class TourBillValidation {
     return schema.validateSync(req.body);
   }
 
+  static getFilters(req: Request) {
+    const schema = yup
+      .object({
+        isPast: yup.boolean().default(false),
+      })
+      .noUnknown();
+    return schema.validateSync(req.query);
+  }
+
   static findAll(req: Request) {
     const schema = yup
       .object({
         take: yup.number().integer().default(10),
         page: yup.number().min(1).integer().default(1),
         keyword: yup.string(),
+        tourId: yup.number(),
+        tourOnSaleIds: yup.array(yup.number()),
+        status: yup.number(),
       })
       .noUnknown();
     return schema.validateSync(req.query);

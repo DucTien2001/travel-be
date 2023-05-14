@@ -17,6 +17,18 @@ export default class UserController {
     }
   }
 
+  static getFilters(req: Request, res: Response) {
+    try {
+      const value = TourBillValidation.getFilters(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.getFilters(value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
   static findAll(req: Request, res: Response) {
     try {
       const value = TourBillValidation.findAll(req);

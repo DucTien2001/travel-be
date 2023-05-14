@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
-import { FindAll, StatisticAll, StatisticOneTour, Update } from "./tourBill.models";
+import { Filter, FindAll, StaffStatisticTourOnSales, StatisticAll, StatisticOneTour, Update } from "./tourBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
 import { Op, Sequelize, WhereOptions } from "sequelize";
@@ -31,14 +31,110 @@ export default class TourBillService {
     return rate;
   }
 
+  public async getFilters(data: Filter, user: ModelsAttributes.User, res: Response) {
+    try {
+      const enterpriseId = user.enterpriseId || user.id;
+      // get tour filter
+      const tours = await this.toursModel.findAll({
+        attributes: ["id", "title"],
+        where: {
+          owner: enterpriseId,
+          parentLanguage: null,
+          isDeleted: false,
+        },
+      });
+      if (!tours) {
+        return res.onError({
+          status: 404,
+          detail: "tour_not_found",
+        });
+      }
+
+      const tourIds = tours.map((item) => item.id);
+
+      // get tour on sale filter
+      let tourOnSalesWhereOption: WhereOptions = {
+        tourId: tourIds,
+      };
+      if (data.isPast) {
+        tourOnSalesWhereOption = {
+          ...tourOnSalesWhereOption,
+          startDate: {
+            [Op.lt]: new Date(),
+          },
+        };
+      } else {
+        tourOnSalesWhereOption = {
+          ...tourOnSalesWhereOption,
+          startDate: {
+            [Op.gte]: new Date(),
+          },
+        };
+      }
+      const tourOnSales = await this.tourOnSalesModel.findAll({
+        attributes: ["id", "startDate"],
+        where: tourOnSalesWhereOption,
+        order: data.isPast ? [["startDate", "DESC"]] : [["startDate", "ASC"]],
+      });
+      if (!tourOnSales) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+      const startDateArr: any = [];
+      tourOnSales.forEach((item) => {
+        if (!startDateArr.includes(item.startDate)) startDateArr.push(item.startDate);
+      });
+
+      const tourOnSaleFilter: any = [];
+      startDateArr.forEach((_startDate: any) => {
+        const satisfiedTourOnSales = tourOnSales.filter((tourOnSale) => tourOnSale.startDate === _startDate).map((item) => item.id);
+        tourOnSaleFilter.push({
+          tourOnSaleIds: satisfiedTourOnSales,
+          startDate: _startDate,
+        });
+      });
+
+      return res.onSuccess({
+        tour: tours || [],
+        tourOnSale: tourOnSaleFilter || [],
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
   public async findAll(data: FindAll, user: ModelsAttributes.User, res: Response) {
     try {
       const enterpriseId = user.enterpriseId || user.id;
       const offset = data.take * (data.page - 1);
+      let whereOption: WhereOptions = {
+        tourOwnerId: enterpriseId,
+      };
+      if (data.tourId !== -1) {
+        whereOption = {
+          ...whereOption,
+          tourId: data.tourId,
+        };
+      }
+      if (data.tourOnSaleIds?.[0] !== -1) {
+        whereOption = {
+          ...whereOption,
+          tourOnSaleId: data.tourId,
+        };
+      }
+      if (data.status !== -1) {
+        whereOption = {
+          ...whereOption,
+          status: data.status,
+        };
+      }
       const bills = await this.tourBillsModel.findAndCountAll({
-        where: {
-          tourOwnerId: enterpriseId,
-        },
+        where: whereOption,
         limit: data.take,
         offset: offset,
         distinct: true,
@@ -136,6 +232,121 @@ export default class TourBillService {
     }
   }
 
+  public async staffStatisticTourOnSales(tourId: number, data: StaffStatisticTourOnSales, user: ModelsAttributes.User, res: Response) {
+    try {
+      const enterpriseId = user.enterpriseId || user.id;
+
+      // Get all tours owned
+      let listTourIds = [data.tourId];
+      let listToursWhereOption: WhereOptions = {
+        owner: enterpriseId,
+        parentLanguage: null,
+        isDeleted: false,
+      };
+      if (data.tourId !== -1) {
+        listToursWhereOption = {
+          ...listToursWhereOption,
+          id: data.tourId,
+        };
+      }
+      const listTours = await this.toursModel.findAll({
+        // attributes: ["id", "title", "numberOfDays", "numberOfNights"],
+        where: listToursWhereOption,
+      });
+      listTourIds = listTours.map((item) => item.id);
+
+      // Get all tour on sales of the tour
+      const offset = data.take * (data.page - 1);
+      let listTourOnSalesWhereOption: WhereOptions = {
+        tourId: listTourIds,
+        isDeleted: false,
+      };
+      if (data.isPast) {
+        listTourOnSalesWhereOption = {
+          ...listTourOnSalesWhereOption,
+          startDate: {
+            [Op.lt]: new Date(),
+          },
+        };
+      } else {
+        listTourOnSalesWhereOption = {
+          ...listTourOnSalesWhereOption,
+          startDate: {
+            [Op.gte]: new Date(),
+          },
+        };
+      }
+      const listTourOnSales = await this.tourOnSalesModel.findAndCountAll({
+        attributes: ["id", "startDate", "quantity", "quantityOrdered"],
+        where: listTourOnSalesWhereOption,
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+      });
+
+      const _listTourOnSaleIds = listTourOnSales.rows.map((item) => item.id);
+
+      // Get all qualified tourBills
+      const whereOption: WhereOptions = {
+        tourOnSaleId: _listTourOnSaleIds,
+      };
+      const tourBills = await this.tourBillsModel.findAll({
+        where: whereOption,
+        include: [
+          {
+            association: "tourOnSaleInfo",
+            attributes: ["id", "startDate", "quantity", "quantityOrdered"],
+          },
+        ],
+        attributes: ["tourOnSaleId", "status", [Sequelize.fn("count", Sequelize.col("tour_bills.id")), "numberOfBills"]],
+        group: ["tourOnSaleId", "status"],
+      });
+      console.log(tourBills, "=======tourBills======");
+      if (!tourBills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+
+      const _tourBillIds = tourBills.map((item) => item.tourOnSaleId);
+      let result: any = [...tourBills];
+      listTourOnSales.rows.forEach((item) => {
+        if (!_tourBillIds.includes(item.id)) {
+          result = [
+            ...result,
+            {
+              tourId: item.id,
+              numberOfBookings: 0,
+              totalAmountChild: 0,
+              totalAmountAdult: 0,
+              revenue: 0,
+              commission: 0,
+              tourOnSaleInfo: item,
+            },
+          ];
+        }
+      });
+      result = result.sort((a: any, b: any) => a.tourId - b.tourId);
+
+      return res.onSuccess(result, {
+        meta: {
+          take: data.take,
+          itemCount: listTourOnSales.count,
+          page: data.page,
+          pageCount: Math.ceil(listTourOnSales.count / data.take),
+        },
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  // Enterprise
+
   public async statisticAll(data: StatisticAll, user: ModelsAttributes.User, res: Response) {
     try {
       const enterpriseId = user.id;
@@ -149,11 +360,8 @@ export default class TourBillService {
       };
       if (data.keyword) {
         listToursWhereOption = {
-          [Op.and]: [
-            { ...listToursWhereOption },
-            { title: { [Op.substring]: data.keyword } }
-          ]
-        }
+          [Op.and]: [{ ...listToursWhereOption }, { title: { [Op.substring]: data.keyword } }],
+        };
       }
       const listTours = await this.toursModel.findAndCountAll({
         attributes: ["id", "title", "numberOfDays", "numberOfNights"],
@@ -277,7 +485,7 @@ export default class TourBillService {
           detail: "Tour not found",
         });
       }
-      
+
       // Get all tour on sales of the tour
       const offset = data.take * (data.page - 1);
       let listTourOnSalesWhereOption: WhereOptions = {
@@ -331,7 +539,7 @@ export default class TourBillService {
           detail: "not_found",
         });
       }
-      
+
       const _tourBillIds = tourBills.map((item) => item.tourOnSaleId);
       let result: any = [...tourBills];
       listTourOnSales.rows.forEach((item) => {

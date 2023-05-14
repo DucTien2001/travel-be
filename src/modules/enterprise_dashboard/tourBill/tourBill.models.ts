@@ -1,7 +1,14 @@
+export interface Filter {
+  isPast: boolean
+}
+
 export interface FindAll {
   take: number;
   page: number;
   keyword?: string;
+  tourId: number;         // tourId === -1  --> All
+  tourOnSaleIds: number[];// [-1] --> All
+  status: number;         // status === -1  --> All    -   EBillStatus
 }
 
 export interface Update {
@@ -21,4 +28,11 @@ export interface StatisticOneTour {
   page: number;
   month: number;
   year: number;
+}
+
+export interface StaffStatisticTourOnSales {
+  take: number;
+  page: number;
+  isPast: boolean;
+  tourId: number;   // tourId === -1  --> All
 }

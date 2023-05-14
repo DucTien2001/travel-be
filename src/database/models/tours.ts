@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 import { LANG } from "common/general";
