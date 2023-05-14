@@ -2,7 +2,7 @@ import { Inject, Service } from "typedi";
 import { Create, FindAll, ITourOnSale, Update } from "./tour_on_sale.models";
 import { Response } from "express";
 import { sequelize } from "database/models";
-import { WhereOptions } from "sequelize/types";
+import { Op, WhereOptions } from "sequelize/types";
 
 @Service()
 export default class TourOnSaleService {
@@ -11,10 +11,16 @@ export default class TourOnSaleService {
   ) {}
   public async findAll(tourId: number, data: FindAll, res: Response) {
     try {
-      const tourOnSaleWhereOptions: WhereOptions = {
+      let tourOnSaleWhereOptions: WhereOptions = {
         tourId: tourId,
       };
       // Get upcoming tour on sales
+      tourOnSaleWhereOptions = {
+        ...tourOnSaleWhereOptions,
+        startDate: {
+          [Op.gt]: new Date(),
+        }
+      }
       if (!data.isPast) {
         const tourOnSales = await this.tourOnSalesModel.findAll({
           where: tourOnSaleWhereOptions,
@@ -25,6 +31,12 @@ export default class TourOnSaleService {
 
       // Get tour on sales took place
       const offset = data.take * (data.page - 1);
+      tourOnSaleWhereOptions = {
+        ...tourOnSaleWhereOptions,
+        startDate: {
+          [Op.lte]: new Date(),
+        }
+      }
       const tourOnSales = await this.tourOnSalesModel.findAndCountAll({
         where: tourOnSaleWhereOptions,
         limit: data.take,
