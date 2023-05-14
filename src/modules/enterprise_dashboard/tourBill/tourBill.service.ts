@@ -547,7 +547,7 @@ export default class TourBillService {
           result = [
             ...result,
             {
-              tourId: item.id,
+              tourOnSaleId: item.id,
               numberOfBookings: 0,
               totalAmountChild: 0,
               totalAmountAdult: 0,
