@@ -23,6 +23,9 @@ export interface TourAttributes extends Model {
   numberOfReviewer: number;
   rate: number;
   policyId: number;
+  minPrice: number;
+  maxPrice: number;
+  latestTourDate: Date;
   creator: number;
   owner: number;
   isDeleted: boolean;
@@ -130,6 +133,15 @@ export default (
       numberOfReviewer: {
         defaultValue: 0,
         type: DataTypes.INTEGER,
+      },
+      minPrice: {
+        type: DataTypes.DOUBLE,
+      },
+      maxPrice: {
+        type: DataTypes.DOUBLE,
+      },
+      latestTourDate: {
+        type: DataTypes.DATE,
       },
       creator: {
         allowNull: false,

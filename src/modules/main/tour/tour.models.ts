@@ -2,6 +2,8 @@ export interface FindAll {
   take: number;
   page: number;
   keyword?: string;
+  dateSearch?: Date;
+  sort?: number;    //ESortOption
 }
 
 export interface ITour {

@@ -1,24 +1,71 @@
-import Container, { Inject, Service } from "typedi";
-import { FindAll, ITour, IUpdateTour } from "./tour.models";
-import { sequelize } from "database/models";
+import { Inject, Service } from "typedi";
+import { FindAll } from "./tour.models";
 import { Response } from "express";
-import { Op, WhereOptions } from "sequelize";
+import { Op, Order, WhereOptions } from "sequelize";
 import GetLanguage from "services/getLanguage";
 import { tourLangFields } from "models/langField";
 import { EServiceType } from "common/general";
+import { ESortOption } from "models/general";
 
 @Service()
 export default class TourService {
-  constructor(@Inject("toursModel") private toursModel: ModelsInstance.Tours) {}
+  constructor(
+    @Inject("toursModel") private toursModel: ModelsInstance.Tours,
+    @Inject("tourOnSalesModel") private tourOnSalesModel: ModelsInstance.TourOnSales
+  ) {}
   public async findAll(data: FindAll, res: Response) {
     try {
-      const lang = res.locals.language
+      const lang = res.locals.language;
       let whereOptions: WhereOptions = {
         parentLanguage: null,
         isDeleted: false,
+        latestTourDate: {
+          [Op.gt]: new Date(),
+        },
       };
 
-      let offset = data.take * (data.page - 1);
+      if (data?.keyword) {
+        whereOptions = {
+          ...whereOptions,
+          [Op.or]: [
+            { title: { [Op.substring]: data.keyword } },
+            { city: { [Op.substring]: data.keyword } },
+            { district: { [Op.substring]: data.keyword } },
+            { commune: { [Op.substring]: data.keyword } },
+            { moreLocation: { [Op.substring]: data.keyword } },
+          ],
+        };
+      }
+
+      if (data?.dateSearch) {
+        const tourOnSales = await this.tourOnSalesModel.findAll({
+          where: {
+            startDate: data?.dateSearch,
+          },
+        });
+        const tourIds = tourOnSales.map((item) => item.tourId);
+        whereOptions = {
+          ...whereOptions,
+          id: tourIds,
+        };
+      }
+
+      let order: Order = null;
+      if (!isNaN(data?.sort)) {
+        switch (data.sort) {
+          case ESortOption.LOWEST_PRICE:
+            order = [["minPrice", "ASC"]];
+            break;
+          case ESortOption.HIGHEST_PRICE:
+            order = [["maxPrice", "DESC"]];
+            break;
+          case ESortOption.HIGHEST_RATE:
+            order = [["rate", "DESC"]];
+            break;
+        }
+      }
+
+      const offset = data.take * (data.page - 1);
 
       const listTours = await this.toursModel.findAndCountAll({
         where: whereOptions,
@@ -32,15 +79,16 @@ export default class TourService {
           {
             association: "tourPolicies",
             where: {
-              serviceType: EServiceType.TOUR
-            }
+              serviceType: EServiceType.TOUR,
+            },
           },
         ],
         limit: data.take,
         offset: offset,
         distinct: true,
+        order: order,
       });
-      
+
       const result = GetLanguage.getLangListModel<ModelsAttributes.TourSchedule>(listTours.rows, lang, tourLangFields);
 
       return res.onSuccess(result, {
@@ -61,8 +109,8 @@ export default class TourService {
 
   public async findOne(id: number, res: Response) {
     try {
-      const lang = res.locals.language
-      let tourWhereOptions: WhereOptions = {
+      const lang = res.locals.language;
+      const tourWhereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
         isDeleted: false,
@@ -79,8 +127,8 @@ export default class TourService {
           {
             association: "tourPolicies",
             where: {
-              serviceType: EServiceType.TOUR
-            }
+              serviceType: EServiceType.TOUR,
+            },
           },
         ],
       });
@@ -101,21 +149,6 @@ export default class TourService {
       });
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   // /**
   //  * Get tour of user
@@ -265,7 +298,7 @@ export default class TourService {
   //     });
   //   }
   // }
-  
+
   // /**
   //  * Find all
   //  */
@@ -278,7 +311,7 @@ export default class TourService {
   //     }
 
   //     let offset = (data.take) * (data.page - 1);
-      
+
   //     const listTours = await this.toursModel.findAndCountAll({
   //       where: whereOptions,
   //       include: [
@@ -290,7 +323,7 @@ export default class TourService {
   //       offset: offset,
   //       distinct: true
   //     });
-      
+
   //     return res.onSuccess(listTours.rows, {
   //       meta: {
   //         take: data.take,
@@ -475,7 +508,7 @@ export default class TourService {
   //     });
   //   }
   // }
-  
+
   // /**
   //  * Search tours by name
   //  */
@@ -539,7 +572,7 @@ export default class TourService {
   //     });
   //   }
   // }
-  
+
   // /**
   //  * Enterprise search tours by name
   //  */

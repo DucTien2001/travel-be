@@ -246,3 +246,9 @@ export enum EPaymentScheduleCancelType {
   AUTO_CANCEL,
   USER_CANCEL
 }
+
+export enum ESortOption {
+  LOWEST_PRICE = 0,
+  HIGHEST_PRICE,
+  HIGHEST_RATE,
+}

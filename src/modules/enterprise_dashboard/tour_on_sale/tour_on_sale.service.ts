@@ -8,6 +8,7 @@ import { Op, WhereOptions } from "sequelize";
 export default class TourOnSaleService {
   constructor(
     @Inject("tourOnSalesModel") private tourOnSalesModel: ModelsInstance.TourOnSales,
+    @Inject("toursModel") private toursModel: ModelsInstance.Tours
   ) {}
   public async findAll(tourId: number, data: FindAll, res: Response) {
     try {
@@ -19,8 +20,8 @@ export default class TourOnSaleService {
         ...tourOnSaleWhereOptions,
         startDate: {
           [Op.gt]: new Date(),
-        }
-      }
+        },
+      };
       if (!data.isPast) {
         const tourOnSales = await this.tourOnSalesModel.findAll({
           where: tourOnSaleWhereOptions,
@@ -36,8 +37,8 @@ export default class TourOnSaleService {
         ...tourOnSaleWhereOptions,
         startDate: {
           [Op.lte]: new Date(),
-        }
-      }
+        },
+      };
       const tourOnSales = await this.tourOnSalesModel.findAndCountAll({
         where: tourOnSaleWhereOptions,
         order: [["startDate", "DESC"]],
@@ -54,7 +55,6 @@ export default class TourOnSaleService {
           pageCount: Math.ceil(tourOnSales.count / data.take),
         },
       });
-
     } catch (error) {
       return res.onError({
         status: 500,
@@ -136,7 +136,14 @@ export default class TourOnSaleService {
     try {
       const dataCreate: ITourOnSale[] = [];
       const dataUpdate: ITourOnSale[] = [];
+      const priceArr: number[] = [];
+      let latestTourDate = data?.[0]?.startDate;
       data.forEach((item) => {
+        priceArr.push(item.childrenPrice);
+        priceArr.push(item.adultPrice);
+        if (new Date(latestTourDate) < new Date(item.startDate)) {
+          latestTourDate = item.startDate;
+        }
         if (item?.id) {
           dataUpdate.push(item);
         } else {
@@ -171,6 +178,23 @@ export default class TourOnSaleService {
             )
         )
       );
+
+      const tour = await this.toursModel.findOne({
+        where: {
+          id: data[0].tourId,
+        },
+      });
+      if (!tour) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: "Tour not found",
+        });
+      }
+      tour.minPrice = Math.min(...priceArr);
+      tour.maxPrice = Math.max(...priceArr);
+      tour.latestTourDate = latestTourDate;
+      await tour.save();
 
       await t.commit();
       return res.onSuccess({
