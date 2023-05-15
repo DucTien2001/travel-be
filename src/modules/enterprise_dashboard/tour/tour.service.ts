@@ -60,16 +60,12 @@ export default class TourService {
       const result = listTours.rows.map((tour) => {
         let numberOfUpcomingTours = 0;
         let numberOfTookPlaceTours = 0;
-        let minPrice = tour.tourOnSales?.[0]?.childrenPrice || 0;
-        let maxPrice = tour.tourOnSales?.[0]?.adultPrice || 0;
         tour.tourOnSales.map((item) => {
           if (new Date(item.startDate) > new Date()) {
             numberOfUpcomingTours++;
           } else {
             numberOfTookPlaceTours++;
           }
-          if (item.childrenPrice < minPrice) minPrice = item.childrenPrice;
-          if (item.adultPrice > maxPrice) maxPrice = item.adultPrice;
         });
         let isCanDelete = false;
         const latestTourOnSale = tour.tourOnSales?.[tour.tourOnSales?.length - 1];
@@ -83,8 +79,6 @@ export default class TourService {
             ...rest,
             numberOfUpcomingTours,
             numberOfTookPlaceTours,
-            minPrice,
-            maxPrice,
             isCanDelete,
         };
       });
