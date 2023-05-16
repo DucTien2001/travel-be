@@ -23,6 +23,7 @@ export default class TourScheduleService {
             association: "languages",
           },
         ],
+        order: [["startTime", "ASC"]],
       });
 
       if (data?.language) {
