@@ -75,6 +75,11 @@ export default class TourService {
           },
           {
             association: "tourOnSales",
+            where: {
+              startDate: {
+                [Op.gt]: new Date(),
+              },
+            },
           },
           {
             association: "tourPolicies",
@@ -123,6 +128,11 @@ export default class TourService {
           },
           {
             association: "tourOnSales",
+            where: {
+              startDate: {
+                [Op.gt]: new Date(),
+              },
+            },
           },
           {
             association: "tourPolicies",

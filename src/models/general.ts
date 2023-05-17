@@ -252,3 +252,9 @@ export enum ESortOption {
   HIGHEST_PRICE,
   HIGHEST_RATE,
 }
+
+export enum StayType {
+  HOTEL = 1,
+  HOMESTAY,
+  RESORT,
+}

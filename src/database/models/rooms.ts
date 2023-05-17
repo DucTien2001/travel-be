@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-types */
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
@@ -6,12 +8,13 @@ export interface RoomAttributes extends Model {
   id: number;
   title: string;
   description: string;
-  discount: number;
-  tags: string;
-  images: string;
-  hotelId: number;
+  utility: string;
+  stayId: number;
   numberOfBed: number;
   numberOfRoom: number;
+  numberOfAdult: number;
+  numberOfChildren: number;
+  discount: number;
   mondayPrice: number;
   tuesdayPrice: number;
   wednesdayPrice: number;
@@ -19,7 +22,6 @@ export interface RoomAttributes extends Model {
   fridayPrice: number;
   saturdayPrice: number;
   sundayPrice: number;
-  isTemporarilyStopWorking: boolean;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -48,13 +50,25 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomsInstance
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },
-      tags: {
-        type: DataTypes.STRING,
+      utility: {
+        allowNull: false,
+        type: DataTypes.TEXT,
+        get() {
+          return JSON.parse(this.getDataValue("utility") || "[]");
+        },
+        set(value: any) {
+          this.setDataValue("utility", JSON.stringify(value || []));
+        },
       },
-      images: {
-        type: DataTypes.STRING,
+      stayId: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
       },
-      hotelId: {
+      numberOfAdult: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      numberOfChildren: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
@@ -94,11 +108,6 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomsInstance
         allowNull: false,
         type: DataTypes.DOUBLE,
       },
-      isTemporarilyStopWorking: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
       isDeleted: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
@@ -110,9 +119,9 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomsInstance
     }
   );
   rooms.associate = (models: { [key: string]: any }) => {
-    rooms.belongsTo(models.hotels, {
-      as: 'belongToHotel',
-      foreignKey: 'hotelId',
+    rooms.belongsTo(models.stays, {
+      as: 'stayInfo',
+      foreignKey: 'stayId',
       constraints: false
     });
     rooms.hasMany(models.room_other_prices, {

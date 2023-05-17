@@ -105,6 +105,13 @@ export default class TourBillService {
           {
             association: "languages",
           },
+          {
+            association: "tourPolicies",
+            where: {
+              serviceType: EServiceType.TOUR
+            },
+            order: [["dayRange", "ASC"]],
+          },
         ],
       });
       if (!tour) {
@@ -283,6 +290,7 @@ export default class TourBillService {
         limit: data.take,
         offset: offset,
         distinct: true,
+        order: [["createdAt", "DESC"]],
       });
       if (!bills) {
         return res.onError({
@@ -380,6 +388,12 @@ export default class TourBillService {
         include: [
           {
             association: "languages",
+          },
+          {
+            association: "tourPolicies",
+            where: {
+              serviceType: EServiceType.TOUR
+            }
           },
         ],
       });

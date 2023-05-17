@@ -1,0 +1,316 @@
+import { Inject, Service } from "typedi";
+import { Create, ERoomStatusFilter, FindAll, FindOne, Update } from "./room.models";
+import { Response } from "express";
+import { WhereOptions } from "sequelize";
+import { sequelize } from "database/models";
+import FileService from "services/file";
+import GetLanguage from "services/getLanguage";
+import { roomLangFields, stayLangFields } from "models/langField";
+
+@Service()
+export default class RoomService {
+  constructor(
+    @Inject("roomsModel") private roomsModel: ModelsInstance.Rooms,
+    // @Inject("staySchedulesModel") private staySchedulesModel: ModelsInstance.TourSchedules
+  ) {}
+  /**
+   * Find all
+   */
+  public async findAll(data: FindAll, user: ModelsAttributes.User, res: Response) {
+    try {
+      const enterpriseId = user.enterpriseId || user.id;
+
+      let whereOptions: WhereOptions = {
+        parentLanguage: null,
+        owner: enterpriseId,
+      };
+
+      if(data.status === ERoomStatusFilter.ACTIVED) {
+        whereOptions = {
+          ...whereOptions,
+          isDeleted: false,
+        }
+      }
+      if(data.status === ERoomStatusFilter.IN_ACTIVED) {
+        whereOptions = {
+          ...whereOptions,
+          isDeleted: true,
+        }
+      }
+
+      const offset = data.take * (data.page - 1);
+
+      const listRooms = await this.roomsModel.findAndCountAll({
+        where: whereOptions,
+        include: [
+          {
+            association: "languages",
+          },
+          // {
+          //   attributes: ["id", "startDate", "childrenPrice", "adultPrice"],
+          //   association: "tourOnSales",
+          // },
+        ],
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+      });
+
+      return res.onSuccess(listRooms.rows, {
+        meta: {
+          take: data.take,
+          itemCount: listRooms.count,
+          page: data.page,
+          pageCount: Math.ceil(listRooms.count / data.take),
+        },
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async findOne(id: number, data: FindOne, user: ModelsAttributes.User, res: Response) {
+    try {
+      const enterpriseId = user.enterpriseId || user.id;
+
+      const roomWhereOptions: WhereOptions = {
+        id: id,
+        parentLanguage: null,
+        isDeleted: false,
+        owner: enterpriseId,
+      };
+      let room = await this.roomsModel.findOne({
+        where: roomWhereOptions,
+        include: [
+          {
+            association: "languages",
+          },
+          // {
+          //   association: "tourOnSales",
+          // },
+        ],
+      });
+      if (!room) {
+        return res.onError({
+          status: 404,
+          detail: "Room not found",
+        });
+      }
+
+      if (data.language) {
+        room = GetLanguage.getLang(room.toJSON(), data.language, roomLangFields);
+      }
+
+      return res.onSuccess(room);
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async create(data: Create, user: ModelsAttributes.User, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const newRoom = await this.roomsModel.create(
+        {
+          title: data?.title,
+          description: data?.description,
+          utility: data?.utility,
+          numberOfAdult: data?.numberOfAdult,
+          numberOfChildren: data?.numberOfChildren,
+          numberOfBed: data?.numberOfBed,
+          numberOfRoom: data?.numberOfRoom,
+          discount: data?.discount,
+          mondayPrice: data?.mondayPrice,
+          tuesdayPrice: data?.tuesdayPrice,
+          wednesdayPrice: data?.wednesdayPrice,
+          thursdayPrice: data?.thursdayPrice,
+          fridayPrice: data?.fridayPrice,
+          saturdayPrice: data?.saturdayPrice,
+          sundayPrice: data?.sundayPrice,
+          stayId: data?.stayId,
+          isDeleted: false,
+        },
+        {
+          transaction: t,
+        }
+      );
+      await t.commit();
+      return res.onSuccess(newRoom, {
+        message: res.locals.t("room_create_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async update(id: number, data: Update, user: ModelsAttributes.User, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const room = await this.roomsModel.findOne({
+        where: {
+          id: id,
+        },
+      });
+      if (!room) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: "Room not found",
+        });
+      }
+
+      await this.roomsModel.update(
+        {
+          numberOfAdult: data?.numberOfAdult,
+          numberOfChildren: data?.numberOfChildren,
+          numberOfBed: data?.numberOfBed,
+          numberOfRoom: data?.numberOfRoom,
+          discount: data?.discount,
+          mondayPrice: data?.mondayPrice,
+          tuesdayPrice: data?.tuesdayPrice,
+          wednesdayPrice: data?.wednesdayPrice,
+          thursdayPrice: data?.thursdayPrice,
+          fridayPrice: data?.fridayPrice,
+          saturdayPrice: data?.saturdayPrice,
+          sundayPrice: data?.sundayPrice,
+        },
+        {
+          where: {
+            parentLanguage: id,
+          },
+          transaction: t,
+        }
+      );
+
+      if (data.language) {
+        room.numberOfAdult = data?.numberOfAdult
+        room.numberOfChildren = data?.numberOfChildren
+        room.numberOfBed = data?.numberOfBed
+        room.numberOfRoom = data?.numberOfRoom
+        room.discount = data?.discount
+        room.mondayPrice = data?.mondayPrice
+        room.tuesdayPrice = data?.tuesdayPrice
+        room.wednesdayPrice = data?.wednesdayPrice
+        room.thursdayPrice = data?.thursdayPrice
+        room.fridayPrice = data?.fridayPrice
+        room.saturdayPrice = data?.saturdayPrice
+        room.sundayPrice = data?.sundayPrice
+        await room.save({ transaction: t });
+
+        const roomLang = await this.roomsModel.findOne({
+          where: {
+            parentLanguage: id,
+            language: data.language
+          },
+        });
+        if (!roomLang) {
+          const roomNew = await this.roomsModel.create(
+            {
+              title: data?.title,
+              description: data?.description,
+              utility: data?.utility,
+              numberOfAdult: data?.numberOfAdult,
+              numberOfChildren: data?.numberOfChildren,
+              numberOfBed: data?.numberOfBed,
+              numberOfRoom: data?.numberOfRoom,
+              discount: data?.discount,
+              mondayPrice: data?.mondayPrice,
+              tuesdayPrice: data?.tuesdayPrice,
+              wednesdayPrice: data?.wednesdayPrice,
+              thursdayPrice: data?.thursdayPrice,
+              fridayPrice: data?.fridayPrice,
+              saturdayPrice: data?.saturdayPrice,
+              sundayPrice: data?.sundayPrice,
+              stayId: room.stayId,
+              isDeleted: false,
+            },
+            { transaction: t }
+          );
+          await t.commit();
+          return res.onSuccess(roomNew, {
+            message: res.locals.t("common_update_success"),
+          });
+        } else {
+          roomLang.title = data?.title;
+          roomLang.description = data?.description;
+          roomLang.utility = data?.utility;
+          await roomLang.save({ transaction: t });
+          await t.commit();
+          return res.onSuccess(roomLang, {
+            message: res.locals.t("common_update_success"),
+          });
+        }
+      }
+      room.title = data?.title;
+      room.description = data?.description;
+      room.utility = data?.utility;
+      await room.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(room, {
+        message: res.locals.t("common_update_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async delete(id: number, user: ModelsAttributes.User, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const enterpriseId = user.enterpriseId || user.id;
+      const whereOptions: WhereOptions = {
+        id: id,
+        parentLanguage: null,
+        isDeleted: false,
+        owner: enterpriseId,
+      };
+
+      const room = await this.roomsModel.findOne({
+        where: whereOptions,
+      });
+      if (!room) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: "Room not found",
+        });
+      }
+      room.isDeleted = true;
+      await this.roomsModel.update(
+        {
+          isDeleted: true,
+        },
+        {
+          where: {
+            parentLanguage: id,
+          },
+          transaction: t,
+        }
+      );
+      await room.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess({
+        message: res.locals.t("common_delete_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+}

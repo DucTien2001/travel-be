@@ -16,3 +16,21 @@ export const eventLangFields: string[] = [
   "name",
   "description",
 ];
+
+export const stayLangFields: string[] = [
+  "name",
+  "city",
+  "district",
+  "commune",
+  "moreLocation",
+  "description",
+  "highlight",
+  "convenient",
+  "termsAndCondition",
+];
+
+export const roomLangFields: string[] = [
+  "title",
+  "utility",
+  "description",
+];

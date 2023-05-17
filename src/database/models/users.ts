@@ -100,11 +100,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): UsersInstance
       foreignKey: "creator",
       constraints: false,
     });
-    users.hasMany(models.hotels, {
-      as: "ownHotels",
-      foreignKey: "creator",
-      constraints: false,
-    });
+    // users.hasMany(models.hotels, {
+    //   as: "ownHotels",
+    //   foreignKey: "creator",
+    //   constraints: false,
+    // });
     users.hasMany(models.tour_bills, {
       as: "bookTours",
       foreignKey: "userId",

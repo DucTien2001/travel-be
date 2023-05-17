@@ -8,6 +8,8 @@ import { voucherRouter } from "./voucher";
 import { staffRouter } from "./staff";
 import { tourBillRouter } from "./tourBill";
 import { commissionRouter } from "./commission";
+import { stayRouter } from "./stay";
+import { roomRouter } from "./room";
 
 export const enterpriseRouter = Router();
 
@@ -20,3 +22,5 @@ enterpriseRouter.use("/policy", policyRouter);
 enterpriseRouter.use("/voucher", voucherRouter);
 enterpriseRouter.use("/staff", staffRouter);
 enterpriseRouter.use("/commission", commissionRouter);
+enterpriseRouter.use("/stay", stayRouter);
+enterpriseRouter.use("/room", roomRouter);

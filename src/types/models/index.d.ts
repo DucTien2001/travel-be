@@ -5,7 +5,7 @@ import { commissionsInstance, commissionAttributes } from "database/models/commi
 import { ConfigAttributes, ConfigsInstance } from "database/models/configs";
 import { EventAttributes, EventsInstance } from "database/models/events";
 import { HotelCommentAttributes, HotelCommentsInstance } from "database/models/hotelComments";
-import { HotelAttributes, HotelsInstance } from "database/models/hotels";
+import { StayAttributes, StaysInstance } from "database/models/stays";
 import { policiesInstance, policyAttributes } from "database/models/policies";
 import { RoomBillDetailAttributes, RoomBillDetailsInstance } from "database/models/roomBillDetails";
 import { RoomBillAttributes, RoomBillsInstance } from "database/models/roomBills";
@@ -30,7 +30,7 @@ declare global {
     export type Comment = CommentAttributes
     export type VerifyCode = VerifyCodeAttributes;
     export type Tour = TourAttributes;
-    export type Hotel = HotelAttributes;
+    export type Stay = StayAttributes;
     export type Room = RoomAttributes;
     export type CheckRoom = CheckRoomAttributes;
     export type RoomOtherPrice = RoomOtherPriceAttributes;
@@ -56,7 +56,7 @@ declare global {
     export type Comments = CommentsInstance
     export type VerifyCodes = VerifyCodesInstance;
     export type Tours = ToursInstance;
-    export type Hotels = HotelsInstance;
+    export type Stays = StaysInstance;
     export type Rooms = RoomsInstance;
     export type CheckRooms = CheckRoomsInstance;
     export type RoomOtherPrices = RoomOtherPricesInstance;

@@ -28,6 +28,7 @@ export interface RoomBillAttributes extends Model {
 
 export type RoomBillsInstance = typeof Model & {
   new (values?: object, options?: BuildOptions): RoomBillAttributes;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   associate?: Function;
 };
 
@@ -111,11 +112,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
       foreignKey: 'userId',
       constraints: false
     });
-    room_bills.belongsTo(models.hotels, {
-      as: 'hotelInfo',
-      foreignKey: 'hotelId',
-      constraints: false
-    });
+    // room_bills.belongsTo(models.hotels, {
+    //   as: 'hotelInfo',
+    //   foreignKey: 'hotelId',
+    //   constraints: false
+    // });
     room_bills.hasMany(models.room_bill_details, {
       as: 'roomBillDetail',
       foreignKey: 'billId',

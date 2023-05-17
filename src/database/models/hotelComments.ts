@@ -21,6 +21,7 @@ export interface HotelCommentAttributes extends Model {
 
 export type HotelCommentsInstance = typeof Model & {
   new (values?: object, options?: BuildOptions): HotelCommentAttributes;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   associate?: Function;
 };
 
@@ -66,21 +67,21 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): HotelComments
     }
   );
   hotel_comments.associate = (models: { [key: string]: any }) => {
-    hotel_comments.belongsTo(models.hotels, {
-      as: 'hotelInfo',
-      foreignKey: 'hotelId',
-      constraints: false
-    });
-    hotel_comments.belongsTo(models.users, {
-      as: 'hotelReviewer',
-      foreignKey: 'userId',
-      constraints: false
-    });
-    hotel_comments.belongsTo(models.room_bills, {
-      as: 'belongToRoomBill',
-      foreignKey: 'billId',
-      constraints: false
-    });
+    // hotel_comments.belongsTo(models.hotels, {
+    //   as: 'hotelInfo',
+    //   foreignKey: 'hotelId',
+    //   constraints: false
+    // });
+    // hotel_comments.belongsTo(models.users, {
+    //   as: 'hotelReviewer',
+    //   foreignKey: 'userId',
+    //   constraints: false
+    // });
+    // hotel_comments.belongsTo(models.room_bills, {
+    //   as: 'belongToRoomBill',
+    //   foreignKey: 'billId',
+    //   constraints: false
+    // });
   };
   return hotel_comments;
 };
