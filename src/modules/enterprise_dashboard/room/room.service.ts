@@ -3,15 +3,14 @@ import { Create, ERoomStatusFilter, FindAll, FindOne, Update } from "./room.mode
 import { Response } from "express";
 import { WhereOptions } from "sequelize";
 import { sequelize } from "database/models";
-import FileService from "services/file";
 import GetLanguage from "services/getLanguage";
-import { roomLangFields, stayLangFields } from "models/langField";
+import { roomLangFields } from "models/langField";
 
 @Service()
 export default class RoomService {
   constructor(
     @Inject("roomsModel") private roomsModel: ModelsInstance.Rooms,
-    // @Inject("staySchedulesModel") private staySchedulesModel: ModelsInstance.TourSchedules
+    @Inject("staysModel") private staysModel: ModelsInstance.Stays
   ) {}
   /**
    * Find all
@@ -25,17 +24,17 @@ export default class RoomService {
         owner: enterpriseId,
       };
 
-      if(data.status === ERoomStatusFilter.ACTIVED) {
+      if (data.status === ERoomStatusFilter.ACTIVED) {
         whereOptions = {
           ...whereOptions,
           isDeleted: false,
-        }
+        };
       }
-      if(data.status === ERoomStatusFilter.IN_ACTIVED) {
+      if (data.status === ERoomStatusFilter.IN_ACTIVED) {
         whereOptions = {
           ...whereOptions,
           isDeleted: true,
-        }
+        };
       }
 
       const offset = data.take * (data.page - 1);
@@ -116,6 +115,36 @@ export default class RoomService {
   public async create(data: Create, user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
+      const enterpriseId = user.enterpriseId || user.id;
+
+      const stayWhereOptions: WhereOptions = {
+        id: data.stayId,
+        parentLanguage: null,
+        isDeleted: false,
+        owner: enterpriseId,
+      };
+      const stay = await this.staysModel.findOne({
+        where: stayWhereOptions,
+      });
+      if (!stay) {
+        return res.onError({
+          status: 404,
+          detail: "Stay not found",
+        });
+      }
+      const prices = [
+        data?.mondayPrice,
+        data?.tuesdayPrice,
+        data?.wednesdayPrice,
+        data?.thursdayPrice,
+        data?.fridayPrice,
+        data?.saturdayPrice,
+        data?.sundayPrice,
+      ];
+      stay.minPrice = Math.min(...prices);
+      stay.maxPrice = Math.max(...prices);
+      await stay.save();
+
       const newRoom = await this.roomsModel.create(
         {
           title: data?.title,
@@ -169,6 +198,39 @@ export default class RoomService {
         });
       }
 
+      // ***** Start update min and max price of stay *****
+      const enterpriseId = user.enterpriseId || user.id;
+
+      const stayWhereOptions: WhereOptions = {
+        id: room.stayId,
+        parentLanguage: null,
+        isDeleted: false,
+        owner: enterpriseId,
+      };
+      const stay = await this.staysModel.findOne({
+        where: stayWhereOptions,
+      });
+      if (!stay) {
+        return res.onError({
+          status: 404,
+          detail: "Stay not found",
+        });
+      }
+      const prices = [
+        data?.mondayPrice,
+        data?.tuesdayPrice,
+        data?.wednesdayPrice,
+        data?.thursdayPrice,
+        data?.fridayPrice,
+        data?.saturdayPrice,
+        data?.sundayPrice,
+      ];
+      stay.minPrice = Math.min(...prices);
+      stay.maxPrice = Math.max(...prices);
+      await stay.save();
+
+      // ***** End update min and max price of stay *****
+
       await this.roomsModel.update(
         {
           numberOfAdult: data?.numberOfAdult,
@@ -193,24 +255,24 @@ export default class RoomService {
       );
 
       if (data.language) {
-        room.numberOfAdult = data?.numberOfAdult
-        room.numberOfChildren = data?.numberOfChildren
-        room.numberOfBed = data?.numberOfBed
-        room.numberOfRoom = data?.numberOfRoom
-        room.discount = data?.discount
-        room.mondayPrice = data?.mondayPrice
-        room.tuesdayPrice = data?.tuesdayPrice
-        room.wednesdayPrice = data?.wednesdayPrice
-        room.thursdayPrice = data?.thursdayPrice
-        room.fridayPrice = data?.fridayPrice
-        room.saturdayPrice = data?.saturdayPrice
-        room.sundayPrice = data?.sundayPrice
+        room.numberOfAdult = data?.numberOfAdult;
+        room.numberOfChildren = data?.numberOfChildren;
+        room.numberOfBed = data?.numberOfBed;
+        room.numberOfRoom = data?.numberOfRoom;
+        room.discount = data?.discount;
+        room.mondayPrice = data?.mondayPrice;
+        room.tuesdayPrice = data?.tuesdayPrice;
+        room.wednesdayPrice = data?.wednesdayPrice;
+        room.thursdayPrice = data?.thursdayPrice;
+        room.fridayPrice = data?.fridayPrice;
+        room.saturdayPrice = data?.saturdayPrice;
+        room.sundayPrice = data?.sundayPrice;
         await room.save({ transaction: t });
 
         const roomLang = await this.roomsModel.findOne({
           where: {
             parentLanguage: id,
-            language: data.language
+            language: data.language,
           },
         });
         if (!roomLang) {
