@@ -1,1 +1,1 @@
-export { roomRouter } from './room.route'
+export { router as roomRouter } from './room.route'

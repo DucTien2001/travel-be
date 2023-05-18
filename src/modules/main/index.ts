@@ -13,13 +13,14 @@ import { voucherRouter } from "./voucher";
 import { eventRouter } from "./event";
 import { translationRouter } from "./translation";
 import { commentRouter } from "./comment";
+import { stayRouter } from "./stay";
 
 export const mainRouter = Router();
 
 mainRouter.use("/user", userRouter);
 mainRouter.use("/tour", tourRouter);
 mainRouter.use("/tour-schedule", tourScheduleRouter);
-// mainRouter.use("/hotel", hotelRouter);
+mainRouter.use("/hotel", stayRouter);
 mainRouter.use("/room", roomRouter);
 mainRouter.use("/room-other-price", roomOtherPriceRouter);
 mainRouter.use("/tour-bill", tourBillRouter);

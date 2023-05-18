@@ -27,6 +27,7 @@ export interface RoomAttributes extends Model {
   isDeleted: boolean;
   parentLanguage: number;
   language: string;
+  otherPrices: ModelsAttributes.RoomOtherPrice[];
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;

@@ -7,6 +7,7 @@ export interface CheckRoomAttributes extends Model {
   id: number;
   bookedDate: string;
   numberOfRoomsAvailable: number;
+  stayId: number;
   roomId: number;
   createdAt: Date;
   updatedAt: Date;
@@ -27,6 +28,9 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): CheckRoomsIns
         type: DataTypes.STRING,
       },
       numberOfRoomsAvailable: {
+        type: DataTypes.INTEGER,
+      },
+      stayId: {
         type: DataTypes.INTEGER,
       },
       roomId: {

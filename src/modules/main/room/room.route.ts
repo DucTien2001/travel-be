@@ -1,14 +1,15 @@
 import { Router } from "express";
-import RoomController from "./room.controller";
+import Controller from "./room.controller";
 
-export const roomRouter = Router();
+export const router = Router();
 
-roomRouter.route("/get-room/:roomId").get(RoomController.getRoom);
-roomRouter.route("/get-rooms-available").post(RoomController.getRoomsAvailable);
-roomRouter.route("/get-all-rooms/:hotelId").get(RoomController.getAllRoomsOfHotel);
-roomRouter.route("/create").post(RoomController.createNewRoom);
-roomRouter.route("/update-information/:id").put(RoomController.updateRoomInformation);
-roomRouter.route("/update-price/:id").put(RoomController.updateRoomPrice);
-roomRouter.route("/delete/:id").put(RoomController.deleteRoom);
-roomRouter.route("/temporarily-stop-working/:id").put(RoomController.temporarilyStopWorking);
-roomRouter.route("/work-again/:id").put(RoomController.workAgain);
+router.route("/").get(Controller.findAll);
+// router.route("/get-room/:roomId").get(RoomController.getRoom);
+// router.route("/get-rooms-available").post(RoomController.getRoomsAvailable);
+// router.route("/get-all-rooms/:hotelId").get(RoomController.getAllRoomsOfHotel);
+// router.route("/create").post(RoomController.createNewRoom);
+// router.route("/update-information/:id").put(RoomController.updateRoomInformation);
+// router.route("/update-price/:id").put(RoomController.updateRoomPrice);
+// router.route("/delete/:id").put(RoomController.deleteRoom);
+// router.route("/temporarily-stop-working/:id").put(RoomController.temporarilyStopWorking);
+// router.route("/work-again/:id").put(RoomController.workAgain);
