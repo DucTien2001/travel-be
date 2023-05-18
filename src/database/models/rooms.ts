@@ -9,8 +9,9 @@ export interface RoomAttributes extends Model {
   id: number;
   title: string;
   description: string;
-  utility: string;
+  utility: string[];
   stayId: number;
+  images: string[];
   numberOfBed: number;
   numberOfRoom: number;
   numberOfAdult: number;
@@ -61,6 +62,15 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomsInstance
         },
         set(value: any) {
           this.setDataValue("utility", JSON.stringify(value || []));
+        },
+      },
+      images: {
+        type: DataTypes.TEXT({ length: "long" }),
+        get() {
+          return JSON.parse(this.getDataValue("images") || "[]");
+        },
+        set(value: any) {
+          this.setDataValue("images", JSON.stringify(value || []));
         },
       },
       stayId: {

@@ -48,7 +48,7 @@ export default class Validation {
         moreLocation: yup.string(),
         contact: yup.string(),
         description: yup.string(),
-        convenient: yup.string(),
+        convenient: yup.array(yup.string()),
         highlight: yup.string(),
         termsAndCondition: yup.string(),
       })
@@ -79,7 +79,7 @@ export default class Validation {
         moreLocation: yup.string(),
         contact: yup.string(),
         description: yup.string(),
-        convenient: yup.string(),
+        convenient: yup.array(yup.string()),
         highlight: yup.string(),
         termsAndCondition: yup.string(),
         language: yup.string().oneOf([LANG.VI, LANG.EN]).notRequired(),

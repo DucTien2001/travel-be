@@ -33,7 +33,7 @@ export default class Validation {
       .object({
         title: yup.string(),
         description: yup.string(),
-        utility: yup.string(),
+        utility: yup.array(yup.string()),
         discount: yup.number(),
         numberOfAdult: yup.number(),
         numberOfChildren: yup.number(),
@@ -58,7 +58,7 @@ export default class Validation {
       .object({
         title: yup.string(),
         description: yup.string(),
-        utility: yup.string(),
+        utility: yup.array(yup.string()),
         discount: yup.number(),
         numberOfAdult: yup.number(),
         numberOfChildren: yup.number(),
@@ -73,6 +73,8 @@ export default class Validation {
         sundayPrice: yup.number(),
         stayId: yup.number(),
         language: yup.string().oneOf([LANG.VI, LANG.EN]).notRequired(),
+        images: yup.array(yup.string()),
+        imagesDeleted: yup.array(yup.string()),
       })
       .noUnknown()
       .required();

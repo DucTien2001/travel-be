@@ -32,7 +32,7 @@ export interface Create {
   checkInTime: number;
   checkOutTime: number;
   description: string;
-  convenient: string;
+  convenient: string[];
   highlight: string;
   termsAndCondition: string;
 }
@@ -48,7 +48,7 @@ export interface Update {
   checkInTime: number;
   checkOutTime: number;
   description: string;
-  convenient: string;
+  convenient: string[];
   highlight: string;
   termsAndCondition: string;
   language: string;

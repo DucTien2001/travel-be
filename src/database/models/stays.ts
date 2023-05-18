@@ -19,7 +19,7 @@ export interface StayAttributes extends Model {
   checkInTime: number;
   checkOutTime: number;
   highlight: string;
-  convenient: string;
+  convenient: string[];
   termsAndCondition: string;
   minPrice: number;
   maxPrice: number;
@@ -173,14 +173,19 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): StaysInstance
       constraints: false,
     });
     stays.belongsTo(models.users, {
-      as: "belongToUser",
+      as: "stayOwner",
       foreignKey: "creator",
       constraints: false,
     });
     stays.hasMany(models.rooms, {
-      as: "hasManyRooms",
-      foreignKey: "hotelId",
+      as: "listRooms",
+      foreignKey: "stayId",
       constraints: false,
+    });
+    stays.hasMany(models.policies, {
+      as: 'stayPolicies',
+      foreignKey: 'serviceId',
+      constraints: false
     });
   };
   return stays;

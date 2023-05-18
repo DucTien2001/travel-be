@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
@@ -14,6 +15,7 @@ export interface CheckRoomAttributes extends Model {
 
 export type CheckRoomsInstance = typeof Model & {
   new (values?: object, options?: BuildOptions): CheckRoomAttributes;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   associate?: Function;
 };
 

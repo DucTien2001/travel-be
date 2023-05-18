@@ -33,7 +33,7 @@ export default class Controller {
     try {
       const value = Validation.create(req);
       const ServiceI = Container.get(Service);
-      ServiceI.create(value, req.user, res);
+      ServiceI.create(value, req.files as Express.Multer.File[], req.user, res);
     } catch (error) {
       return res.onError({
         detail: error,
@@ -46,7 +46,7 @@ export default class Controller {
       const { id } = req.params;
       const value = Validation.update(req);
       const ServiceI = Container.get(Service);
-      ServiceI.update(Number(id), value, req.user, res);
+      ServiceI.update(Number(id), value, req.files as Express.Multer.File[], req.user, res);
     } catch (error) {
       return res.onError({
         detail: error,

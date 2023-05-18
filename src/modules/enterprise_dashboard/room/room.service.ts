@@ -5,6 +5,7 @@ import { WhereOptions } from "sequelize";
 import { sequelize } from "database/models";
 import GetLanguage from "services/getLanguage";
 import { roomLangFields } from "models/langField";
+import FileService from "services/file";
 
 @Service()
 export default class RoomService {
@@ -108,9 +109,19 @@ export default class RoomService {
     }
   }
 
-  public async create(data: Create, user: ModelsAttributes.User, res: Response) {
+  public async create(data: Create, files: Express.Multer.File[], user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
+      const images = await FileService.uploadAttachments([...files]);
+      if (!images?.length) {
+        await t.rollback();
+        return res.onError({
+          status: 400,
+          detail: "Image is required",
+        });
+      }
+      const imageUrls = images?.map((image) => image?.url);
+
       const enterpriseId = user.enterpriseId || user.id;
 
       const stayWhereOptions: WhereOptions = {
@@ -146,6 +157,7 @@ export default class RoomService {
           title: data?.title,
           description: data?.description,
           utility: data?.utility,
+          images: imageUrls,
           numberOfAdult: data?.numberOfAdult,
           numberOfChildren: data?.numberOfChildren,
           numberOfBed: data?.numberOfBed,
@@ -178,9 +190,16 @@ export default class RoomService {
     }
   }
 
-  public async update(id: number, data: Update, user: ModelsAttributes.User, res: Response) {
+  public async update(id: number, data: Update, files: Express.Multer.File[], user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
+      if (data.imagesDeleted) {
+        await FileService.deleteFiles(data.imagesDeleted);
+      }
+      const images = await FileService.uploadAttachments([...files]);
+      const imageUrls = images?.map((image) => image?.url);
+      const newImageUrls = data.images.concat(imageUrls);
+
       const room = await this.roomsModel.findOne({
         where: {
           id: id,
@@ -229,6 +248,7 @@ export default class RoomService {
 
       await this.roomsModel.update(
         {
+          images: newImageUrls,
           numberOfAdult: data?.numberOfAdult,
           numberOfChildren: data?.numberOfChildren,
           numberOfBed: data?.numberOfBed,
@@ -251,6 +271,7 @@ export default class RoomService {
       );
 
       if (data.language) {
+        room.images = newImageUrls;
         room.numberOfAdult = data?.numberOfAdult;
         room.numberOfChildren = data?.numberOfChildren;
         room.numberOfBed = data?.numberOfBed;
@@ -277,6 +298,7 @@ export default class RoomService {
               title: data?.title,
               description: data?.description,
               utility: data?.utility,
+              images: newImageUrls,
               numberOfAdult: data?.numberOfAdult,
               numberOfChildren: data?.numberOfChildren,
               numberOfBed: data?.numberOfBed,
@@ -312,6 +334,19 @@ export default class RoomService {
       room.title = data?.title;
       room.description = data?.description;
       room.utility = data?.utility;
+      room.images = newImageUrls;
+      room.numberOfAdult = data?.numberOfAdult;
+      room.numberOfChildren = data?.numberOfChildren;
+      room.numberOfBed = data?.numberOfBed;
+      room.numberOfRoom = data?.numberOfRoom;
+      room.discount = data?.discount;
+      room.mondayPrice = data?.mondayPrice;
+      room.tuesdayPrice = data?.tuesdayPrice;
+      room.wednesdayPrice = data?.wednesdayPrice;
+      room.thursdayPrice = data?.thursdayPrice;
+      room.fridayPrice = data?.fridayPrice;
+      room.saturdayPrice = data?.saturdayPrice;
+      room.sundayPrice = data?.sundayPrice;
       await room.save({ transaction: t });
       await t.commit();
       return res.onSuccess(room, {

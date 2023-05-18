@@ -20,7 +20,7 @@ export interface FindOne {
 export interface Create {
   title: string;
   description: string;
-  utility: string;
+  utility: string[];
   numberOfAdult: number;
   numberOfChildren: number;
   numberOfBed: number;
@@ -39,7 +39,7 @@ export interface Create {
 export interface Update {
   title: string;
   description: string;
-  utility: string;
+  utility: string[];
   numberOfAdult: number;
   numberOfChildren: number;
   numberOfBed: number;
@@ -53,4 +53,9 @@ export interface Update {
   saturdayPrice: number;
   sundayPrice: number;
   language: string;
-} 
+  images: string[];         // mảng url image cũ
+  imagesDeleted: string[];  // mảng url image bị xóa
+}                           // image add mới thì gửi append file theo formData giống như lúc create
+            // ví dụ ban đầu có 5 image: [1, 2, 3, 4, 5] và xóa đi image 2 và 4 thì:
+            // field images: [1, 3, 5]
+            // field imagesDeleted: [2, 4]
