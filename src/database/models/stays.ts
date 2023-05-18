@@ -1,4 +1,5 @@
 import { LANG } from "common/general";
+import { StayType } from "models/general";
 import { Ilocation } from "modules/enterprise_dashboard/stay/stay.models";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
@@ -7,7 +8,7 @@ export interface StayAttributes extends Model {
   dataValues: object;
   id: number;
   name: string;
-  type: number;
+  type: StayType;
   images: string[];
   city: Ilocation;
   district: Ilocation;
