@@ -10,6 +10,7 @@ import { tourBillRouter } from "./tourBill";
 import { commissionRouter } from "./commission";
 import { stayRouter } from "./stay";
 import { roomRouter } from "./room";
+import { roomOtherPriceRouter } from "./roomOtherPrice";
 
 export const enterpriseRouter = Router();
 
@@ -24,3 +25,4 @@ enterpriseRouter.use("/staff", staffRouter);
 enterpriseRouter.use("/commission", commissionRouter);
 enterpriseRouter.use("/stay", stayRouter);
 enterpriseRouter.use("/room", roomRouter);
+enterpriseRouter.use("/room-other-price", roomOtherPriceRouter);

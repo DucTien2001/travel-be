@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
@@ -15,6 +16,7 @@ export interface RoomOtherPriceAttributes extends Model {
 
 export type RoomOtherPricesInstance = typeof Model & {
   new (values?: object, options?: BuildOptions): RoomOtherPriceAttributes;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   associate?: Function;
 };
 
@@ -46,7 +48,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomOtherPric
   );
   room_other_prices.associate = (models: { [key: string]: any }) => {
     room_other_prices.belongsTo(models.rooms, {
-      as: 'belongToRoom',
+      as: 'roomInfo',
       foreignKey: 'roomId',
       constraints: false
     });

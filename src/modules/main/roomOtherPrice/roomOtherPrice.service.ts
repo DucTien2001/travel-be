@@ -1,11 +1,10 @@
-import Container, { Inject, Service } from "typedi";
+import { Inject, Service } from "typedi";
 import {
   ICreateRoomOtherPrice,
-  IDeletePrice,
   IGetPrice,
   IUpdateRoomOtherPrice,
 } from "./roomOtherPrice.models";
-import database, { sequelize } from "database/models";
+import { sequelize } from "database/models";
 import { Response } from "express";
 
 @Service()
