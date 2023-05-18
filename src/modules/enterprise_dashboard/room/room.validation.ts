@@ -7,6 +7,7 @@ export default class Validation {
   static findAll(req: Request) {
     const schema = yup
       .object({
+        stayId: yup.number(),
         take: yup.number().integer().default(10),
         page: yup.number().min(1).integer().default(1),
         keyword: yup.string(),
@@ -20,6 +21,7 @@ export default class Validation {
   static findOne(req: Request) {
     const schema = yup
       .object({
+        stayId: yup.number(),
         language: yup.string().oneOf([LANG.VI, LANG.EN]).notRequired(),
       })
       .noUnknown();

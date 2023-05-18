@@ -17,11 +17,9 @@ export default class RoomService {
    */
   public async findAll(data: FindAll, user: ModelsAttributes.User, res: Response) {
     try {
-      const enterpriseId = user.enterpriseId || user.id;
-
       let whereOptions: WhereOptions = {
         parentLanguage: null,
-        owner: enterpriseId,
+        stayId: data.stayId,
       };
 
       if (data.status === ERoomStatusFilter.ACTIVED) {
@@ -73,13 +71,11 @@ export default class RoomService {
 
   public async findOne(id: number, data: FindOne, user: ModelsAttributes.User, res: Response) {
     try {
-      const enterpriseId = user.enterpriseId || user.id;
-
       const roomWhereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
         isDeleted: false,
-        owner: enterpriseId,
+        stayId: data.stayId,
       };
       let room = await this.roomsModel.findOne({
         where: roomWhereOptions,

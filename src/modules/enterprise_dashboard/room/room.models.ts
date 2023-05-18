@@ -5,6 +5,7 @@ export enum ERoomStatusFilter {
 }
 
 export interface FindAll {
+  stayId: number;
   take: number;
   page: number;
   keyword?: string;
@@ -12,6 +13,7 @@ export interface FindAll {
 }
 
 export interface FindOne {
+  stayId: number;
   language?: string;
 }
 
