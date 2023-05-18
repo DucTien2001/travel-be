@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-types */
+import { LANG } from "common/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
@@ -23,6 +24,8 @@ export interface RoomAttributes extends Model {
   saturdayPrice: number;
   sundayPrice: number;
   isDeleted: boolean;
+  parentLanguage: number;
+  language: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -113,12 +116,24 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomsInstance
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      parentLanguage: {
+        type: DataTypes.INTEGER,
+      },
+      language: {
+        type: DataTypes.STRING,
+        comment: `VietNam: ${LANG.VI}, English: ${LANG.EN}`,
+      },
     },
     {
       paranoid: true,
     }
   );
   rooms.associate = (models: { [key: string]: any }) => {
+    rooms.hasMany(models.rooms, {
+      as: "languages",
+      foreignKey: "parentLanguage",
+      constraints: false,
+    });
     rooms.belongsTo(models.stays, {
       as: 'stayInfo',
       foreignKey: 'stayId',
