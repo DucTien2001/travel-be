@@ -259,9 +259,12 @@ export default class TourBillService {
               detail: "Tour on sale not found",
             });
           }
-          tourOnSale.quantityOrdered = tourOnSale.quantityOrdered + oldBill.amountAdult + oldBill.amountChild;
+          tourOnSale.quantityOrdered = tourOnSale.quantityOrdered - oldBill.amountAdult - oldBill.amountChild;
           await tourOnSale.save({ transaction: t });
         }
+        // if(data.paymentStatus !== EPaymentStatus.PAID) {
+
+        // }
       }
       if (data?.participantsInfo) tourBill.participantsInfo = data.participantsInfo;
 
