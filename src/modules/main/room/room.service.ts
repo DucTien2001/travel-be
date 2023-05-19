@@ -75,14 +75,6 @@ export default class RoomService {
           {
             association: "languages",
           },
-          {
-            association: "otherPrices",
-            where: {
-              date: {
-                [Op.between]: [data?.startDate, data?.endDate],
-              },
-            },
-          },
         ],
         limit: data.take,
         offset: offset,
@@ -94,6 +86,14 @@ export default class RoomService {
           detail: "Not found",
         });
       }
+
+      const otherPrices = await this.roomOtherPricesModel.findAll({
+        where: {
+          date: {
+            [Op.between]: [data?.startDate, data?.endDate],
+          },
+        },
+      })
 
       // take the satisfying rooms
       const listRoomIds = listRooms.rows.map((item) => item.id);
@@ -119,22 +119,20 @@ export default class RoomService {
       let result = GetLanguage.getLangListModel<ModelsAttributes.Room>(listRooms.rows, lang, roomLangFields);
       const satisfyingRoomIds = satisfyingRooms.map((item) => item.roomId);
 
-      if (satisfyingRoomIds?.length) {
-        result = result.map((room) => {
-          let _room = {
-            ...room,
-            prices: this.getRoomPrices(room, data.startDate, data.endDate, room.otherPrices || []),
+      result = result.map((room) => {
+        let _room = {
+          ...room,
+          prices: this.getRoomPrices(room, data.startDate, data.endDate, otherPrices || []),
+        };
+        if (satisfyingRoomIds.includes(room.id)) {
+          const satisfyingRoom = satisfyingRooms.find((item) => item.roomId === room.id);
+          _room = {
+            ..._room,
+            numberOfRoom: satisfyingRoom.numberOfRoomsAvailable,
           };
-          if (satisfyingRoomIds.includes(room.id)) {
-            const satisfyingRoom = satisfyingRooms.find((item) => item.roomId === room.id);
-            _room = {
-              ..._room,
-              numberOfRoom: satisfyingRoom.numberOfRoomsAvailable,
-            };
-          }
-          return { ..._room };
-        }) as any;
-      }
+        }
+        return { ..._room };
+      }) as any;
 
       return res.onSuccess(result, {
         meta: {

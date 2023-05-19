@@ -7,11 +7,11 @@ export default class Validation {
       .object({
         take: yup.number().min(1).integer().default(10),
         page: yup.number().min(1).integer().default(1),
-        stayId: yup.number().integer(),
+        stayId: yup.number().integer().required(),
         numberOfAdult: yup.number().integer(),
         numberOfChildren: yup.number().integer(),
-        startDate: yup.date(),
-        endDate: yup.date(),
+        startDate: yup.date().required(),
+        endDate: yup.date().required(),
         numberOfRoom: yup.number().integer(),
         sort: yup.number().integer(),
       })
