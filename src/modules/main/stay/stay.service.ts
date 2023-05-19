@@ -22,7 +22,7 @@ export default class TourService {
         isDeleted: false,
       };
 
-      if (data?.keyword && data?.numberOfAdult && data?.numberOfChildren) {
+      if (data?.keyword && !isNaN(data?.numberOfAdult) && !isNaN(data?.numberOfChildren)) {
         const rooms = await this.roomsModel.findAll({
           where: {
             numberOfAdult: data?.numberOfAdult,

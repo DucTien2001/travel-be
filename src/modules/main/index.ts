@@ -20,7 +20,7 @@ export const mainRouter = Router();
 mainRouter.use("/user", userRouter);
 mainRouter.use("/tour", tourRouter);
 mainRouter.use("/tour-schedule", tourScheduleRouter);
-mainRouter.use("/hotel", stayRouter);
+mainRouter.use("/stay", stayRouter);
 mainRouter.use("/room", roomRouter);
 mainRouter.use("/room-other-price", roomOtherPriceRouter);
 mainRouter.use("/tour-bill", tourBillRouter);
