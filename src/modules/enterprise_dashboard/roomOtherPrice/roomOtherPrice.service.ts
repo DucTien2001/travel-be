@@ -16,7 +16,7 @@ export default class RoomOtherPriceService {
       // Get upcoming date
       whereOptions = {
         ...whereOptions,
-        startDate: {
+        date: {
           [Op.gt]: new Date(),
         },
       };
@@ -33,7 +33,7 @@ export default class RoomOtherPriceService {
       const offset = data.take * (data.page - 1);
       whereOptions = {
         ...whereOptions,
-        startDate: {
+        date: {
           [Op.lte]: new Date(),
         },
       };
