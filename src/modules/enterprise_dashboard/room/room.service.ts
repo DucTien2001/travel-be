@@ -313,6 +313,7 @@ export default class RoomService {
               sundayPrice: data?.sundayPrice,
               stayId: room.stayId,
               isDeleted: false,
+              language: data.language,
             },
             { transaction: t }
           );
