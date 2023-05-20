@@ -23,7 +23,10 @@ export default class EventService {
       if (data.serviceType === EServiceType.HOTEL) {
         whereOptions = {
           ...whereOptions,
-          hotelIds: { [Op.contains]: [data.serviceId] || [-1] },
+          [Op.or]: [
+            Sequelize.fn("JSON_CONTAINS", Sequelize.col("hotelIds"), `[${data.serviceId}]`),
+            Sequelize.fn("JSON_CONTAINS", Sequelize.col("hotelIds"), `[-1]`),
+          ],
         };
       } else {
         whereOptions = {
