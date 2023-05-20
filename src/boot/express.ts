@@ -19,6 +19,7 @@ import database from 'database/models';
 import ResponseHelper from 'helper/response';
 import TranslationController from 'modules/main/translation/translation.controller';
 import initConfigs from 'middlewares/configs';
+import initScheduleJobs from "middlewares/cronjob"
 
 setDI()
 
@@ -73,6 +74,8 @@ if (process.env.NODE_ENV === NODE_ENV.DEVELOPMENT) {
 app.use(multer().any());
 
 app.use(ResponseHelper.middlewareResponse);
+
+initScheduleJobs();
 
 app.use(passport.initialize());
 

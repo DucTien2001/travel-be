@@ -1,7 +1,8 @@
 import { Inject, Service } from "typedi";
 import { FindAll } from "./voucher.models";
 import { Response } from "express";
-import { WhereOptions } from "sequelize";
+import { Op, Sequelize, WhereOptions } from "sequelize";
+import { EServiceType } from "common/general";
 
 @Service()
 export default class EventService {
@@ -15,13 +16,33 @@ export default class EventService {
         parentLanguage: null,
         isDeleted: false,
         owner: data?.owner,
+        endTime: {
+          [Op.gt]: new Date(),
+        },
       };
+      if (data.serviceType === EServiceType.HOTEL) {
+        whereOptions = {
+          ...whereOptions,
+          hotelIds: { [Op.contains]: [data.serviceId] || [-1] },
+        };
+      } else {
+        whereOptions = {
+          ...whereOptions,
+          [Op.or]: [
+            Sequelize.fn("JSON_CONTAINS", Sequelize.col("tourIds"), `[${data.serviceId}]`),
+            Sequelize.fn("JSON_CONTAINS", Sequelize.col("tourIds"), `[-1]`),
+          ],
+        };
+      }
 
-      let offset = data.take * (data.page - 1);
+      const offset = data.take * (data.page - 1);
 
       const listVouchers = await this.eventsModel.findAndCountAll({
         where: whereOptions,
-        order: [['discountType', 'DESC'], ['discountValue', 'DESC']],
+        order: [
+          ["discountType", "DESC"],
+          ["discountValue", "DESC"],
+        ],
         limit: data.take,
         offset: offset,
         distinct: true,
@@ -45,15 +66,15 @@ export default class EventService {
 
   public async findOne(id: number, user: ModelsAttributes.User, res: Response) {
     try {
-      let enterpriseId = user.enterpriseId || user.id;
+      const enterpriseId = user.enterpriseId || user.id;
 
-      let eventWhereOptions: WhereOptions = {
+      const eventWhereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
         isDeleted: false,
         owner: enterpriseId,
       };
-      let voucher = await this.eventsModel.findOne({
+      const voucher = await this.eventsModel.findOne({
         where: eventWhereOptions,
       });
       if (!voucher) {

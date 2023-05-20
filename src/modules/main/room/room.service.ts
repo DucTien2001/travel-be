@@ -218,7 +218,7 @@ export default class RoomService {
     const _endDate = new Date(endDate);
     while (_date < _endDate) {
       let priceItem = {
-        date: _date,
+        date: new Date(_date),
         price: 0,
       };
       const _otherPrice = otherPrices.find((item) => moment(_date).format("DD/MM/YYYY") === moment(item.date).format("DD/MM/YYYY"));

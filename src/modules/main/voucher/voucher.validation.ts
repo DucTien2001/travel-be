@@ -9,6 +9,8 @@ export default class Validation {
         take: yup.number().integer().default(10),
         page: yup.number().min(1).integer().default(1),
         keyword: yup.string(),
+        serviceType: yup.number().integer().required(),
+        serviceId: yup.number().integer().required(),
         owner: yup.number().integer().required(),
       })
       .noUnknown();

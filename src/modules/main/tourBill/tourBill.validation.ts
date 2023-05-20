@@ -64,6 +64,8 @@ export default class TourBillValidation {
         amountChild: yup.number(),
         amountAdult: yup.number(),
         price: yup.number(),
+        extraPay: yup.number().nullable(),
+        moneyRefund: yup.number().nullable(),
         discount: yup.number(),
         totalBill: yup.number(),
         email: yup.string().email(),

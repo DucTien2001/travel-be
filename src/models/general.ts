@@ -79,7 +79,8 @@ export enum EPaymentStatus {
   NOT_PAID = 0,
   PAID,
   CANCEL,
-  FAILED
+  FAILED,
+  EXPIRED
 }
 
 export enum EBillStatus {
@@ -88,7 +89,8 @@ export enum EBillStatus {
   NOT_CONTACTED_YET,
   CONTACTED,
   USED,
-  NOT_USE
+  NOT_USE,
+  WAITING_RESCHEDULE_SUCCESS,
 }
 
 export enum ECurrency {

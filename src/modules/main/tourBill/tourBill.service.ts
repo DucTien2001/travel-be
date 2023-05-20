@@ -108,7 +108,7 @@ export default class TourBillService {
           {
             association: "tourPolicies",
             where: {
-              serviceType: EServiceType.TOUR
+              serviceType: EServiceType.TOUR,
             },
             order: [["dayRange", "ASC"]],
           },
@@ -206,11 +206,17 @@ export default class TourBillService {
         });
       }
 
-      const payload = {
+      let payload = {
         amount: tourBill.totalBill,
         orderId: `${tourBill.id}`,
         clientIp: `${user.id}`,
       };
+      if (tourBill.oldBillId) {
+        payload = {
+          ...payload,
+          amount: tourBill.extraPay,
+        };
+      }
       const checkoutUrl = await this.buildCheckoutUrl(user.id, payload);
       await t.commit();
       return res.onSuccess(
@@ -246,7 +252,17 @@ export default class TourBillService {
       if (data?.paymentStatus) {
         tourBill.paymentStatus = data.paymentStatus;
         if (data.paymentStatus === EPaymentStatus.PAID && tourBill.oldBillId) {
-          const oldBill = tourBill.oldBillData;
+          const oldBill = await this.tourBillsModel.findOne({
+            where: {
+              oldBillId: tourBill.oldBillId,
+            },
+          });
+          if (!oldBill) {
+            return res.onError({
+              status: 404,
+              detail: "Old bill not found",
+            });
+          }
           const tourOnSale = await this.tourOnSalesModel.findOne({
             where: {
               id: oldBill.tourOnSaleId,
@@ -262,9 +278,6 @@ export default class TourBillService {
           tourOnSale.quantityOrdered = tourOnSale.quantityOrdered - oldBill.amountAdult - oldBill.amountChild;
           await tourOnSale.save({ transaction: t });
         }
-        // if(data.paymentStatus !== EPaymentStatus.PAID) {
-
-        // }
       }
       if (data?.participantsInfo) tourBill.participantsInfo = data.participantsInfo;
 
@@ -290,6 +303,11 @@ export default class TourBillService {
           userId: user.id,
           status: { [Op.not]: EBillStatus.RESCHEDULED },
         },
+        include: [
+          {
+            association: "oldBillData",
+          },
+        ],
         limit: data.take,
         offset: offset,
         distinct: true,
@@ -395,8 +413,8 @@ export default class TourBillService {
           {
             association: "tourPolicies",
             where: {
-              serviceType: EServiceType.TOUR
-            }
+              serviceType: EServiceType.TOUR,
+            },
           },
         ],
       });
@@ -463,33 +481,40 @@ export default class TourBillService {
           phoneNumber: data?.phoneNumber,
           firstName: data?.firstName,
           lastName: data?.lastName,
-          paymentStatus: EPaymentStatus.NOT_PAID,
+          extraPay: data?.extraPay || null,
+          moneyRefund: data?.moneyRefund || null,
+          paymentStatus: data?.extraPay > 0 ? EPaymentStatus.NOT_PAID : EPaymentStatus.PAID,
           status: EBillStatus.NOT_CONTACTED_YET,
           tourData: tourBill.tourData,
           participantsInfo: tourBill.participantsInfo,
           tourOnSaleData: tourOnSale,
           expiredTime: moment().add(process.env.MAXAGE_TOKEN_BOOK_SERVICE, "minutes"),
           oldBillId: tourBill.id,
-          oldBillData: tourBill,
         },
         {
           transaction: t,
         }
       );
 
-      const payload = {
-        amount: data?.totalBill,
-        orderId: `${newTourBill.id}`,
-        clientIp: `${user.id}`,
-      };
-      const checkoutUrl = await this.buildCheckoutUrl(user.id, payload);
+      if (data?.extraPay > 0) {
+        const payload = {
+          amount: data.extraPay,
+          orderId: `${newTourBill.id}`,
+          clientIp: `${user.id}`,
+        };
+        const checkoutUrl = await this.buildCheckoutUrl(user.id, payload);
+        await t.commit();
+        return res.onSuccess(
+          { tourBill: newTourBill, checkoutUrl: checkoutUrl },
+          {
+            message: res.locals.t("tour_bill_update_success"),
+          }
+        );
+      }
       await t.commit();
-      return res.onSuccess(
-        { tourBill: newTourBill, checkoutUrl: checkoutUrl },
-        {
-          message: res.locals.t("tour_bill_update_success"),
-        }
-      );
+      return res.onSuccess(newTourBill, {
+        message: res.locals.t("tour_bill_update_success"),
+      });
     } catch (error) {
       await t.rollback();
       return res.onError({

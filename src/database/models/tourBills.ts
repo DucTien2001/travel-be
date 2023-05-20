@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { EBillStatus, EPaymentStatus } from "models/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
 export interface TourBillAttributes extends Model {
+  dataValues: any;
   id: number;
   userId: number;
   tourId: number;
@@ -27,7 +29,9 @@ export interface TourBillAttributes extends Model {
   participantsInfo: any;
   expiredTime: Date;
   oldBillId: number;
-  oldBillData: ModelsAttributes.TourBill;
+  extraPay: number;
+  // oldBillData: ModelsAttributes.TourBill;
+  tourOnSaleInfo: ModelsAttributes.TourOnSale;
   moneyRefund: number;
   createdAt: Date;
   updatedAt: Date;
@@ -148,15 +152,21 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
       expiredTime: {
         type: DataTypes.DATE,
       },
-      oldBillData: {
-        type: DataTypes.TEXT({ length: "long" }),
-        get() {
-          return JSON.parse(this.getDataValue("oldBillData") || "{}");
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        set(value: any) {
-          this.setDataValue("oldBillData", JSON.stringify(value || {}));
-        },
+      oldBillId: {
+        type: DataTypes.INTEGER,
+      },
+      // oldBillData: {
+      //   type: DataTypes.TEXT({ length: "long" }),
+      //   get() {
+      //     return JSON.parse(this.getDataValue("oldBillData") || "{}");
+      //   },
+      //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      //   set(value: any) {
+      //     this.setDataValue("oldBillData", JSON.stringify(value || {}));
+      //   },
+      // },
+      extraPay: {
+        type: DataTypes.DOUBLE,
       },
       moneyRefund: {
         type: DataTypes.DOUBLE,
@@ -186,6 +196,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
     tour_bills.belongsTo(models.tour_on_sales, {
       as: "tourOnSaleInfo",
       foreignKey: "tourOnSaleId",
+      constraints: false,
+    });
+    tour_bills.belongsTo(models.tour_bills, {
+      as: "oldBillData",
+      foreignKey: "oldBillId",
       constraints: false,
     });
   };

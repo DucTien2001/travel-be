@@ -3,6 +3,8 @@ import { Inject, Service } from "typedi";
 import { ESortTourBillOption, StatisticByTour, StatisticByUser, StatisticByTourOnSale, GetAllBillOfOneTourOnSale } from "./tourBill.models";
 import { Response } from "express";
 import { Op, Order, Sequelize, WhereOptions } from "sequelize";
+import { EPaymentStatus } from "models/general";
+import { sequelize } from "database/models";
 
 @Service()
 export default class TourBillService {
@@ -11,7 +13,8 @@ export default class TourBillService {
     @Inject("toursModel") private toursModel: ModelsInstance.Tours,
     @Inject("tourBillsModel") private tourBillsModel: ModelsInstance.TourBills,
     @Inject("commissionsModel") private commissionsModel: ModelsInstance.Commissions,
-    @Inject("tourOnSalesModel") private tourOnSalesModel: ModelsInstance.TourOnSales
+    @Inject("tourOnSalesModel") private tourOnSalesModel: ModelsInstance.TourOnSales,
+    @Inject("configsModel") private configsModel: ModelsInstance.Configs
   ) {}
   public async statisticByUser(data: StatisticByUser, res: Response) {
     try {
@@ -344,6 +347,76 @@ export default class TourBillService {
         status: 500,
         detail: error,
       });
+    }
+  }
+
+  public async deleteUnpaidBill() {
+    const t = await sequelize.transaction();
+    try {
+      const bills = await this.tourBillsModel.findAll({
+        attributes: ["id", "paymentStatus", "tourOnSaleId", "amountChild", "amountAdult"],
+        where: {
+          paymentStatus: { [Op.notIn]: [EPaymentStatus.PAID, EPaymentStatus.EXPIRED] },
+          expiredTime: {
+            [Op.lt]: new Date(),
+          },
+        },
+      });
+      const billIds = bills.map((item) => item.id) || [];
+      if (billIds.length) {
+        const tourOnSales = await this.tourBillsModel.findAll({
+          attributes: [
+            "tourOnSaleId",
+            [Sequelize.fn("sum", Sequelize.col("amountChild")), "totalAmountChild"],
+            [Sequelize.fn("sum", Sequelize.col("amountAdult")), "totalAmountAdult"],
+          ],
+          where: {
+            id: billIds,
+          },
+          include: [
+            {
+              association: "tourOnSaleInfo",
+              attributes: ["quantityOrdered"],
+            },
+          ],
+          group: "tourOnSaleId",
+        });
+        await Promise.all(
+          tourOnSales.map(async (tourOnSale) => {
+            return (
+              await this.tourOnSalesModel.update(
+                {
+                  quantityOrdered: tourOnSale.tourOnSaleInfo.quantityOrdered - Number(tourOnSale.dataValues.totalAmountChild) - Number(tourOnSale.dataValues.totalAmountAdult),
+                },
+                {
+                  where: {
+                    id: tourOnSale.tourOnSaleId,
+                  },
+                  transaction: t,
+                }
+              )
+            )
+          })
+        );
+
+        await this.tourBillsModel.update(
+          {
+            paymentStatus: EPaymentStatus.EXPIRED,
+          },
+          {
+            where: {
+              id: billIds,
+            },
+            transaction: t,
+          }
+        );
+      }
+      // console.log(bills, "=====bills=====")
+      await t.commit();
+      return 1;
+    } catch (error) {
+      await t.rollback();
+      return 0;
     }
   }
 }

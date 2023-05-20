@@ -40,6 +40,8 @@ export interface ReSchedule {
   amountChild: number;
   amountAdult: number;
   price: number;
+  moneyRefund: number;
+  extraPay: number;
   discount: number;
   totalBill: number;
   email: string;

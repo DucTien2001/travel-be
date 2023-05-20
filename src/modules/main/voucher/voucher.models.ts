@@ -5,4 +5,6 @@ export interface FindAll {
   page: number;
   keyword?: string;
   owner: number;
+  serviceType: number;  //EServiceType
+  serviceId: number;
 }
