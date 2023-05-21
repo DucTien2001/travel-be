@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
 import { FindAll, IRoomOtherPrice } from "./roomOtherPrice.models";
 import { sequelize } from "database/models";
@@ -74,7 +75,7 @@ export default class RoomOtherPriceService {
         }
       });
 
-      await this.roomOtherPricesModel.bulkCreate(dataCreate, {
+      await this.roomOtherPricesModel.bulkCreate(dataCreate as any, {
         transaction: t,
       });
 

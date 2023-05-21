@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
 import { CreateOrUpdate, FindAll } from "./policy.models";
 import { Response } from "express";
@@ -13,7 +14,7 @@ export default class PolicyService {
         serviceId: data.serviceId,
         serviceType: data.serviceType,
       };
-      let policies = await this.policiesModel.findAll({
+      const policies = await this.policiesModel.findAll({
         where: policyWhereOptions,
       });
 
@@ -40,7 +41,7 @@ export default class PolicyService {
       });
 
       if(dataCreate.length) {
-        await this.policiesModel.bulkCreate(dataCreate, {
+        await this.policiesModel.bulkCreate(dataCreate as any, {
           transaction: t,
         });
       }

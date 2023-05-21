@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
 import { Create, FindAll, ITourOnSale, Update } from "./tour_on_sale.models";
 import { Response } from "express";
@@ -151,7 +152,7 @@ export default class TourOnSaleService {
         }
       });
 
-      await this.tourOnSalesModel.bulkCreate(dataCreate, {
+      await this.tourOnSalesModel.bulkCreate(dataCreate as any, {
         transaction: t,
       });
 
