@@ -1,15 +1,19 @@
 import { Router } from "express";
-import RoomBillController from "./roomBill.controller";
+import Controller from "./roomBill.controller";
+import { auth } from "middlewares";
 
-export const roomBillRouter = Router();
+export const router = Router();
 
-roomBillRouter.route("/get-room-bill/:billId").get(RoomBillController.getRoomBill);
-roomBillRouter.route("/get-room-bill-details/:billId").get(RoomBillController.getRoomBillDetails);
-roomBillRouter.route("/get-all-room-bills/:roomId").get(RoomBillController.getAllRoomBills);
-roomBillRouter.route("/get-room-bills-any-date").post(RoomBillController.getAllRoomBillsAnyDate);
-roomBillRouter.route("/get-all-user-room-bills/:userId").get(RoomBillController.getAllUserRoomBills);
-roomBillRouter.route("/create").post(RoomBillController.createRoomBill);
-roomBillRouter.route("/cancel-room-bill/:billId").put(RoomBillController.cancelRoomBill);
-roomBillRouter.route("/verify-book-room").post(RoomBillController.verifyBookRoom);
-roomBillRouter.route("/get-hotels-revenue-by-month").post(RoomBillController.getRevenueOfHotelsByMonth);
-roomBillRouter.route("/get-hotels-revenue-by-year").post(RoomBillController.getRevenueOfHotelsByYear);
+router.route("/").post(auth ,Controller.create);
+router.route("/:id").put(auth ,Controller.update);
+
+// router.route("/get-room-bill/:billId").get(RoomBillController.getRoomBill);
+// router.route("/get-room-bill-details/:billId").get(RoomBillController.getRoomBillDetails);
+// router.route("/get-all-room-bills/:roomId").get(RoomBillController.getAllRoomBills);
+// router.route("/get-room-bills-any-date").post(RoomBillController.getAllRoomBillsAnyDate);
+// router.route("/get-all-user-room-bills/:userId").get(RoomBillController.getAllUserRoomBills);
+// router.route("/create").post(RoomBillController.createRoomBill);
+// router.route("/cancel-room-bill/:billId").put(RoomBillController.cancelRoomBill);
+// router.route("/verify-book-room").post(RoomBillController.verifyBookRoom);
+// router.route("/get-hotels-revenue-by-month").post(RoomBillController.getRevenueOfHotelsByMonth);
+// router.route("/get-hotels-revenue-by-year").post(RoomBillController.getRevenueOfHotelsByYear);

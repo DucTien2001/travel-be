@@ -1,3 +1,27 @@
+export interface Create {
+  stayId: number;
+  rooms: {
+    roomId: number;
+    amount: number;
+    price: number;
+    discount: number;   //percent
+    bookedDate: Date;
+  }[];
+  startDate: Date;
+  endDate: Date;
+  price: number;
+  discount: number;     //money
+  totalBill: number;
+  email: string;
+  phoneNumber: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface Update {
+  paymentStatus: number;
+}
+
 export interface ICreateRoomBill {
   userId: number;
   hotelId: number;

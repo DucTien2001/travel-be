@@ -1,14 +1,14 @@
 import Container from "typedi";
 import RoomBillService from "./roomBill.service";
-import RoomBillValidation from "./roomBill.validation";
+import Validation from "./roomBill.validation";
 import { Request, Response } from "express";
 
-export default class RoomBillController {
-  static getRoomBill(req: Request, res: Response) {
+export default class Controller {
+  static create(req: Request, res: Response) {
     try {
-      const { billId } = req.params;
+      const value = Validation.create(req);
       const RoomBillServiceI = Container.get(RoomBillService);
-      RoomBillServiceI.getRoomBill(Number(billId), res);
+      RoomBillServiceI.create(value, req.user, res);
     } catch (error) {
       return res.onError({
         detail: error,
@@ -16,111 +16,135 @@ export default class RoomBillController {
     }
   }
 
-  static getAllRoomBills(req: Request, res: Response) {
+  static update(req: Request, res: Response) {
     try {
-      const { roomId } = req.params;
+      const { id } = req.params;
+      const value = Validation.update(req);
       const RoomBillServiceI = Container.get(RoomBillService);
-      RoomBillServiceI.getAllRoomBills(Number(roomId), res);
+      RoomBillServiceI.update(Number(id), value, req.user, res);
     } catch (error) {
       return res.onError({
         detail: error,
       });
     }
   }
+  // static getRoomBill(req: Request, res: Response) {
+  //   try {
+  //     const { billId } = req.params;
+  //     const RoomBillServiceI = Container.get(RoomBillService);
+  //     RoomBillServiceI.getRoomBill(Number(billId), res);
+  //   } catch (error) {
+  //     return res.onError({
+  //       detail: error,
+  //     });
+  //   }
+  // }
 
-  static getAllUserRoomBills(req: Request, res: Response) {
-    try {
-      const { userId } = req.params;
-      const RoomBillServiceI = Container.get(RoomBillService);
-      RoomBillServiceI.getAllUserRoomBills(Number(userId), res);
-    } catch (error) {
-      return res.onError({
-        detail: error,
-      });
-    }
-  }
+  // static getAllRoomBills(req: Request, res: Response) {
+  //   try {
+  //     const { roomId } = req.params;
+  //     const RoomBillServiceI = Container.get(RoomBillService);
+  //     RoomBillServiceI.getAllRoomBills(Number(roomId), res);
+  //   } catch (error) {
+  //     return res.onError({
+  //       detail: error,
+  //     });
+  //   }
+  // }
+
+  // static getAllUserRoomBills(req: Request, res: Response) {
+  //   try {
+  //     const { userId } = req.params;
+  //     const RoomBillServiceI = Container.get(RoomBillService);
+  //     RoomBillServiceI.getAllUserRoomBills(Number(userId), res);
+  //   } catch (error) {
+  //     return res.onError({
+  //       detail: error,
+  //     });
+  //   }
+  // }
   
-  static getRoomBillDetails(req: Request, res: Response) {
-    try {
-      const { billId } = req.params;
-      const RoomBillServiceI = Container.get(RoomBillService);
-      RoomBillServiceI.getRoomBillDetails(Number(billId), res);
-    } catch (error) {
-      return res.onError({
-        detail: error,
-      });
-    }
-  }
+  // static getRoomBillDetails(req: Request, res: Response) {
+  //   try {
+  //     const { billId } = req.params;
+  //     const RoomBillServiceI = Container.get(RoomBillService);
+  //     RoomBillServiceI.getRoomBillDetails(Number(billId), res);
+  //   } catch (error) {
+  //     return res.onError({
+  //       detail: error,
+  //     });
+  //   }
+  // }
 
-  static createRoomBill(req: Request, res: Response) {
-    try {
-      const value = RoomBillValidation.createRoomBill(req);
-      const RoomBillServiceI = Container.get(RoomBillService);
-      // RoomBillServiceI.createRoomBill(value, res);
-    } catch (error) {
-      return res.onError({
-        detail: error,
-      });
-    }
-  }
+  // static createRoomBill(req: Request, res: Response) {
+  //   try {
+  //     const value = RoomBillValidation.createRoomBill(req);
+  //     const RoomBillServiceI = Container.get(RoomBillService);
+  //     // RoomBillServiceI.createRoomBill(value, res);
+  //   } catch (error) {
+  //     return res.onError({
+  //       detail: error,
+  //     });
+  //   }
+  // }
 
-  static verifyBookRoom(req: Request, res: Response) {
-    try {
-      const value = RoomBillValidation.verifyBookRoom(req);
-      const VerifyCodeI = Container.get(RoomBillService);
-      VerifyCodeI.verifyBookRoom(value, res);
-    } catch (error) {
-      return res.onError({
-        detail: error,
-      });
-    }
-  }
+  // static verifyBookRoom(req: Request, res: Response) {
+  //   try {
+  //     const value = RoomBillValidation.verifyBookRoom(req);
+  //     const VerifyCodeI = Container.get(RoomBillService);
+  //     VerifyCodeI.verifyBookRoom(value, res);
+  //   } catch (error) {
+  //     return res.onError({
+  //       detail: error,
+  //     });
+  //   }
+  // }
 
-  static getAllRoomBillsAnyDate(req: Request, res: Response) {
-    try {
-      const value = RoomBillValidation.getAllRoomBillsAnyDate(req);
-      const RoomBillServiceI = Container.get(RoomBillService);
-      RoomBillServiceI.getAllRoomBillsAnyDate(value, res);
-    } catch (error) {
-      return res.onError({
-        detail: error,
-      });
-    }
-  }
+  // static getAllRoomBillsAnyDate(req: Request, res: Response) {
+  //   try {
+  //     const value = RoomBillValidation.getAllRoomBillsAnyDate(req);
+  //     const RoomBillServiceI = Container.get(RoomBillService);
+  //     RoomBillServiceI.getAllRoomBillsAnyDate(value, res);
+  //   } catch (error) {
+  //     return res.onError({
+  //       detail: error,
+  //     });
+  //   }
+  // }
   
-  static getRevenueOfHotelsByMonth(req: Request, res: Response) {
-    try {
-      const value = RoomBillValidation.getRevenueOfHotelsByMonth(req);
-      const VerifyCodeI = Container.get(RoomBillService);
-      VerifyCodeI.getRevenueOfHotelsByMonth(value, res);
-    } catch (error) {
-      return res.onError({
-        detail: error,
-      });
-    }
-  }
+  // static getRevenueOfHotelsByMonth(req: Request, res: Response) {
+  //   try {
+  //     const value = RoomBillValidation.getRevenueOfHotelsByMonth(req);
+  //     const VerifyCodeI = Container.get(RoomBillService);
+  //     VerifyCodeI.getRevenueOfHotelsByMonth(value, res);
+  //   } catch (error) {
+  //     return res.onError({
+  //       detail: error,
+  //     });
+  //   }
+  // }
   
-  static getRevenueOfHotelsByYear(req: Request, res: Response) {
-    try {
-      const value = RoomBillValidation.getRevenueOfHotelsByYear(req);
-      const VerifyCodeI = Container.get(RoomBillService);
-      VerifyCodeI.getRevenueOfHotelsByYear(value, res);
-    } catch (error) {
-      return res.onError({
-        detail: error,
-      });
-    }
-  }
+  // static getRevenueOfHotelsByYear(req: Request, res: Response) {
+  //   try {
+  //     const value = RoomBillValidation.getRevenueOfHotelsByYear(req);
+  //     const VerifyCodeI = Container.get(RoomBillService);
+  //     VerifyCodeI.getRevenueOfHotelsByYear(value, res);
+  //   } catch (error) {
+  //     return res.onError({
+  //       detail: error,
+  //     });
+  //   }
+  // }
   
-  static cancelRoomBill(req: Request, res: Response) {
-    try {
-      const { billId } = req.params;
-      const RoomBillServiceI = Container.get(RoomBillService);
-      RoomBillServiceI.cancelRoomBill(Number(billId), res);
-    } catch (error) {
-      return res.onError({
-        detail: error,
-      });
-    }
-  }
+  // static cancelRoomBill(req: Request, res: Response) {
+  //   try {
+  //     const { billId } = req.params;
+  //     const RoomBillServiceI = Container.get(RoomBillService);
+  //     RoomBillServiceI.cancelRoomBill(Number(billId), res);
+  //   } catch (error) {
+  //     return res.onError({
+  //       detail: error,
+  //     });
+  //   }
+  // }
 }

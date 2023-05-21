@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { EPaymentStatus } from "models/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
@@ -5,13 +7,13 @@ export interface RoomBillDetailAttributes extends Model {
   dataValues: any;
   id: number;
   billId: number;
-  roomId: string;
-  title: string;
+  roomId: number;
+  stayId: number;
   amount: number;
-  discount: number;
   price: number;
-  bookedDate: string;
-  totalPrice: number;
+  bookedDate: Date;
+  commission: number;
+  paymentStatus: EPaymentStatus;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -20,6 +22,7 @@ export interface RoomBillDetailAttributes extends Model {
 
 export type RoomBillDetailsInstance = typeof Model & {
   new (values?: object, options?: BuildOptions): RoomBillDetailAttributes;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   associate?: Function;
 };
 
@@ -35,15 +38,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillDetai
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      title: {
-        allowNull: false,
-        type: DataTypes.STRING,
-      },
-      amount: {
+      stayId: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      discount: {
+      amount: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
@@ -55,9 +54,24 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillDetai
         allowNull: false,
         type: DataTypes.STRING,
       },
-      totalPrice: {
+      commission: {
         allowNull: false,
         type: DataTypes.DOUBLE,
+      },
+      paymentStatus: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      roomData: {
+        type: DataTypes.TEXT({ length: "long" }),
+        allowNull: false,
+        get() {
+          return JSON.parse(this.getDataValue("roomData") || "{}");
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        set(value: any) {
+          this.setDataValue("roomData", JSON.stringify(value || {}));
+        },
       },
     },
     {
@@ -66,15 +80,15 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillDetai
   );
   room_bill_details.associate = (models: { [key: string]: any }) => {
     room_bill_details.belongsTo(models.room_bills, {
-      as: 'detailsOfRoomBill',
+      as: 'roomBillInfo',
       foreignKey: 'billId',
       constraints: false
     });
-    room_bill_details.belongsTo(models.rooms, {
-      as: 'belongsToRoom',
-      foreignKey: 'roomId',
-      constraints: false
-    });
+    // room_bill_details.belongsTo(models.rooms, {
+    //   as: 'roomInfo',
+    //   foreignKey: 'roomId',
+    //   constraints: false
+    // });
   };
   return room_bill_details;
 };

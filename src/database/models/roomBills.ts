@@ -1,3 +1,4 @@
+import { EBillStatus, EPaymentStatus } from "models/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 
@@ -5,22 +6,24 @@ export interface RoomBillAttributes extends Model {
   dataValues: any;
   id: number;
   userId: number;
-  hotelId: number;
-  bookedDates: string;
+  staylId: number;
   startDate: string;
   endDate: string;
   email: string;
   phoneNumber: string;
   fistName: string;
   lastName: string;
+  price: number;
+  discount: number;
   totalBill: number;
-  bankName: string;
-  bankAccountName: string;
-  bankNumber: string;
-  accountExpirationDate: Date;
-  deposit: number;
-  verifyCode: string;
+  commissionRate: number;
+  commission: number;
+  paymentStatus: EPaymentStatus;
+  status: EBillStatus;
   expiredDate: Date;
+  oldBillId: number;
+  extraPay: number;
+  moneyRefund: number;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -40,13 +43,9 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      hotelId: {
+      stayId: {
         allowNull: false,
         type: DataTypes.INTEGER,
-      },
-      bookedDates: {
-        allowNull: false,
-        type: DataTypes.STRING,
       },
       startDate: {
         allowNull: false,
@@ -72,34 +71,56 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
         allowNull: false,
         type: DataTypes.STRING,
       },
+      price: {
+        allowNull: false,
+        type: DataTypes.DOUBLE,
+      },
+      discount: {
+        allowNull: false,
+        type: DataTypes.DOUBLE,
+      },
       totalBill: {
         allowNull: false,
         type: DataTypes.DOUBLE,
       },
-      bankName: {
-        allowNull: false,
-        type: DataTypes.STRING,
-      },
-      bankAccountName: {
-        allowNull: false,
-        type: DataTypes.STRING,
-      },
-      bankNumber: {
-        allowNull: false,
-        type: DataTypes.STRING,
-      },
-      deposit: {
+      commissionRate: {
         allowNull: false,
         type: DataTypes.DOUBLE,
       },
-      accountExpirationDate: {
-        type: DataTypes.DATE,
+      commission: {
+        allowNull: false,
+        type: DataTypes.DOUBLE,
       },
-      verifyCode: {
-        type: DataTypes.STRING,
+      paymentStatus: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      status: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      oldBillId: {
+        type: DataTypes.INTEGER,
+      },
+      extraPay: {
+        type: DataTypes.DOUBLE,
+      },
+      moneyRefund: {
+        type: DataTypes.DOUBLE,
       },
       expiredDate: {
           type: DataTypes.DATE,
+      },
+      stayData: {
+        type: DataTypes.TEXT({ length: "long" }),
+        allowNull: false,
+        get() {
+          return JSON.parse(this.getDataValue("stayData") || "{}");
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        set(value: any) {
+          this.setDataValue("stayData", JSON.stringify(value || {}));
+        },
       },
     },
     {

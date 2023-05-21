@@ -2,26 +2,24 @@ import * as yup from "yup";
 import { Request } from "express";
 import { VALIDATION } from "config/constants";
 
-export default class RoomBillValidation {
-  static createRoomBill(req: Request) {
+export default class Validation {
+  static create(req: Request) {
     const schema = yup
       .object({
-        userId: yup.number(),
-        hotelId: yup.number(),
-        userMail: yup.string().email(),
+        stayId: yup.number(),
         rooms: yup.array(
           yup.object({
             roomId: yup.number(),
             amount: yup.number(),
-            discount: yup.string(),
+            discount: yup.number(),
             price: yup.string(),
-            bookedDates: yup.string(),
-            totalPrice: yup.number(),
+            bookedDate: yup.string(),
           })
         ),
         startDate: yup.string(),
         endDate: yup.string(),
-        bookedDates: yup.string().nullable(),
+        price: yup.number(),
+        discount: yup.number(),
         totalBill: yup.number(),
         email: yup.string().email(),
         phoneNumber: yup.string().matches(VALIDATION.phone, {
@@ -30,59 +28,65 @@ export default class RoomBillValidation {
         }),
         firstName: yup.string(),
         lastName: yup.string(),
-        bankName: yup.string(),
-        bankAccountName: yup.string(),
-        bankNumber: yup.string(),
-        accountExpirationDate: yup.date(),
-        deposit: yup.number(),
       })
       .noUnknown()
       .required();
     return schema.validateSync(req.body);
   }
   
-  static verifyBookRoom(req: Request) {
+  static update(req: Request) {
     const schema = yup
       .object({
-        code: yup.string(),
-        billId: yup.number(),
+        paymentStatus: yup.number(),
       })
       .noUnknown()
       .required();
     return schema.validateSync(req.body);
   }
+
   
-  static getAllRoomBillsAnyDate(req: Request) {
-    const schema = yup
-      .object({
-        hotelId: yup.number(),
-        date: yup.date(),
-      })
-      .noUnknown()
-      .required();
-    return schema.validateSync(req.body);
-  }
+  // static verifyBookRoom(req: Request) {
+  //   const schema = yup
+  //     .object({
+  //       code: yup.string(),
+  //       billId: yup.number(),
+  //     })
+  //     .noUnknown()
+  //     .required();
+  //   return schema.validateSync(req.body);
+  // }
   
-  static getRevenueOfHotelsByMonth(req: Request) {
-    const schema = yup
-      .object({
-        hotelIds: yup.array().of(yup.number()),
-        month: yup.number(),
-        year: yup.number(),
-      })
-      .noUnknown()
-      .required();
-    return schema.validateSync(req.body);
-  }
+  // static getAllRoomBillsAnyDate(req: Request) {
+  //   const schema = yup
+  //     .object({
+  //       hotelId: yup.number(),
+  //       date: yup.date(),
+  //     })
+  //     .noUnknown()
+  //     .required();
+  //   return schema.validateSync(req.body);
+  // }
   
-  static getRevenueOfHotelsByYear(req: Request) {
-    const schema = yup
-      .object({
-        hotelIds: yup.array().of(yup.number()),
-        year: yup.number(),
-      })
-      .noUnknown()
-      .required();
-    return schema.validateSync(req.body);
-  }
+  // static getRevenueOfHotelsByMonth(req: Request) {
+  //   const schema = yup
+  //     .object({
+  //       hotelIds: yup.array().of(yup.number()),
+  //       month: yup.number(),
+  //       year: yup.number(),
+  //     })
+  //     .noUnknown()
+  //     .required();
+  //   return schema.validateSync(req.body);
+  // }
+  
+  // static getRevenueOfHotelsByYear(req: Request) {
+  //   const schema = yup
+  //     .object({
+  //       hotelIds: yup.array().of(yup.number()),
+  //       year: yup.number(),
+  //     })
+  //     .noUnknown()
+  //     .required();
+  //   return schema.validateSync(req.body);
+  // }
 }

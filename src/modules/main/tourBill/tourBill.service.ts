@@ -254,7 +254,7 @@ export default class TourBillService {
         if (data.paymentStatus === EPaymentStatus.PAID && tourBill.oldBillId) {
           const oldBill = await this.tourBillsModel.findOne({
             where: {
-              oldBillId: tourBill.oldBillId,
+              id: tourBill.oldBillId,
             },
           });
           if (!oldBill) {
