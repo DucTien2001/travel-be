@@ -102,6 +102,7 @@ export default class TourBillService {
           detail: "not_found",
         });
       }
+      
       return res.onSuccess(tourBills.rows, {
         meta: {
           take: data.take,
