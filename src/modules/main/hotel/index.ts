@@ -1,1 +1,1 @@
-export { hotelRouter } from './hotel.route'
+// export { hotelRouter } from './hotel.route'

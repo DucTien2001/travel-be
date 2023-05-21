@@ -12,7 +12,6 @@ export default class CommentService {
   constructor(
     @Inject("commentsModel") private commentsModel: ModelsInstance.Comments,
     @Inject("toursModel") private toursModel: ModelsInstance.Tours,
-    @Inject("hotelsModel") private hotelsModel: ModelsInstance.Hotels
   ) {}
   public async findAll(data: FindAll, res: Response) {
     try {

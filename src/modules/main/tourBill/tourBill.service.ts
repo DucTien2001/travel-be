@@ -38,7 +38,7 @@ export default class TourBillService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async sortObject(obj: any) {
     // eslint-disable-next-line prefer-const
-    let sorted = {};
+    let sorted: any = {};
     const str = [];
     let key;
     for (key in obj) {
@@ -68,7 +68,7 @@ export default class TourBillService {
     const createDate = moment().format("YYYYMMDDHHmmss");
     const locale = "vn";
     const currCode = "VND";
-    let vnp_Params = {
+    let vnp_Params: any = {
       vnp_Version: "2.1.0",
       vnp_Command: "pay",
       vnp_TmnCode: process.env.vnp_TmnCode,
