@@ -102,7 +102,14 @@ export default class TourBillService {
           detail: "not_found",
         });
       }
-      return res.onSuccess(tourBills.rows);
+      return res.onSuccess(tourBills.rows, {
+        meta: {
+          take: data.take,
+          itemCount: tourBills.count,
+          page: data.page,
+          pageCount: Math.ceil(tourBills.count / data.take),
+        },
+      });
     } catch (error) {
       return res.onError({
         status: 500,
