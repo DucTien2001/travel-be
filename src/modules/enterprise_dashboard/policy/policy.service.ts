@@ -39,9 +39,11 @@ export default class PolicyService {
         }
       });
 
-      await this.policiesModel.bulkCreate(dataCreate, {
-        transaction: t,
-      });
+      if(dataCreate.length) {
+        await this.policiesModel.bulkCreate(dataCreate, {
+          transaction: t,
+        });
+      }
 
       await Promise.all(
         dataUpdate.map(
