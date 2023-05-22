@@ -4,7 +4,7 @@ import { auth } from "middlewares";
 
 export const router = Router();
 
-router.route("/").post(auth ,Controller.create);
+router.route("/").get(auth, Controller.findAll).post(auth ,Controller.create);
 router.route("/:id").put(auth ,Controller.update);
 
 // router.route("/get-room-bill/:billId").get(RoomBillController.getRoomBill);

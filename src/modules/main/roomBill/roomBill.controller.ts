@@ -28,6 +28,18 @@ export default class Controller {
       });
     }
   }
+
+  static findAll(req: Request, res: Response) {
+    try {
+      const value = Validation.findAll(req);
+      const RoomBillServiceI = Container.get(RoomBillService);
+      RoomBillServiceI.findAll(value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
   // static getRoomBill(req: Request, res: Response) {
   //   try {
   //     const { billId } = req.params;

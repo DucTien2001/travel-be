@@ -320,15 +320,6 @@ export default class TourBillService {
         });
       }
 
-      // ====== Handle expiredDate =====
-      // const allBills: any[] = [];
-      // bills.rows.map((item) => {
-      //   if (new Date().getTime() < new Date(item?.expiredDate).getTime()) {
-      //     allBills.push({
-      //       ...item?.dataValues,
-      //     });
-      //   }
-      // });
       return res.onSuccess(bills.rows, {
         meta: {
           take: data.take,

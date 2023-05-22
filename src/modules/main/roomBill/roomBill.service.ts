@@ -2,6 +2,7 @@
 import Container, { Inject, Service } from "typedi";
 import {
   Create,
+  FindAll,
   ICreateRoomBill,
   IGetBillsAnyRoom,
   IGetHotelsRevenueByMonth,
@@ -395,6 +396,51 @@ export default class RoomBillService {
       });
     } catch (error) {
       await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async findAll(data: FindAll, user: ModelsAttributes.User, res: Response) {
+    try {
+      const offset = data.take * (data.page - 1);
+      const bills = await this.roomBillsModel.findAndCountAll({
+        where: {
+          userId: user.id,
+          status: { [Op.not]: EBillStatus.RESCHEDULED },
+        },
+        include: [
+          {
+            association: "roomBillDetail",
+            order: [
+              ["roomId", "ASC"],
+              ["bookedDate", "ASC"],
+            ],
+          },
+        ],
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+        order: [["createdAt", "DESC"]],
+      });
+      if (!bills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+
+      return res.onSuccess(bills.rows, {
+        meta: {
+          take: data.take,
+          itemCount: bills.count,
+          page: data.page,
+          pageCount: Math.ceil(bills.count / data.take),
+        },
+      });
+    } catch (error) {
       return res.onError({
         status: 500,
         detail: error,
