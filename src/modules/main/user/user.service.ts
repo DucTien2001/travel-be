@@ -119,12 +119,6 @@ export default class UserService {
           detail: res.locals.t("login_invalid_error"),
         });
       }
-      if (user?.role !== data?.role) {
-        return res.onError({
-          status: 400,
-          detail: res.locals.t("invalid_role"),
-        });
-      }
       if (!user.isVerified) {
         return res.onError({
           status: 400,

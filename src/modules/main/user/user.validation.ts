@@ -15,7 +15,6 @@ export default class UserValidation {
             excludeEmptyString: true,
           })
           .required(),
-        role: yup.number().required(),
       })
       .noUnknown()
       .required();

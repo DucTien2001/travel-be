@@ -15,7 +15,6 @@ export interface IRegister {
 export interface ILogin {
   username: string;
   password: string;
-  role: number;
 }
 
 export interface IVerifySignup {
