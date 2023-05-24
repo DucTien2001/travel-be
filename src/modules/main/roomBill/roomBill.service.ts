@@ -229,7 +229,7 @@ export default class RoomBillService {
 
       const payload = {
         amount: data?.totalBill,
-        orderId: `${newRoomBill.id}`,
+        orderId: `stay-${newRoomBill.id}`,
         clientIp: `${user.id}`,
       };
       const checkoutUrl = await this.buildCheckoutUrl(user.id, payload);
@@ -284,7 +284,7 @@ export default class RoomBillService {
 
       let payload = {
         amount: roomBill.totalBill,
-        orderId: `${roomBill.id}`,
+        orderId: `stay-${roomBill.id}`,
         clientIp: `${user.id}`,
       };
       if (roomBill.oldBillId) {
