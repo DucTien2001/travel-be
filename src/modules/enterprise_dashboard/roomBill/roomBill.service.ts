@@ -151,7 +151,7 @@ export default class TourBillService {
           }
         });
         return {
-          ...bill,
+          ...bill.dataValues,
           bookedRoomsInfo: bookedRoomsInfo,
         };
       });
