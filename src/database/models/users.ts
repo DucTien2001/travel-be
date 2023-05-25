@@ -115,6 +115,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): UsersInstance
       foreignKey: "userId",
       constraints: false,
     });
+    users.hasMany(models.room_bill_details, {
+      as: "listRoomBillDetails",
+      foreignKey: "stayOwnerId",
+      constraints: false,
+    });
   };
   return users;
 };

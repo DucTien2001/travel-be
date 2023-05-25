@@ -16,39 +16,6 @@ export default class TourBillService {
   public async statisticAllUsers(data: StatisticAllUsers, res: Response) {
     try {
       const offset = data.take * (data.page - 1);
-
-      // get all qualified tourOnSales
-      let roomBillDetailsWhereOption: WhereOptions = {
-        paymentStatus: EPaymentStatus.PAID
-      };
-      // ***** Start Search *********
-      if (data.keyword) {
-        const users = await this.usersModel.findAll({
-          attributes: ["id"],
-          where: {
-            username: { [Op.substring]: data.keyword },
-          },
-        });
-        const userIds = users.map((item) => item.id);
-
-        roomBillDetailsWhereOption = {
-          ...roomBillDetailsWhereOption,
-          stayOwnerId: userIds,
-        };
-      }
-      // ***** End Search *********
-
-      if (data.month > 0) {
-        roomBillDetailsWhereOption = {
-          ...roomBillDetailsWhereOption,
-          [Op.and]: [
-            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
-            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
-          ],
-        };
-      }
-
-      // get all qualified tourBills
       let order: Order = null;
       if (!isNaN(data?.sort)) {
         switch (data.sort) {
@@ -60,39 +27,64 @@ export default class TourBillService {
             break;
         }
       }
-      const roomBillDetails = await this.roomBillDetailsModel.findAndCountAll({
-        where: roomBillDetailsWhereOption,
+
+      let usersWhereOption: WhereOptions = {};
+      // ***** Start Search *********
+      if (data.keyword) {
+        usersWhereOption = {
+          ...usersWhereOption,
+          username: { [Op.substring]: data.keyword },
+        }
+      }
+      // ***** End Search *********
+
+      // get all qualified tourOnSales
+      let roomBillDetailsWhereOption: WhereOptions = {
+        paymentStatus: EPaymentStatus.PAID
+      };
+      if (data.month > 0) {
+        roomBillDetailsWhereOption = {
+          ...roomBillDetailsWhereOption,
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
+            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
+          ],
+        };
+      }
+      
+      const statisticUsers = await this.usersModel.findAndCountAll({
+        where: usersWhereOption,
         include: [
           {
-            association: "enterpriseInfo",
-            attributes: ["id", "username", "firstName", "lastName", "address", "phoneNumber"],
-          },
+            association: "listRoomBillDetails",
+            where: roomBillDetailsWhereOption,
+            attributes: [
+              "stayOwnerId",
+              [Sequelize.literal("COUNT(DISTINCT(billId))"), "numberOfBookings"],
+              [Sequelize.fn("sum", Sequelize.col("amount")), "totalNumberOfRoom"],
+              [Sequelize.fn("sum", Sequelize.col("totalBill")), "revenue"],
+              [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
+            ],
+          }
         ],
-        attributes: [
-          "stayOwnerId",
-          [Sequelize.literal("COUNT(DISTINCT(billId))"), "numberOfBookings"],
-          [Sequelize.fn("sum", Sequelize.col("amount")), "totalNumberOfRoom"],
-          [Sequelize.fn("sum", Sequelize.col("totalBill")), "revenue"],
-          [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
-        ],
-        group: "stayOwnerId",
+        group: "users.id",
         limit: data.take,
         offset: offset,
         distinct: true,
         order: order,
-      });
-      if (!roomBillDetails) {
+      })
+      if (!statisticUsers) {
         return res.onError({
           status: 404,
           detail: "not_found",
         });
       }
-      return res.onSuccess(roomBillDetails.rows, {
+      return res.onSuccess(statisticUsers.rows, {
         meta: {
           take: data.take,
-          itemCount: Number(roomBillDetails.count),
+          itemCount: Number(statisticUsers.count),
           page: data.page,
-          pageCount: Math.ceil(Number(roomBillDetails.count) / data.take),
+          pageCount: Math.ceil(Number(statisticUsers.count) / data.take),
         },
       });
     } catch (error) {
@@ -347,4 +339,94 @@ export default class TourBillService {
       });
     }
   }
+  
+  // public async statisticAllUsersOld(data: StatisticAllUsers, res: Response) {
+  //   try {
+  //     const offset = data.take * (data.page - 1);
+
+  //     // get all qualified tourOnSales
+  //     let roomBillDetailsWhereOption: WhereOptions = {
+  //       paymentStatus: EPaymentStatus.PAID
+  //     };
+  //     // ***** Start Search *********
+  //     if (data.keyword) {
+  //       const users = await this.usersModel.findAll({
+  //         attributes: ["id"],
+  //         where: {
+  //           username: { [Op.substring]: data.keyword },
+  //         },
+  //       });
+  //       const userIds = users.map((item) => item.id);
+
+  //       roomBillDetailsWhereOption = {
+  //         ...roomBillDetailsWhereOption,
+  //         stayOwnerId: userIds,
+  //       };
+  //     }
+  //     // ***** End Search *********
+
+  //     if (data.month > 0) {
+  //       roomBillDetailsWhereOption = {
+  //         ...roomBillDetailsWhereOption,
+  //         [Op.and]: [
+  //           Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
+  //           Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
+  //         ],
+  //       };
+  //     }
+
+  //     // get all qualified tourBills
+  //     let order: Order = null;
+  //     if (!isNaN(data?.sort)) {
+  //       switch (data.sort) {
+  //         case ESortRoomBillOption.LOWEST_REVENUE:
+  //           order = [[Sequelize.col("revenue"), "ASC"]];
+  //           break;
+  //         case ESortRoomBillOption.HIGHEST_REVENUE:
+  //           order = [[Sequelize.col("revenue"), "DESC"]];
+  //           break;
+  //       }
+  //     }
+  //     const roomBillDetails = await this.roomBillDetailsModel.findAndCountAll({
+  //       where: roomBillDetailsWhereOption,
+  //       include: [
+  //         {
+  //           association: "enterpriseInfo",
+  //           attributes: ["id", "username", "firstName", "lastName", "address", "phoneNumber"],
+  //         },
+  //       ],
+  //       attributes: [
+  //         "stayOwnerId",
+  //         [Sequelize.literal("COUNT(DISTINCT(billId))"), "numberOfBookings"],
+  //         [Sequelize.fn("sum", Sequelize.col("amount")), "totalNumberOfRoom"],
+  //         [Sequelize.fn("sum", Sequelize.col("totalBill")), "revenue"],
+  //         [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
+  //       ],
+  //       group: "stayOwnerId",
+  //       limit: data.take,
+  //       offset: offset,
+  //       distinct: true,
+  //       order: order,
+  //     });
+  //     if (!roomBillDetails) {
+  //       return res.onError({
+  //         status: 404,
+  //         detail: "not_found",
+  //       });
+  //     }
+  //     return res.onSuccess(roomBillDetails.rows, {
+  //       meta: {
+  //         take: data.take,
+  //         itemCount: Number(roomBillDetails.count),
+  //         page: data.page,
+  //         pageCount: Math.ceil(Number(roomBillDetails.count) / data.take),
+  //       },
+  //     });
+  //   } catch (error) {
+  //     return res.onError({
+  //       status: 500,
+  //       detail: error,
+  //     });
+  //   }
+  // }
 }
