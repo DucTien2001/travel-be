@@ -1,6 +1,7 @@
 import { EBillStatus, EPaymentStatus } from "models/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
+import { RoomBillDetailAttributes } from "./roomBillDetails";
 
 export interface RoomBillAttributes extends Model {
   dataValues: any;
@@ -25,6 +26,7 @@ export interface RoomBillAttributes extends Model {
   oldBillId: number;
   extraPay: number;
   moneyRefund: number;
+  roomBillDetail: RoomBillDetailAttributes[];
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;

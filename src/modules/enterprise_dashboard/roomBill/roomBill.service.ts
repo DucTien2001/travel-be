@@ -115,6 +115,12 @@ export default class TourBillService {
         include: [
           {
             association: "roomBillDetail",
+            include: [
+              {
+                attributes: ["title"],
+                association: "roomInfo",
+              },
+            ],
             order: [
               ["roomId", "ASC"],
               ["bookedDate", "ASC"],
@@ -132,7 +138,25 @@ export default class TourBillService {
         });
       }
 
-      return res.onSuccess(bills.rows, {
+      const result = bills.rows?.map((bill) => {
+        const bookedRoomsInfo: any[] = [];
+        const bookedRoomIds: number[] = [];
+        bill.roomBillDetail.forEach((item) => {
+          if (!bookedRoomIds.includes(item.roomId)) {
+            bookedRoomIds.push(item.roomId);
+            bookedRoomsInfo.push({
+              title: item.roomInfo.title,
+              amount: item.amount,
+            });
+          }
+        });
+        return {
+          ...bill,
+          bookedRoomsInfo: bookedRoomsInfo,
+        };
+      });
+
+      return res.onSuccess(result, {
         meta: {
           take: data.take,
           itemCount: bills.count,

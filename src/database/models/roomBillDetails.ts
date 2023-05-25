@@ -2,6 +2,7 @@
 import { EPaymentStatus } from "models/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
+import { RoomAttributes } from "./rooms";
 
 export interface RoomBillDetailAttributes extends Model {
   dataValues: any;
@@ -19,6 +20,7 @@ export interface RoomBillDetailAttributes extends Model {
   updatedAt: Date;
   deletedAt: Date;
   belongsToRoom: any;
+  roomInfo: RoomAttributes;
 }
 
 export type RoomBillDetailsInstance = typeof Model & {
