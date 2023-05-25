@@ -114,6 +114,9 @@ export default class TourBillService {
           {
             association: "listRooms",
             attributes: ["id", "title"],
+            where: {
+              parentLanguage: null,
+            },
           },
         ],
       });
