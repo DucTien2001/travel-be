@@ -152,6 +152,7 @@ export default class TourBillService {
         });
         return {
           ...bill.dataValues,
+          stayData: JSON.parse(bill.dataValues.stayData),
           bookedRoomsInfo: bookedRoomsInfo,
         };
       });
