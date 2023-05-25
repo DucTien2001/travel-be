@@ -1,41 +1,108 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
-import { FindAll, StatisticAll, StatisticOneStay, StatisticRoom, Update } from "./roomBill.models";
-import { sequelize } from "database/models";
+import { ESortRoomBillOption, StatisticOneUser, StatisticAllUsers, StatisticOneStay, StatisticRoom } from "./roomBill.models";
 import { Response } from "express";
-import { Op, Sequelize, WhereOptions } from "sequelize";
-import { EServiceType } from "common/general";
+import { Op, Order, Sequelize, WhereOptions } from "sequelize";
 import { EPaymentStatus } from "models/general";
 
 @Service()
 export default class TourBillService {
   constructor(
+    @Inject("usersModel") private usersModel: ModelsInstance.Users,
     @Inject("staysModel") private staysModel: ModelsInstance.Stays,
     @Inject("roomsModel") private roomsModel: ModelsInstance.Rooms,
-    @Inject("roomBillsModel") private roomBillsModel: ModelsInstance.RoomBills,
-    @Inject("commissionsModel") private commissionsModel: ModelsInstance.Commissions,
     @Inject("roomBillDetailsModel") private roomBillDetailsModel: ModelsInstance.RoomBillDetails
   ) {}
-  public async getCommissionRate(price: number) {
-    const commissions = await this.commissionsModel.findAll({
-      where: {
-        serviceType: EServiceType.TOUR,
-      },
-    });
-    let rate = 0;
-    commissions.forEach((item) => {
-      if (!item.maxPrice && price >= item.minPrice) {
-        rate = item.rate;
-      } else if (price >= item.minPrice && price < item.maxPrice) {
-        rate = item.rate;
+  public async statisticAllUsers(data: StatisticAllUsers, res: Response) {
+    try {
+      const offset = data.take * (data.page - 1);
+
+      // get all qualified tourOnSales
+      let roomBillDetailsWhereOption: WhereOptions = {};
+      // ***** Start Search *********
+      if (data.keyword) {
+        const users = await this.usersModel.findAll({
+          attributes: ["id"],
+          where: {
+            username: { [Op.substring]: data.keyword },
+          },
+        });
+        const userIds = users.map((item) => item.id);
+
+        roomBillDetailsWhereOption = {
+          ...roomBillDetailsWhereOption,
+          stayOwnerId: userIds,
+        };
       }
-    });
-    return rate;
+      // ***** End Search *********
+
+      if (data.month > 0) {
+        roomBillDetailsWhereOption = {
+          ...roomBillDetailsWhereOption,
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
+            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
+          ],
+        };
+      }
+
+      // get all qualified tourBills
+      let order: Order = null;
+      if (!isNaN(data?.sort)) {
+        switch (data.sort) {
+          case ESortRoomBillOption.LOWEST_REVENUE:
+            order = [[Sequelize.col("revenue"), "ASC"]];
+            break;
+          case ESortRoomBillOption.HIGHEST_REVENUE:
+            order = [[Sequelize.col("revenue"), "DESC"]];
+            break;
+        }
+      }
+      const roomBillDetails = await this.roomBillDetailsModel.findAndCountAll({
+        where: roomBillDetailsWhereOption,
+        include: [
+          {
+            association: "enterpriseInfo",
+            attributes: ["id", "username", "firstName", "lastName", "address", "phoneNumber"],
+          },
+        ],
+        attributes: [
+          "stayOwnerId",
+          [Sequelize.literal("COUNT(DISTINCT(billId))"), "numberOfBookings"],
+          [Sequelize.fn("sum", Sequelize.col("amount")), "totalNumberOfRoom"],
+          [Sequelize.fn("sum", Sequelize.col("totalBill")), "revenue"],
+          [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
+        ],
+        group: "stayOwnerId",
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+        order: order,
+      });
+      if (!roomBillDetails) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+      return res.onSuccess(roomBillDetails.rows, {
+        meta: {
+          take: data.take,
+          itemCount: Number(roomBillDetails.count),
+          page: data.page,
+          pageCount: Math.ceil(Number(roomBillDetails.count) / data.take),
+        },
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
   }
 
-  public async getFilters(user: ModelsAttributes.User, res: Response) {
+  public async getFiltersForStayOfUser(enterpriseId: number, res: Response) {
     try {
-      const enterpriseId = user.enterpriseId || user.id;
       // get stays filter
       const stays = await this.staysModel.findAll({
         attributes: ["stays.id", "name"],
@@ -66,117 +133,8 @@ export default class TourBillService {
     }
   }
 
-  public async findAll(data: FindAll, user: ModelsAttributes.User, res: Response) {
+  public async statisticOneUser(enterpriseId: number, data: StatisticOneUser, res: Response) {
     try {
-      const enterpriseId = user.enterpriseId || user.id;
-      const offset = data.take * (data.page - 1);
-      let whereOption: WhereOptions = {
-        stayOwnerId: enterpriseId,
-        stayId: data.stayId,
-      };
-      if (data?.roomId) {
-        const roomBillDetails = await this.roomBillDetailsModel.findAll({
-          attributes: ["id", "billId"],
-          where: {
-            stayOwnerId: enterpriseId,
-            stayId: data.stayId,
-            roomId: data.roomId,
-          },
-          group: "billId",
-        });
-        const roomBillDetailIds = roomBillDetails.map((item) => item.billId);
-        whereOption = {
-          ...whereOption,
-          id: roomBillDetailIds,
-        };
-      }
-      if (data?.date) {
-        whereOption = {
-          ...whereOption,
-          startDate: {
-            [Op.gte]: new Date(data.date),
-          },
-          endDate: {
-            [Op.lt]: new Date(data.date),
-          },
-        };
-      }
-      if (data.status !== -1) {
-        whereOption = {
-          ...whereOption,
-          status: data.status,
-        };
-      }
-      const bills = await this.roomBillsModel.findAndCountAll({
-        where: whereOption,
-        limit: data.take,
-        offset: offset,
-        distinct: true,
-      });
-      if (!bills) {
-        return res.onError({
-          status: 404,
-          detail: "not_found",
-        });
-      }
-
-      return res.onSuccess(bills.rows, {
-        meta: {
-          take: data.take,
-          itemCount: bills.count,
-          page: data.page,
-          pageCount: Math.ceil(bills.count / data.take),
-        },
-      });
-    } catch (error) {
-      return res.onError({
-        status: 500,
-        detail: error,
-      });
-    }
-  }
-
-  public async update(billId: number, data: Update, user: ModelsAttributes.User, res: Response) {
-    const t = await sequelize.transaction();
-    try {
-      const enterpriseId = user.enterpriseId || user.id;
-      const roomBill = await this.roomBillsModel.findOne({
-        where: {
-          id: billId,
-          tourOwnerId: enterpriseId,
-        },
-      });
-      if (!roomBill) {
-        return res.onError({
-          status: 404,
-          detail: "Tour bill not found",
-        });
-      }
-
-      if (data?.status) {
-        roomBill.status = data.status;
-      }
-
-      await roomBill.save({ transaction: t });
-      await t.commit();
-      return res.onSuccess(roomBill, {
-        message: res.locals.t("tour_bill_update_success"),
-      });
-    } catch (error) {
-      await t.rollback();
-      return res.onError({
-        status: 500,
-        detail: error,
-      });
-    }
-  }
-
-  //
-  // Enterprise
-
-  public async statisticAll(data: StatisticAll, user: ModelsAttributes.User, res: Response) {
-    try {
-      const enterpriseId = user.id;
       const offset = data.take * (data.page - 1);
 
       // Get all stays owned
@@ -265,25 +223,8 @@ export default class TourBillService {
     }
   }
 
-  public async statisticOneStay(stayId: number, data: StatisticOneStay, user: ModelsAttributes.User, res: Response) {
+  public async statisticOneStay(stayId: number, data: StatisticOneStay, res: Response) {
     try {
-      const enterpriseId = user.id;
-
-      // Check stay owner
-      const stay = await this.staysModel.findOne({
-        where: {
-          id: stayId,
-          parentLanguage: null,
-          owner: enterpriseId,
-        },
-      });
-      if (!stay) {
-        return res.onError({
-          status: 404,
-          detail: "Stay not found",
-        });
-      }
-
       // Get all rooms of the stay
       const offset = data.take * (data.page - 1);
       const listRooms = await this.roomsModel.findAndCountAll({
@@ -365,16 +306,14 @@ export default class TourBillService {
     }
   }
 
-  public async statisticOneRoom(roomId: number, data: StatisticRoom, user: ModelsAttributes.User, res: Response) {
+  public async statisticOneRoom(roomId: number, data: StatisticRoom, res: Response) {
     try {
-      const enterpriseId = user.id;
       const offset = data.take * (data.page - 1);
 
       // Statistic by roomBillDetail
       let roomBillDetailsWhereOption: WhereOptions = {
         roomId: roomId,
         EPaymentStatus: EPaymentStatus.PAID,
-        stayOwnerId: enterpriseId,
       };
       if (data.month > 0) {
         roomBillDetailsWhereOption = {

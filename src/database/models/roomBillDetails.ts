@@ -99,6 +99,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillDetai
       foreignKey: 'roomId',
       constraints: false
     });
+    room_bill_details.belongsTo(models.users, {
+      as: 'enterpriseInfo',
+      foreignKey: 'stayOwnerId',
+      constraints: false
+    });
     // room_bill_details.belongsTo(models.rooms, {
     //   as: 'roomInfo',
     //   foreignKey: 'roomId',
