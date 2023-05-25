@@ -40,6 +40,18 @@ export default class Controller {
     }
   }
 
+  static findOne(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const ServiceI = Container.get(Service);
+      ServiceI.findOne(Number(id), req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
   static statisticAll(req: Request, res: Response) {
     try {
       const value = Validation.statisticAll(req);

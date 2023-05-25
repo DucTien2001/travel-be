@@ -173,6 +173,41 @@ export default class TourBillService {
     }
   }
 
+  public async findOne(billId: number, user: ModelsAttributes.User, res: Response) {
+    try {
+      const enterpriseId = user.enterpriseId || user.id;
+      const bill = await this.roomBillsModel.findOne({
+        where: {
+          id: billId,
+          stayOwnerId: enterpriseId,
+        },
+        include: [
+          {
+            association: "roomBillDetail",
+            order: [
+              ["roomId", "ASC"],
+              ["bookedDate", "ASC"],
+            ],
+          },
+        ],
+      });
+      if (!bill) {
+        return res.onError({
+          status: 404,
+          detail: "bill_not_found",
+        });
+      }
+      return res.onSuccess(bill, {
+        message: res.locals.t("get_room_bill_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
   public async update(billId: number, data: Update, user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {

@@ -9,4 +9,4 @@ router.route("/filter").get(staff, Controller.getFilters);
 router.route("/statistic").get(enterprise, Controller.statisticAll);
 router.route("/statistic/room/:id").get(enterprise, Controller.statisticOneRoom);
 router.route("/statistic/:id").get(enterprise, Controller.statisticOneStay);
-router.route("/:id").put(staff ,Controller.update);
+router.route("/:id").get(staff, Controller.findOne).put(staff ,Controller.update);
