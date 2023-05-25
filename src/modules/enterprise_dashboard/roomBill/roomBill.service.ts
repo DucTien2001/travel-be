@@ -112,6 +112,15 @@ export default class TourBillService {
       }
       const bills = await this.roomBillsModel.findAndCountAll({
         where: whereOption,
+        include: [
+          {
+            association: "roomBillDetail",
+            order: [
+              ["roomId", "ASC"],
+              ["bookedDate", "ASC"],
+            ],
+          },
+        ],
         limit: data.take,
         offset: offset,
         distinct: true,
