@@ -38,7 +38,7 @@ export default class TourBillService {
       const enterpriseId = user.enterpriseId || user.id;
       // get stays filter
       const stays = await this.staysModel.findAll({
-        attributes: ["stays.id", "name"],
+        attributes: ["id", "name"],
         where: {
           owner: enterpriseId,
           parentLanguage: null,
@@ -46,7 +46,7 @@ export default class TourBillService {
         include: [
           {
             association: "listRooms",
-            attributes: ["rooms.id", "title"],
+            attributes: ["id", "title"],
           },
         ],
       });
