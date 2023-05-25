@@ -405,7 +405,6 @@ export default class TourBillService {
   public async statisticOneRoom(roomId: number, data: StatisticRoom, user: ModelsAttributes.User, res: Response) {
     try {
       const enterpriseId = user.id;
-      const offset = data.take * (data.page - 1);
 
       // Statistic by roomBillDetail
       let roomBillDetailsWhereOption: WhereOptions = {
@@ -422,7 +421,7 @@ export default class TourBillService {
           ],
         };
       }
-      const roomBillDetails = await this.roomBillDetailsModel.findAndCountAll({
+      const roomBillDetails = await this.roomBillDetailsModel.findAll({
         where: roomBillDetailsWhereOption,
         attributes: [
           "bookedDate",
@@ -432,19 +431,9 @@ export default class TourBillService {
           [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
         ],
         group: "bookedDate",
-        limit: data.take,
-        offset: offset,
-        distinct: true,
       });
 
-      return res.onSuccess(roomBillDetails.rows, {
-        meta: {
-          take: data.take,
-          itemCount: roomBillDetails.count,
-          page: data.page,
-          pageCount: Math.ceil(roomBillDetails.count / data.take),
-        },
-      });
+      return res.onSuccess(roomBillDetails);
     } catch (error) {
       return res.onError({
         status: 500,

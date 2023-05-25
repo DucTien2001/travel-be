@@ -28,8 +28,6 @@ export interface StatisticOneStay {
 }
 
 export interface StatisticRoom {
-  take: number;
-  page: number;
   month: number;
   year: number;
 }
