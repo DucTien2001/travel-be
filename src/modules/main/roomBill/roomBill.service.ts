@@ -193,6 +193,7 @@ export default class RoomBillService {
           billId: newRoomBill.id,
           roomId: room.roomId,
           stayId: data.stayId,
+          stayOwnerId: stayData.id,
           amount: room.amount,
           price: room.price,
           bookedDate: room.bookedDate,
