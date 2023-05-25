@@ -18,7 +18,9 @@ export default class TourBillService {
       const offset = data.take * (data.page - 1);
 
       // get all qualified tourOnSales
-      let roomBillDetailsWhereOption: WhereOptions = {};
+      let roomBillDetailsWhereOption: WhereOptions = {
+        paymentStatus: EPaymentStatus.PAID
+      };
       // ***** Start Search *********
       if (data.keyword) {
         const users = await this.usersModel.findAll({
@@ -163,7 +165,7 @@ export default class TourBillService {
       // Statistic by roomBillDetail
       let roomBillDetailsWhereOption: WhereOptions = {
         stayId: _listStayIds,
-        EPaymentStatus: EPaymentStatus.PAID,
+        paymentStatus: EPaymentStatus.PAID,
       };
       if (data.month > 0) {
         roomBillDetailsWhereOption = {
@@ -245,7 +247,7 @@ export default class TourBillService {
       // Statistic by roomBillDetail
       let roomBillDetailsWhereOption: WhereOptions = {
         roomId: _listRoomIds,
-        EPaymentStatus: EPaymentStatus.PAID,
+        paymentStatus: EPaymentStatus.PAID,
       };
       if (data.month > 0) {
         roomBillDetailsWhereOption = {
@@ -316,7 +318,7 @@ export default class TourBillService {
       // Statistic by roomBillDetail
       let roomBillDetailsWhereOption: WhereOptions = {
         roomId: roomId,
-        EPaymentStatus: EPaymentStatus.PAID,
+        paymentStatus: EPaymentStatus.PAID,
       };
       if (data.month > 0) {
         roomBillDetailsWhereOption = {

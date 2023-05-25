@@ -239,7 +239,7 @@ export default class TourBillService {
       // Statistic by roomBillDetail
       let roomBillDetailsWhereOption: WhereOptions = {
         stayId: _listStayIds,
-        EPaymentStatus: EPaymentStatus.PAID,
+        paymentStatus: EPaymentStatus.PAID,
       };
       if (data.month > 0) {
         roomBillDetailsWhereOption = {
@@ -338,7 +338,7 @@ export default class TourBillService {
       // Statistic by roomBillDetail
       let roomBillDetailsWhereOption: WhereOptions = {
         roomId: _listRoomIds,
-        EPaymentStatus: EPaymentStatus.PAID,
+        paymentStatus: EPaymentStatus.PAID,
       };
       if (data.month > 0) {
         roomBillDetailsWhereOption = {
@@ -410,7 +410,7 @@ export default class TourBillService {
       // Statistic by roomBillDetail
       let roomBillDetailsWhereOption: WhereOptions = {
         roomId: roomId,
-        EPaymentStatus: EPaymentStatus.PAID,
+        paymentStatus: EPaymentStatus.PAID,
         stayOwnerId: enterpriseId,
       };
       if (data.month > 0) {
