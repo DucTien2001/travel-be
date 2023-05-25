@@ -40,7 +40,6 @@ export default class TourBillService {
         where: {
           owner: enterpriseId,
           parentLanguage: null,
-          isDeleted: false,
         },
       });
       if (!tours) {
@@ -124,7 +123,7 @@ export default class TourBillService {
       if (data.tourOnSaleIds?.[0] !== -1) {
         whereOption = {
           ...whereOption,
-          tourOnSaleId: data.tourId,
+          tourOnSaleId: data.tourOnSaleIds,
         };
       }
       if (data.status !== -1) {
@@ -232,6 +231,7 @@ export default class TourBillService {
     }
   }
 
+  // bỏ
   public async staffStatisticTourOnSales(tourId: number, data: StaffStatisticTourOnSales, user: ModelsAttributes.User, res: Response) {
     try {
       const enterpriseId = user.enterpriseId || user.id;
@@ -241,7 +241,6 @@ export default class TourBillService {
       let listToursWhereOption: WhereOptions = {
         owner: enterpriseId,
         parentLanguage: null,
-        isDeleted: false,
       };
       if (data.tourId !== -1) {
         listToursWhereOption = {
@@ -356,7 +355,6 @@ export default class TourBillService {
       let listToursWhereOption: WhereOptions = {
         owner: enterpriseId,
         parentLanguage: null,
-        isDeleted: false,
       };
       if (data.keyword) {
         listToursWhereOption = {
@@ -475,7 +473,6 @@ export default class TourBillService {
         where: {
           id: tourId,
           parentLanguage: null,
-          isDeleted: false,
           owner: enterpriseId,
         },
       });

@@ -327,7 +327,7 @@ export default class RoomBillService {
 
       if (data?.paymentStatus) {
         roomBill.paymentStatus = data.paymentStatus;
-        await this.checkRoomsModel.update(
+        await this.roomBillDetailsModel.update(
           {
             paymentStatus: data.paymentStatus,
           },

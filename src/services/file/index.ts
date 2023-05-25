@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 import fs from 'fs';
 import path from 'path';
 //import { FileResize, Resize } from 'services/resize-image';

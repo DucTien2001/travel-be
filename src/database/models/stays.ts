@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { LANG } from "common/general";
 import { StayType } from "models/general";
 import { Ilocation } from "modules/enterprise_dashboard/stay/stay.models";
