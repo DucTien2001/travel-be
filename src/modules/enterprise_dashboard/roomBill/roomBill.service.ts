@@ -180,7 +180,7 @@ export default class TourBillService {
       const roomBill = await this.roomBillsModel.findOne({
         where: {
           id: billId,
-          tourOwnerId: enterpriseId,
+          stayOwnerId: enterpriseId,
         },
       });
       if (!roomBill) {
