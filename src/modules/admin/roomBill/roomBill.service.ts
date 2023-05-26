@@ -62,7 +62,7 @@ export default class TourBillService {
               "stayOwnerId",
               [Sequelize.literal("COUNT(DISTINCT(billId))"), "numberOfBookings"],
               [Sequelize.fn("sum", Sequelize.col("amount")), "totalNumberOfRoom"],
-              [Sequelize.fn("sum", Sequelize.col("totalBill")), "revenue"],
+              [Sequelize.fn("sum", Sequelize.col("price")), "revenue"],
               [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
             ],
           }
