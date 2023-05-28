@@ -33,6 +33,7 @@ export interface TourBillAttributes extends Model {
   // oldBillData: ModelsAttributes.TourBill;
   tourOnSaleInfo: ModelsAttributes.TourOnSale;
   moneyRefund: number;
+  isRefunded: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -170,6 +171,10 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
       },
       moneyRefund: {
         type: DataTypes.DOUBLE,
+      },
+      isRefunded: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
     },
     {

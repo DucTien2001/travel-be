@@ -31,3 +31,12 @@ export interface StatisticRoom {
   month: number;
   year: number;
 }
+
+export interface FindAllOrderNeedRefund {
+  take: number;
+  page: number;
+  month: number;
+  year: number;
+  refundStatus: number;         // refundStatus === -1  --> All
+}                               // refundStatus === 0   --> Not refunded yet
+                                // refundStatus === 1   --> Refunded

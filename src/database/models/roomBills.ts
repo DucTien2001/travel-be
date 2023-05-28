@@ -26,6 +26,7 @@ export interface RoomBillAttributes extends Model {
   oldBillId: number;
   extraPay: number;
   moneyRefund: number;
+  isRefunded: boolean;
   roomBillDetail: RoomBillDetailAttributes[];
   createdAt: Date;
   updatedAt: Date;
@@ -114,6 +115,10 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
       },
       moneyRefund: {
         type: DataTypes.DOUBLE,
+      },
+      isRefunded: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
       expiredDate: {
           type: DataTypes.DATE,

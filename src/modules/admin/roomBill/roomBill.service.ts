@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
-import { ESortRoomBillOption, StatisticOneUser, StatisticAllUsers, StatisticOneStay, StatisticRoom } from "./roomBill.models";
+import { ESortRoomBillOption, StatisticOneUser, StatisticAllUsers, StatisticOneStay, StatisticRoom, FindAllOrderNeedRefund } from "./roomBill.models";
 import { Response } from "express";
 import { Op, Order, Sequelize, WhereOptions } from "sequelize";
 import { EPaymentStatus } from "models/general";
+import { sequelize } from "database/models";
 
 @Service()
 export default class TourBillService {
@@ -11,6 +12,7 @@ export default class TourBillService {
     @Inject("usersModel") private usersModel: ModelsInstance.Users,
     @Inject("staysModel") private staysModel: ModelsInstance.Stays,
     @Inject("roomsModel") private roomsModel: ModelsInstance.Rooms,
+    @Inject("roomBillsModel") private roomBillsModel: ModelsInstance.RoomBills,
     @Inject("roomBillDetailsModel") private roomBillDetailsModel: ModelsInstance.RoomBillDetails
   ) {}
   public async statisticAllUsers(data: StatisticAllUsers, res: Response) {
@@ -340,93 +342,85 @@ export default class TourBillService {
     }
   }
   
-  // public async statisticAllUsersOld(data: StatisticAllUsers, res: Response) {
-  //   try {
-  //     const offset = data.take * (data.page - 1);
+  public async findAllOrderNeedRefund(data: FindAllOrderNeedRefund, res: Response) {
+    try {
+      const offset = data.take * (data.page - 1);
+      let whereOption: WhereOptions = {
+        moneyRefund: {
+          [Op.gt]: 0,
+        },
+      };
+      if (data.refundStatus !== -1) {
+        whereOption = {
+          ...whereOption,
+          isRefunded: data.refundStatus === 0 ? false : true,
+        };
+      }
+      if (data.month > 0) {
+        whereOption = {
+          ...whereOption,
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("updatedAt")), data.month as any),
+            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("updatedAt")), data.year as any),
+          ],
+        };
+      }
+      const bills = await this.roomBillsModel.findAndCountAll({
+        where: whereOption,
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+        order: ["isRefunded", "updatedAt"]
+      });
+      if (!bills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
 
-  //     // get all qualified tourOnSales
-  //     let roomBillDetailsWhereOption: WhereOptions = {
-  //       paymentStatus: EPaymentStatus.PAID
-  //     };
-  //     // ***** Start Search *********
-  //     if (data.keyword) {
-  //       const users = await this.usersModel.findAll({
-  //         attributes: ["id"],
-  //         where: {
-  //           username: { [Op.substring]: data.keyword },
-  //         },
-  //       });
-  //       const userIds = users.map((item) => item.id);
+      return res.onSuccess(bills.rows, {
+        meta: {
+          take: data.take,
+          itemCount: bills.count,
+          page: data.page,
+          pageCount: Math.ceil(bills.count / data.take),
+        },
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+  
+  public async updateRefunded(billId: number, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const bill = await this.roomBillsModel.findOne({
+        where: {
+          id: billId
+        },
+      });
+      if (!bill) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
 
-  //       roomBillDetailsWhereOption = {
-  //         ...roomBillDetailsWhereOption,
-  //         stayOwnerId: userIds,
-  //       };
-  //     }
-  //     // ***** End Search *********
-
-  //     if (data.month > 0) {
-  //       roomBillDetailsWhereOption = {
-  //         ...roomBillDetailsWhereOption,
-  //         [Op.and]: [
-  //           Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
-  //           Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
-  //         ],
-  //       };
-  //     }
-
-  //     // get all qualified tourBills
-  //     let order: Order = null;
-  //     if (!isNaN(data?.sort)) {
-  //       switch (data.sort) {
-  //         case ESortRoomBillOption.LOWEST_REVENUE:
-  //           order = [[Sequelize.col("revenue"), "ASC"]];
-  //           break;
-  //         case ESortRoomBillOption.HIGHEST_REVENUE:
-  //           order = [[Sequelize.col("revenue"), "DESC"]];
-  //           break;
-  //       }
-  //     }
-  //     const roomBillDetails = await this.roomBillDetailsModel.findAndCountAll({
-  //       where: roomBillDetailsWhereOption,
-  //       include: [
-  //         {
-  //           association: "enterpriseInfo",
-  //           attributes: ["id", "username", "firstName", "lastName", "address", "phoneNumber"],
-  //         },
-  //       ],
-  //       attributes: [
-  //         "stayOwnerId",
-  //         [Sequelize.literal("COUNT(DISTINCT(billId))"), "numberOfBookings"],
-  //         [Sequelize.fn("sum", Sequelize.col("amount")), "totalNumberOfRoom"],
-  //         [Sequelize.fn("sum", Sequelize.col("totalBill")), "revenue"],
-  //         [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
-  //       ],
-  //       group: "stayOwnerId",
-  //       limit: data.take,
-  //       offset: offset,
-  //       distinct: true,
-  //       order: order,
-  //     });
-  //     if (!roomBillDetails) {
-  //       return res.onError({
-  //         status: 404,
-  //         detail: "not_found",
-  //       });
-  //     }
-  //     return res.onSuccess(roomBillDetails.rows, {
-  //       meta: {
-  //         take: data.take,
-  //         itemCount: Number(roomBillDetails.count),
-  //         page: data.page,
-  //         pageCount: Math.ceil(Number(roomBillDetails.count) / data.take),
-  //       },
-  //     });
-  //   } catch (error) {
-  //     return res.onError({
-  //       status: 500,
-  //       detail: error,
-  //     });
-  //   }
-  // }
+      bill.isRefunded = true
+      await bill.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(bill, {
+        message: res.locals.t("update_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
 }

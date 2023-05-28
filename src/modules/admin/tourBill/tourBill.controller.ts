@@ -54,4 +54,28 @@ export default class UserController {
       });
     }
   }
+
+  static findAllOrderNeedRefund(req: Request, res: Response) {
+    try {
+      const value = TourBillValidation.findAllOrderNeedRefund(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.findAllOrderNeedRefund(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static updateRefunded(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.updateRefunded(Number(id), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

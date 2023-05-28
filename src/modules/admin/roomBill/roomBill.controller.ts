@@ -66,4 +66,28 @@ export default class Controller {
       });
     }
   }
+
+  static findAllOrderNeedRefund(req: Request, res: Response) {
+    try {
+      const value = Validation.findAllOrderNeedRefund(req);
+      const ServiceI = Container.get(Service);
+      ServiceI.findAllOrderNeedRefund(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static updateRefunded(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const ServiceI = Container.get(Service);
+      ServiceI.updateRefunded(Number(id), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

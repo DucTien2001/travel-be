@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
-import { ESortTourBillOption, StatisticByTour, StatisticByUser, StatisticByTourOnSale, GetAllBillOfOneTourOnSale } from "./tourBill.models";
+import { ESortTourBillOption, StatisticByTour, StatisticByUser, StatisticByTourOnSale, GetAllBillOfOneTourOnSale, FindAllOrderNeedRefund } from "./tourBill.models";
 import { Response } from "express";
 import { Op, Order, Sequelize, WhereOptions } from "sequelize";
 import { EPaymentStatus } from "models/general";
@@ -417,6 +417,88 @@ export default class TourBillService {
     } catch (error) {
       await t.rollback();
       return 0;
+    }
+  }
+  
+  public async findAllOrderNeedRefund(data: FindAllOrderNeedRefund, res: Response) {
+    try {
+      const offset = data.take * (data.page - 1);
+      let whereOption: WhereOptions = {
+        moneyRefund: {
+          [Op.gt]: 0,
+        },
+      };
+      if (data.refundStatus !== -1) {
+        whereOption = {
+          ...whereOption,
+          isRefunded: data.refundStatus === 0 ? false : true,
+        };
+      }
+      if (data.month > 0) {
+        whereOption = {
+          ...whereOption,
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("updatedAt")), data.month as any),
+            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("updatedAt")), data.year as any),
+          ],
+        };
+      }
+      const bills = await this.tourBillsModel.findAndCountAll({
+        where: whereOption,
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+        order: ["isRefunded", "updatedAt"]
+      });
+      if (!bills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+
+      return res.onSuccess(bills.rows, {
+        meta: {
+          take: data.take,
+          itemCount: bills.count,
+          page: data.page,
+          pageCount: Math.ceil(bills.count / data.take),
+        },
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+  
+  public async updateRefunded(billId: number, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const bill = await this.tourBillsModel.findOne({
+        where: {
+          id: billId
+        },
+      });
+      if (!bill) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+
+      bill.isRefunded = true
+      await bill.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(bill, {
+        message: res.locals.t("update_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
     }
   }
 }
