@@ -12,6 +12,7 @@ export default class CommentService {
   constructor(
     @Inject("commentsModel") private commentsModel: ModelsInstance.Comments,
     @Inject("toursModel") private toursModel: ModelsInstance.Tours,
+    @Inject("staysModel") private staysModel: ModelsInstance.Stays,
   ) {}
   public async findAll(data: FindAll, res: Response) {
     try {
@@ -38,6 +39,7 @@ export default class CommentService {
                 association: "reviewer",
               },
             ],
+            order: [["createdAt", "DESC"]],
           },
         ];
       } else {
@@ -58,6 +60,7 @@ export default class CommentService {
                 association: "reviewer",
               },
             ],
+            order: [["createdAt", "DESC"]],
           },
         ];
       }
@@ -67,6 +70,7 @@ export default class CommentService {
         where: whereOptions,
         include: includeOption,
         limit: data.take,
+        order: [["createdAt", "DESC"]],
         offset: offset,
         distinct: true,
       });
@@ -127,6 +131,26 @@ export default class CommentService {
         await tour.save({ transaction: t });
       }
 
+      if (data.serviceType === EServiceType.HOTEL) {
+        const stay = await this.staysModel.findOne({
+          where: {
+            id: data?.serviceId,
+          },
+        });
+        if (!stay) {
+          await t.rollback();
+          return res.onError({
+            status: 404,
+            detail: "Stay not found",
+          });
+        }
+        const oldNumberOfReviewer = stay.numberOfReviewer;
+        const newNumberOfReviewer = stay.numberOfReviewer + 1;
+        stay.rate = (stay.rate * oldNumberOfReviewer + Number(data?.rate)) / newNumberOfReviewer;
+        stay.numberOfReviewer = newNumberOfReviewer;
+        await stay.save({ transaction: t });
+      }
+
       await t.commit();
       return res.onSuccess(newComment, {
         message: res.locals.t("comment_create_success"),
@@ -176,8 +200,26 @@ export default class CommentService {
         tour.rate = (rate * numberOfReviewer - comment.rate + Number(data.rate)) / numberOfReviewer;
         await tour.save({ transaction: t });
       }
+      if (comment.serviceType === EServiceType.HOTEL && comment.rate !== data.rate) {
+        const stay = await this.staysModel.findOne({
+          where: {
+            id: comment.serviceId,
+          },
+        });
+        if (!stay) {
+          await t.rollback();
+          return res.onError({
+            status: 404,
+            detail: "Stay not found",
+          });
+        }
+        const rate = stay.rate;
+        const numberOfReviewer = stay.numberOfReviewer;
+        stay.rate = (rate * numberOfReviewer - comment.rate + Number(data.rate)) / numberOfReviewer;
+        await stay.save({ transaction: t });
+      }
 
-      // update tour
+      // update comment
       if (data.imagesDeleted) {
         await FileService.deleteFiles(data.imagesDeleted);
       }
@@ -289,6 +331,45 @@ export default class CommentService {
           status: 404,
           detail: res.locals.t("comment_not_found"),
         });
+      }
+      // update rate of service
+      if (comment.serviceType === EServiceType.TOUR && comment.rate) {
+        const tour = await this.toursModel.findOne({
+          where: {
+            id: comment.serviceId,
+          },
+        });
+        if (!tour) {
+          await t.rollback();
+          return res.onError({
+            status: 404,
+            detail: "Tour not found",
+          });
+        }
+        const rate = tour.rate;
+        const numberOfReviewer = tour.numberOfReviewer;
+        tour.rate = (rate * numberOfReviewer - comment.rate) / (numberOfReviewer - 1);
+        tour.numberOfReviewer = numberOfReviewer - 1
+        await tour.save({ transaction: t });
+      }
+      if (comment.serviceType === EServiceType.HOTEL && comment.rate) {
+        const stay = await this.staysModel.findOne({
+          where: {
+            id: comment.serviceId,
+          },
+        });
+        if (!stay) {
+          await t.rollback();
+          return res.onError({
+            status: 404,
+            detail: "Stay not found",
+          });
+        }
+        const rate = stay.rate;
+        const numberOfReviewer = stay.numberOfReviewer;
+        stay.rate = (rate * numberOfReviewer - comment.rate) / (numberOfReviewer - 1);
+        stay.numberOfReviewer = numberOfReviewer - 1
+        await stay.save({ transaction: t });
       }
 
       await comment.destroy({ transaction: t });

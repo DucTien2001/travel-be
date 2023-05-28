@@ -12,6 +12,7 @@ import { stayRouter } from "./stay";
 import { roomRouter } from "./room";
 import { roomOtherPriceRouter } from "./roomOtherPrice";
 import { roomBillRouter } from "./roomBill";
+import { commentRouter } from "./comment";
 
 export const enterpriseRouter = Router();
 
@@ -28,3 +29,4 @@ enterpriseRouter.use("/stay", stayRouter);
 enterpriseRouter.use("/room", roomRouter);
 enterpriseRouter.use("/room-other-price", roomOtherPriceRouter);
 enterpriseRouter.use("/room-bill", roomBillRouter);
+enterpriseRouter.use("/comment", commentRouter);
