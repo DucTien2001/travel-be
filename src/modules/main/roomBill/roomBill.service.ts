@@ -449,6 +449,32 @@ export default class RoomBillService {
       });
     }
   }
+
+  public async findLatest(stayId: number, user: ModelsAttributes.User, res: Response) {
+    try {
+      const bill = await this.roomBillsModel.findOne({
+        where: {
+          userId: user.id,
+          stayId: stayId,
+          status: EBillStatus.USED,
+        },
+        order: [["createdAt", "DESC"]],
+      });
+      if (!bill) {
+        return res.onSuccess(null, {
+          message: res.locals.t("get_room_bill_latest_success"),
+        });
+      }
+      return res.onSuccess(bill, {
+        message: res.locals.t("get_room_bill_latest_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
   /**
    * Get a room bill
    */

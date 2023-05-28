@@ -6,6 +6,7 @@ export const router = Router();
 
 router.route("/").get(auth, Controller.findAll).post(auth ,Controller.create);
 router.route("/:id").put(auth ,Controller.update);
+router.route("/latest/:stayId").get(auth, Controller.findLatest);
 
 // router.route("/get-room-bill/:billId").get(RoomBillController.getRoomBill);
 // router.route("/get-room-bill-details/:billId").get(RoomBillController.getRoomBillDetails);

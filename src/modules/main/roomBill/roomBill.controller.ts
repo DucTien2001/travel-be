@@ -40,6 +40,18 @@ export default class Controller {
       });
     }
   }
+
+  static findLatest(req: Request, res: Response) {
+    try {
+      const { stayId } = req.params;
+      const RoomBillServiceI = Container.get(RoomBillService);
+      RoomBillServiceI.findLatest(Number(stayId), req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
   // static getRoomBill(req: Request, res: Response) {
   //   try {
   //     const { billId } = req.params;
