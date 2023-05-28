@@ -225,7 +225,7 @@ export default class CommentService {
       }
       const images = await FileService.uploadAttachments([...files]);
       const imageUrls = images?.map((image) => image?.url);
-      const newImageUrls = data.images.concat(imageUrls);
+      const newImageUrls = (data.images || []).concat(imageUrls);
       comment.content = data.content;
       comment.rate = data.rate;
       comment.images = newImageUrls;
