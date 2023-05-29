@@ -33,6 +33,39 @@ export default class Validation {
       .required();
     return schema.validateSync(req.body);
   }
+
+  static reSchedule(req: Request) {
+    const schema = yup
+      .object({
+        stayId: yup.number(),
+        rooms: yup.array(
+          yup.object({
+            roomId: yup.number(),
+            amount: yup.number(),
+            discount: yup.number(),
+            price: yup.string(),
+            bookedDate: yup.string(),
+          })
+        ),
+        startDate: yup.string(),
+        endDate: yup.string(),
+        price: yup.number(),
+        discount: yup.number(),
+        totalBill: yup.number(),
+        extraPay: yup.number().nullable(),
+        moneyRefund: yup.number().nullable(),
+        email: yup.string().email(),
+        phoneNumber: yup.string().matches(VALIDATION.phone, {
+          message: req.t("field_phone_number_vali_phone"),
+          excludeEmptyString: true,
+        }),
+        firstName: yup.string(),
+        lastName: yup.string(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
   
   static update(req: Request) {
     const schema = yup
@@ -55,6 +88,15 @@ export default class Validation {
     return schema.validateSync(req.query);
   }
 
+  static cancel(req: Request) {
+    const schema = yup
+      .object({
+        moneyRefund: yup.number(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
   
   // static verifyBookRoom(req: Request) {
   //   const schema = yup

@@ -5,8 +5,10 @@ import { auth } from "middlewares";
 export const router = Router();
 
 router.route("/").get(auth, Controller.findAll).post(auth ,Controller.create);
-router.route("/:id").put(auth ,Controller.update);
+router.route("/:id").get(auth, Controller.findOne).put(auth ,Controller.update);
+router.route("/re-schedule/:id").put(auth ,Controller.reSchedule);
 router.route("/latest/:stayId").get(auth, Controller.findLatest);
+router.route("/cancel/:id").put(auth ,Controller.cancel);
 
 // router.route("/get-room-bill/:billId").get(RoomBillController.getRoomBill);
 // router.route("/get-room-bill-details/:billId").get(RoomBillController.getRoomBillDetails);

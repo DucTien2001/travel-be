@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EPaymentStatus } from "models/general";
+import { EBillStatus, EPaymentStatus } from "models/general";
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 import { RoomAttributes } from "./rooms";
@@ -16,6 +16,7 @@ export interface RoomBillDetailAttributes extends Model {
   bookedDate: Date;
   commission: number;
   paymentStatus: EPaymentStatus;
+  status: EBillStatus;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -66,6 +67,10 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillDetai
         type: DataTypes.DOUBLE,
       },
       paymentStatus: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      status: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
