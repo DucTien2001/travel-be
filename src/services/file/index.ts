@@ -13,7 +13,7 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_KEY,
   api_secret: process.env.CLOUDINARY_SECRET,
 });
-const opts = {
+const opts: any = {
   overwrite: true,
   invalidate: true,
   resource_type: "auto",
@@ -145,7 +145,7 @@ export class FileService {
   }
 
   public static async cloneAttachment(attachment: ModelsAttributes.Attachment) {
-    let file = await this.getFile(attachment.url)
+    const file = await this.getFile(attachment.url)
     if (file) {
       const fileUploaded = await this.saveFile('attachments', file, attachment.fileName)
       fileUploaded.fileSize = attachment.fileSize
