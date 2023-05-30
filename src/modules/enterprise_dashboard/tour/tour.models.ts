@@ -24,6 +24,10 @@ export interface Create {
   title: string;
   numberOfDays: number;
   numberOfNights: number;
+  cityStart: Ilocation;
+  districtStart: Ilocation;
+  communeStart: Ilocation;
+  moreLocationStart: string;
   city: Ilocation;
   district: Ilocation;
   commune: Ilocation;
@@ -39,6 +43,10 @@ export interface Update {
   title: string;
   numberOfDays: number;
   numberOfNights: number;
+  cityStart: Ilocation;
+  districtStart: Ilocation;
+  communeStart: Ilocation;
+  moreLocationStart: string;
   city: Ilocation;
   district: Ilocation;
   commune: Ilocation;

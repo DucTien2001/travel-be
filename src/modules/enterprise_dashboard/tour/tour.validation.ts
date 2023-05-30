@@ -30,6 +30,19 @@ export default class Validation {
         title: yup.string(),
         numberOfDays: yup.number(),
         numberOfNights: yup.number(),
+        cityStart: yup.object({
+          id: yup.number(),
+          name: yup.string(),
+        }),
+        districtStart: yup.object({
+          id: yup.number(),
+          name: yup.string(),
+        }),
+        communeStart: yup.object({
+          id: yup.number(),
+          name: yup.string(),
+        }),
+        moreLocationStart: yup.string(),
         city: yup.object({
           id: yup.number(),
           name: yup.string(),
@@ -60,6 +73,19 @@ export default class Validation {
         title: yup.string(),
         numberOfDays: yup.number(),
         numberOfNights: yup.number(),
+        cityStart: yup.object({
+          id: yup.number(),
+          name: yup.string(),
+        }),
+        districtStart: yup.object({
+          id: yup.number(),
+          name: yup.string(),
+        }),
+        communeStart: yup.object({
+          id: yup.number(),
+          name: yup.string(),
+        }),
+        moreLocationStart: yup.string(),
         city: yup.object({
           id: yup.number(),
           name: yup.string(),

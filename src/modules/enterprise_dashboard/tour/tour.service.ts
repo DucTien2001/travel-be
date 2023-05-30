@@ -160,6 +160,10 @@ export default class TourService {
           numberOfNights: data?.numberOfNights,
           images: imageUrls,
           contact: data?.contact,
+          cityStart: data?.cityStart || "",
+          districtStart: data?.districtStart || "",
+          communeStart: data?.communeStart || "",
+          moreLocationStart: data?.moreLocationStart || "",
           city: data?.city || "",
           district: data?.district || "",
           commune: data?.commune || "",
@@ -249,6 +253,10 @@ export default class TourService {
               numberOfNights: data?.numberOfNights,
               images: newImageUrls,
               contact: data?.contact,
+              cityStart: data?.cityStart || "",
+              districtStart: data?.districtStart || "",
+              communeStart: data?.communeStart || "",
+              moreLocationStart: data?.moreLocationStart || "",
               city: data?.city || "",
               district: data?.district || "",
               commune: data?.commune || "",
@@ -276,6 +284,10 @@ export default class TourService {
           tourLang.numberOfNights = data?.numberOfNights;
           tourLang.images = newImageUrls;
           tourLang.contact = data?.contact;
+          tourLang.cityStart = data?.cityStart;
+          tourLang.districtStart = data?.districtStart;
+          tourLang.communeStart = data?.communeStart;
+          tourLang.moreLocationStart = data?.moreLocationStart || "";
           tourLang.city = data?.city;
           tourLang.district = data?.district;
           tourLang.commune = data?.commune;
@@ -296,6 +308,10 @@ export default class TourService {
       tour.numberOfNights = data?.numberOfNights;
       tour.images = newImageUrls;
       tour.contact = data?.contact;
+      tour.cityStart = data?.cityStart;
+      tour.districtStart = data?.districtStart;
+      tour.communeStart = data?.communeStart;
+      tour.moreLocationStart = data?.moreLocationStart || "";
       tour.city = data?.city;
       tour.district = data?.district;
       tour.commune = data?.commune;

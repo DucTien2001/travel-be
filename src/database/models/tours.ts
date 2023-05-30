@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-types */
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
@@ -11,6 +12,10 @@ export interface TourAttributes extends Model {
   images: string[];
   numberOfDays: number;
   numberOfNights: number;
+  cityStart: Ilocation;
+  districtStart: Ilocation;
+  communeStart: Ilocation;
+  moreLocationStart: string;
   city: Ilocation;
   district: Ilocation;
   commune: Ilocation;
@@ -67,6 +72,36 @@ export default (
       },
       numberOfNights: {
         type: DataTypes.INTEGER,
+      },
+      cityStart: {
+        type: DataTypes.STRING,
+        get() {
+          return JSON.parse(this.getDataValue('cityStart') || '{}');
+        },
+        set(value: any) {
+          this.setDataValue('cityStart', JSON.stringify(value || {}));
+        }
+      },
+      districtStart: {
+        type: DataTypes.STRING,
+        get() {
+          return JSON.parse(this.getDataValue('districtStart') || '{}');
+        },
+        set(value: any) {
+          this.setDataValue('districtStart', JSON.stringify(value || {}));
+        }
+      },
+      communeStart: {
+        type: DataTypes.STRING,
+        get() {
+          return JSON.parse(this.getDataValue('communeStart') || '{}');
+        },
+        set(value: any) {
+          this.setDataValue('communeStart', JSON.stringify(value || {}));
+        }
+      },
+      moreLocationStart: {
+        type: DataTypes.STRING,
       },
       city: {
         type: DataTypes.STRING,
