@@ -94,7 +94,7 @@ export default class EventService {
       let imageUrl = null;
       // eslint-disable-next-line no-extra-boolean-cast
       if (!!images?.length) {
-        imageUrl = images[0].url;
+        imageUrl = images[0];
       }
 
       const newEvent = await this.eventsModel.create(
@@ -157,7 +157,7 @@ export default class EventService {
           await FileService.deleteFiles2([event.banner]);
         }
         const images = await FileService.uploadAttachments2([...files]);
-        imageUrl = images[0].url;
+        imageUrl = images[0];
       }
 
       event.startTime = data?.startTime;

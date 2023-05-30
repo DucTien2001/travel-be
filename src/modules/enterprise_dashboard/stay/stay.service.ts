@@ -123,15 +123,15 @@ export default class StayService {
   public async create(data: Create, files: Express.Multer.File[], user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const images = await FileService.uploadAttachments2([...files]);
-      if (!images?.length) {
+      const imageUrls = await FileService.uploadAttachments2([...files]);
+      if (!imageUrls?.length) {
         await t.rollback();
         return res.onError({
           status: 400,
           detail: "Image is required",
         });
       }
-      const imageUrls = images?.map((image) => image?.url);
+      // const imageUrls = images?.map((image) => image?.url);
 
       const newStay = await this.staysModel.create(
         {
@@ -177,8 +177,8 @@ export default class StayService {
       if (data.imagesDeleted) {
         await FileService.deleteFiles2(data.imagesDeleted);
       }
-      const images = await FileService.uploadAttachments2([...files]);
-      const imageUrls = images?.map((image) => image?.url);
+      const imageUrls = await FileService.uploadAttachments2([...files]);
+      // const imageUrls = images?.map((image) => image?.url);
 
       const stay = await this.staysModel.findOne({
         where: {
