@@ -626,6 +626,15 @@ export default class RoomBillService {
           },
           {
             association: "oldBillData",
+            include: [
+              {
+                association: "roomBillDetail",
+                order: [
+                  ["roomId", "ASC"],
+                  ["bookedDate", "ASC"],
+                ],
+              },
+            ],
           },
         ],
         limit: data.take,
@@ -673,6 +682,15 @@ export default class RoomBillService {
           },
           {
             association: "oldBillData",
+            include: [
+              {
+                association: "roomBillDetail",
+                order: [
+                  ["roomId", "ASC"],
+                  ["bookedDate", "ASC"],
+                ],
+              },
+            ],
           },
         ],
       });
