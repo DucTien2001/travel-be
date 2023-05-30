@@ -93,7 +93,7 @@ export default class CommentService {
   public async create(data: Create, files: Express.Multer.File[], user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const images = await FileService.uploadAttachments([...files]);
+      const images = await FileService.uploadAttachments2([...files]);
       const imageUrls = images?.map((image) => image?.url);
 
       const newComment = await this.commentsModel.create(
@@ -221,9 +221,9 @@ export default class CommentService {
 
       // update comment
       if (data.imagesDeleted) {
-        await FileService.deleteFiles(data.imagesDeleted);
+        await FileService.deleteFiles2(data.imagesDeleted);
       }
-      const images = await FileService.uploadAttachments([...files]);
+      const images = await FileService.uploadAttachments2([...files]);
       const imageUrls = images?.map((image) => image?.url);
       const newImageUrls = (data.images || []).concat(imageUrls);
       comment.content = data.content;

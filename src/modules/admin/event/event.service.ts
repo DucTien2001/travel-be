@@ -90,7 +90,7 @@ export default class EventService {
   public async create(data: Create, files: Express.Multer.File[], user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const images = await FileService.uploadAttachments([...files]);
+      const images = await FileService.uploadAttachments2([...files]);
       let imageUrl = null;
       // eslint-disable-next-line no-extra-boolean-cast
       if (!!images?.length) {
@@ -154,9 +154,9 @@ export default class EventService {
       // eslint-disable-next-line no-extra-boolean-cast
       if (!!files.length) {
         if (event?.banner) {
-          await FileService.deleteFile(event.banner);
+          await FileService.deleteFiles2([event.banner]);
         }
-        const images = await FileService.uploadAttachments([...files]);
+        const images = await FileService.uploadAttachments2([...files]);
         imageUrl = images[0].url;
       }
 

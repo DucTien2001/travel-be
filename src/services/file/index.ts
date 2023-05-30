@@ -1,9 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-useless-catch */
 import fs from 'fs';
 import path from 'path';
 //import { FileResize, Resize } from 'services/resize-image';
 import { v4 as uuidv4 } from 'uuid';
 
+
+import {v2 as cloudinary} from "cloudinary"
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
+});
+const opts = {
+  overwrite: true,
+  invalidate: true,
+  resource_type: "auto",
+};
 
 export interface FileUploaded {
   fileName: string;
@@ -84,6 +98,49 @@ export class FileService {
     } catch (error) {
       this.deleteFiles(fileUploadeds.map(temp => temp.url))
       throw error;
+    }
+  }
+
+  public static async uploadAttachments2(data: Express.Multer.File[]) {
+    const fileUploadedUrls: any[] = []
+    try {
+      for (const file of data) {
+        if (!file) continue
+        const imageBase64 = "data:"+file.mimetype+";base64,"+file.buffer.toString('base64');
+        // eslint-disable-next-line no-async-promise-executor
+        const fileUploaded = await new Promise(async (resolve, reject) => {
+          if(imageBase64) {
+            cloudinary.uploader.upload(imageBase64, opts, (error, result) => {
+              if (result && result.secure_url) {
+                console.log(result.secure_url);
+                return resolve(result.secure_url);
+              }
+              console.log(error.message);
+              return reject({ message: error.message });
+            });
+          }
+        });
+        if(fileUploaded) {
+          fileUploadedUrls.push(fileUploaded)
+        }
+      }
+      return fileUploadedUrls
+    } catch (error) {
+      throw error;
+    }
+  }
+  public static async deleteFiles2(urls: string[]) {
+    try {
+      for (const url of urls) {
+        const urlSplit = url.split('/')
+        const imageId = urlSplit[urlSplit.length - 1].split('.')[0];
+        await cloudinary.uploader.destroy(imageId)
+      }
+      return
+    } catch (err) {
+      return {
+        error: err
+      }
     }
   }
 

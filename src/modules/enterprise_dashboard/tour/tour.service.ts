@@ -143,7 +143,7 @@ export default class TourService {
   public async create(data: Create, files: Express.Multer.File[], user: ModelsAttributes.User, res: Response) {
     const t = await sequelize.transaction();
     try {
-      const images = await FileService.uploadAttachments([...files]);
+      const images = await FileService.uploadAttachments2([...files]);
       if (!images?.length) {
         await t.rollback();
         return res.onError({
@@ -194,10 +194,10 @@ export default class TourService {
     const t = await sequelize.transaction();
     try {
       if (data.imagesDeleted) {
-        await FileService.deleteFiles(data.imagesDeleted);
+        await FileService.deleteFiles2(data.imagesDeleted);
       }
-      const images = await FileService.uploadAttachments([...files]);
-      const imageUrls = images?.map((image) => image?.url);
+      const imageUrls = await FileService.uploadAttachments2([...files]);
+      // const imageUrls = images?.map((image) => image?.url);
 
       const tour = await this.toursModel.findOne({
         where: {
@@ -211,7 +211,7 @@ export default class TourService {
           detail: "Tour not found",
         });
       }
-      const newImageUrls = data.images.concat(imageUrls);
+      const newImageUrls = (data.images || []).concat(imageUrls);
 
       await this.toursModel.update(
         {
