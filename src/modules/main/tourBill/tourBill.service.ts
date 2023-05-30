@@ -307,6 +307,9 @@ export default class TourBillService {
           {
             association: "oldBillData",
           },
+          {
+            association: "tourInfo",
+          },
         ],
         limit: data.take,
         offset: offset,
@@ -342,6 +345,11 @@ export default class TourBillService {
         where: {
           id: billId,
         },
+        include: [
+          {
+            association: "tourInfo",
+          },
+        ],
       });
       if (!bill) {
         return res.onError({
