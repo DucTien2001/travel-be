@@ -155,6 +155,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
       foreignKey: 'billId',
       constraints: false
     });
+    room_bills.belongsTo(models.room_bills, {
+      as: "oldBillData",
+      foreignKey: "oldBillId",
+      constraints: false,
+    });
   };
   return room_bills;
 };

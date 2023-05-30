@@ -624,6 +624,9 @@ export default class RoomBillService {
               ["bookedDate", "ASC"],
             ],
           },
+          {
+            association: "oldBillData",
+          },
         ],
         limit: data.take,
         offset: offset,
@@ -667,6 +670,9 @@ export default class RoomBillService {
               ["roomId", "ASC"],
               ["bookedDate", "ASC"],
             ],
+          },
+          {
+            association: "oldBillData",
           },
         ],
       });
