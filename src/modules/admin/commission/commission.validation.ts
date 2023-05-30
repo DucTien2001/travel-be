@@ -20,7 +20,7 @@ export default class Validation {
       .object({
         serviceType: yup.number().integer().oneOf([EServiceType.TOUR, EServiceType.HOTEL]).required(),
         minPrice: yup.number().required(),
-        maxPrice: yup.number(),
+        maxPrice: yup.number().nullable(),
         rate: yup.number().required(),
       })
       .noUnknown()
