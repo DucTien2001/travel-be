@@ -24,16 +24,26 @@ export default class EventService {
         whereOptions = {
           ...whereOptions,
           [Op.or]: [
-            Sequelize.fn("JSON_CONTAINS", Sequelize.col("hotelIds"), `[${data.serviceId}]`),
-            Sequelize.fn("JSON_CONTAINS", Sequelize.col("hotelIds"), `[-1]`),
+            { hotelIds: { [Op.substring]: `[${data.serviceId}]` } },
+            { hotelIds: { [Op.substring]: `[${data.serviceId},` } },
+            { hotelIds: { [Op.substring]: `,${data.serviceId},` } },
+            { hotelIds: { [Op.substring]: `,${data.serviceId}]` } },
+            { hotelIds: { [Op.substring]: "-1" } },
+            // Sequelize.fn("JSON_CONTAINS", Sequelize.col("hotelIds"), `[${data.serviceId}]`),
+            // Sequelize.fn("JSON_CONTAINS", Sequelize.col("hotelIds"), `[-1]`),
           ],
         };
       } else {
         whereOptions = {
           ...whereOptions,
           [Op.or]: [
-            Sequelize.fn("JSON_CONTAINS", Sequelize.col("tourIds"), `[${data.serviceId}]`),
-            Sequelize.fn("JSON_CONTAINS", Sequelize.col("tourIds"), `[-1]`),
+            { tourIds: { [Op.substring]: `[${data.serviceId}]` } },
+            { tourIds: { [Op.substring]: `[${data.serviceId},` } },
+            { tourIds: { [Op.substring]: `,${data.serviceId},` } },
+            { tourIds: { [Op.substring]: `,${data.serviceId}]` } },
+            { tourIds: { [Op.substring]: "-1" } },
+            // Sequelize.fn("JSON_CONTAINS", Sequelize.col("tourIds"), `[${data.serviceId}]`),
+            // Sequelize.fn("JSON_CONTAINS", Sequelize.col("tourIds"), `[-1]`),
           ],
         };
       }
