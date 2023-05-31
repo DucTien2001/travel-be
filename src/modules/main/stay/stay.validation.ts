@@ -8,12 +8,12 @@ export default class Validation {
         take: yup.number().min(1).integer().default(10),
         page: yup.number().min(1).integer().default(1),
         keyword: yup.string(),
-        numberOfAdult: yup.number().integer(),
-        numberOfChildren: yup.number().integer(),
-        startDate: yup.date(),
-        endDate: yup.date(),
-        numberOfRoom: yup.number().integer(),
-        sort: yup.number().integer(),
+        numberOfAdult: yup.number().integer().nullable(),
+        numberOfChildren: yup.number().integer().nullable(),
+        startDate: yup.date().nullable(),
+        endDate: yup.date().nullable(),
+        numberOfRoom: yup.number().integer().nullable(),
+        sort: yup.number().integer().nullable(),
       })
       .noUnknown();
     return schema.validateSync(req.query);
