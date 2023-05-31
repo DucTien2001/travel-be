@@ -32,7 +32,7 @@ export default class Validation {
     const schema = yup
       .object({
         minPrice: yup.number().required(),
-        maxPrice: yup.number(),
+        maxPrice: yup.number().nullable(),
         rate: yup.number().required(),
       })
       .noUnknown()
