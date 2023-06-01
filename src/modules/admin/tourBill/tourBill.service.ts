@@ -260,7 +260,7 @@ export default class TourBillService {
         include: [
           {
             association: "tourOnSaleInfo",
-            attributes: ["id", "startDate", "quantity", "quantityOrdered"],
+            attributes: ["id", "startDate", "quantity", "quantityOrdered", "isReceivedRevenue"],
           },
         ],
         attributes: [

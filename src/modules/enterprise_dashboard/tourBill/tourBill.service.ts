@@ -300,7 +300,6 @@ export default class TourBillService {
         attributes: ["tourOnSaleId", "status", [Sequelize.fn("count", Sequelize.col("tour_bills.id")), "numberOfBills"]],
         group: ["tourOnSaleId", "status"],
       });
-      console.log(tourBills, "=======tourBills======");
       if (!tourBills) {
         return res.onError({
           status: 404,
@@ -517,7 +516,7 @@ export default class TourBillService {
         include: [
           {
             association: "tourOnSaleInfo",
-            attributes: ["id", "startDate", "quantity", "quantityOrdered"],
+            attributes: ["id", "startDate", "quantity", "quantityOrdered", "isReceivedRevenue"],
           },
         ],
         attributes: [
