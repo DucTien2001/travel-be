@@ -498,7 +498,7 @@ export default class TourBillService {
         };
       }
       const listTourOnSales = await this.tourOnSalesModel.findAndCountAll({
-        attributes: ["id", "startDate", "quantity", "quantityOrdered"],
+        attributes: ["id", "startDate", "quantity", "quantityOrdered", "isReceivedRevenue"],
         where: listTourOnSalesWhereOption,
         limit: data.take,
         offset: offset,
