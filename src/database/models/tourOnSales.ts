@@ -17,6 +17,7 @@ export interface TourOnSaleAttributes extends Model {
   currency: string;
   tourGuideId: number;
   isDeleted: boolean;
+  isReceivedRevenue: boolean;
   createdAt: Date,
   updatedAt: Date,
   deletedAt: Date,
@@ -80,6 +81,11 @@ export default (
         type: DataTypes.INTEGER,
       },
       isDeleted: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      isReceivedRevenue: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
         defaultValue: false,
