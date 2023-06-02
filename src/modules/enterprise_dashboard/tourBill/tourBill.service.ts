@@ -114,6 +114,7 @@ export default class TourBillService {
       const offset = data.take * (data.page - 1);
       let whereOption: WhereOptions = {
         tourOwnerId: enterpriseId,
+        paymentStatus: EPaymentStatus.PAID
       };
       if (data.tourId !== -1) {
         whereOption = {
