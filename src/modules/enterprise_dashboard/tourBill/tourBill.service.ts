@@ -5,6 +5,7 @@ import { sequelize } from "database/models";
 import { Response } from "express";
 import { Op, Sequelize, WhereOptions } from "sequelize";
 import { EServiceType } from "common/general";
+import { EBillStatus, EPaymentStatus } from "models/general";
 
 @Service()
 export default class TourBillService {
@@ -405,6 +406,8 @@ export default class TourBillService {
       const tourBills = await this.tourBillsModel.findAll({
         where: {
           tourOnSaleId: listOnSaleIds,
+          paymentStatus: EPaymentStatus.PAID,
+          status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
         },
         include: [
           {
@@ -510,6 +513,8 @@ export default class TourBillService {
       // Get all qualified tourBills
       const whereOption: WhereOptions = {
         tourOnSaleId: _listTourOnSaleIds,
+        paymentStatus: EPaymentStatus.PAID,
+        status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
       };
       const tourBills = await this.tourBillsModel.findAll({
         where: whereOption,
@@ -580,6 +585,8 @@ export default class TourBillService {
         where: {
           tourOnSaleId: tourOnSaleId,
           tourOwnerId: enterpriseId,
+          paymentStatus: EPaymentStatus.PAID,
+          status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
         },
         limit: data.take,
         offset: offset,

@@ -5,7 +5,7 @@ import { sequelize } from "database/models";
 import { Response } from "express";
 import { Op, Sequelize, WhereOptions } from "sequelize";
 import { EServiceType } from "common/general";
-import { EPaymentStatus } from "models/general";
+import { EBillStatus, EPaymentStatus } from "models/general";
 
 @Service()
 export default class TourBillService {
@@ -275,6 +275,7 @@ export default class TourBillService {
       let roomBillDetailsWhereOption: WhereOptions = {
         stayId: _listStayIds,
         paymentStatus: EPaymentStatus.PAID,
+        status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
       };
       if (data.month > 0) {
         roomBillDetailsWhereOption = {
@@ -374,6 +375,7 @@ export default class TourBillService {
       let roomBillDetailsWhereOption: WhereOptions = {
         roomId: _listRoomIds,
         paymentStatus: EPaymentStatus.PAID,
+        status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
       };
       if (data.month > 0) {
         roomBillDetailsWhereOption = {
@@ -445,6 +447,7 @@ export default class TourBillService {
       let roomBillDetailsWhereOption: WhereOptions = {
         roomId: roomId,
         paymentStatus: EPaymentStatus.PAID,
+        status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
         stayOwnerId: enterpriseId,
       };
       if (data.month > 0) {

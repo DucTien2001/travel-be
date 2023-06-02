@@ -3,7 +3,7 @@ import { Inject, Service } from "typedi";
 import { ESortTourBillOption, StatisticByTour, StatisticByUser, StatisticByTourOnSale, GetAllBillOfOneTourOnSale, FindAllOrderNeedRefund } from "./tourBill.models";
 import { Response } from "express";
 import { Op, Order, Sequelize, WhereOptions } from "sequelize";
-import { EPaymentStatus } from "models/general";
+import { EBillStatus, EPaymentStatus } from "models/general";
 import { sequelize } from "database/models";
 
 @Service()
@@ -75,6 +75,8 @@ export default class TourBillService {
       const tourBills = await this.tourBillsModel.findAndCountAll({
         where: {
           tourOnSaleId: listOnSaleIds,
+          paymentStatus: EPaymentStatus.PAID,
+          status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
         },
         include: [
           {
@@ -166,6 +168,8 @@ export default class TourBillService {
       const tourBills = await this.tourBillsModel.findAll({
         where: {
           tourOnSaleId: listOnSaleIds,
+          paymentStatus: EPaymentStatus.PAID,
+          status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
         },
         include: [
           {
@@ -254,6 +258,8 @@ export default class TourBillService {
       // Get all qualified tourBills
       const whereOption: WhereOptions = {
         tourOnSaleId: _listTourOnSaleIds,
+        paymentStatus: EPaymentStatus.PAID,
+        status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
       };
       const tourBills = await this.tourBillsModel.findAll({
         where: whereOption,
@@ -322,6 +328,8 @@ export default class TourBillService {
       const bills = await this.tourBillsModel.findAndCountAll({
         where: {
           tourOnSaleId: tourOnSaleId,
+          paymentStatus: EPaymentStatus.PAID,
+          status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
         },
         limit: data.take,
         offset: offset,
