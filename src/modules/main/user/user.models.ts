@@ -52,7 +52,19 @@ export interface IUpdateUserProfile {
   phoneNumber: string;
 }
 
-
+export interface IUpdateUserBank {
+  bankType: number;
+  bankCode: string;
+  bankCardNumber: string;
+  bankUserName: string;
+  releaseDate: Date;
+  expirationDate: Date;
+  cvcOrCvv: string;
+  bankEmail: string;
+  bankCountry: string;
+  bankProvinceOrCity: string;
+  bankUserAddress: string;
+}
 
 export interface ChangeLanguage {
   language: string

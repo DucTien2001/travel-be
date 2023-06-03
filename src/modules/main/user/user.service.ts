@@ -1,6 +1,6 @@
 import Container, { Inject, Service } from "typedi";
 import bcrypt from "bcryptjs";
-import { ChangeLanguage, IChangePassForgot, IChangePassword, ILogin, IRegister, IReSendVerifySignup, ISendEmailForgotPassword, IUpdateUserProfile, IVerifySignup } from "./user.models";
+import { ChangeLanguage, IChangePassForgot, IChangePassword, ILogin, IRegister, IReSendVerifySignup, ISendEmailForgotPassword, IUpdateUserBank, IUpdateUserProfile, IVerifySignup } from "./user.models";
 import database, { sequelize } from "database/models";
 import { Response } from "express";
 import EmailService from "services/emailService";
@@ -585,6 +585,50 @@ export default class UserService {
     }
   }
 
+  /**
+   * Update user bank
+   */
+  public async updateUserBank(id: number, data: IUpdateUserBank, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const user = await this.usersModel.findOne({
+        where: {
+          id: id,
+          isDeleted: false,
+        },
+      });
+      if (!user) {
+        await t.rollback();
+        return res.onError({
+          status: 404,
+          detail: res.locals.t("user_not_found"),
+        });
+      }
+      user.bankType = data.bankType;
+      user.bankCode = data.bankCode;
+      user.bankCardNumber = data.bankCardNumber;
+      user.bankUserName = data.bankUserName;
+      user.releaseDate = data.releaseDate || null;
+      user.expirationDate = data.expirationDate || null;
+      user.cvcOrCvv = data.cvcOrCvv || "";
+      user.bankEmail = data.bankEmail || "";
+      user.bankCountry = data.bankCountry || "";
+      user.bankProvinceOrCity = data.bankProvinceOrCity || "";
+      user.bankUserAddress = data.bankUserAddress || "";
+
+      await user.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(user, {
+        message: res.locals.t("user_bank_update_success"),
+      });
+    } catch (error) {
+      await t.rollback();
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
   
   
   /**

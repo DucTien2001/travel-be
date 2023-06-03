@@ -15,6 +15,7 @@ userRouter.route("/change-forgot-password").put(UserController.changePassForgot)
 userRouter.route("/profile/:id").get(UserController.getUserProfile);
 userRouter.route("/all-profiles").get(UserController.getAllUserProfiles);
 userRouter.route("/update-profile/:id").put(UserController.updateUserProfile);
+userRouter.route("/bank/:id").put(UserController.updateUserBank);
 
 
 userRouter.route("/change-language").put(auth, UserController.changeLanguage);

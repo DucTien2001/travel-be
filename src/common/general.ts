@@ -52,3 +52,8 @@ export enum EDiscountType {
   MONEY = 1,
   PERCENT = 2
 }
+
+export enum EBankType {
+  DOMESTIC = 1,
+  INTERNATIONAL = 2
+}

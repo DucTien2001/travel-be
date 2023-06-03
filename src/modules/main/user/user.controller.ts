@@ -141,6 +141,18 @@ export default class UserController {
     }
   }
   
+  static updateUserBank(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = UserValidation.updateUserBank(req);
+      const UserServiceI = Container.get(UserService);
+      UserServiceI.updateUserBank(Number(id), value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 
   static changeLanguage(req: Request, res: Response) {
     try {

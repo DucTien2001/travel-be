@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
-import { ETypeUser, LANG } from "common/general";
+import { EBankType, ETypeUser, LANG } from "common/general";
 
 export interface UserAttributes extends Model {
   dataValues: any;
@@ -16,6 +16,17 @@ export interface UserAttributes extends Model {
   phoneNumber: string;
   becomeStaffDate: Date;
   enterpriseId: number;
+  bankType: number;
+  bankCode: string;
+  bankCardNumber: string;
+  bankUserName: string;
+  releaseDate: Date;
+  expirationDate: Date;
+  cvcOrCvv: string;
+  bankEmail: string;
+  bankCountry: string;
+  bankProvinceOrCity: string;
+  bankUserAddress: string;
   isDeleted: boolean;
   isVerified: boolean;
   language: string;
@@ -68,6 +79,40 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): UsersInstance
       },
       enterpriseId: {
         type: DataTypes.INTEGER,
+      },
+      bankType: {
+        type: DataTypes.INTEGER,
+        comment: `Domestic: ${EBankType.DOMESTIC}, International: ${EBankType.INTERNATIONAL}`,
+      },
+      bankCode: {
+        type: DataTypes.STRING,
+      },
+      bankCardNumber: {
+        type: DataTypes.STRING,
+      },
+      bankUserName: {
+        type: DataTypes.STRING,
+      },
+      releaseDate: {
+        type: DataTypes.DATE,
+      },
+      expirationDate: {
+        type: DataTypes.DATE,
+      },
+      cvcOrCvv: {
+        type: DataTypes.STRING,
+      },
+      bankEmail: {
+        type: DataTypes.STRING,
+      },
+      bankCountry: {
+        type: DataTypes.STRING,
+      },
+      bankProvinceOrCity: {
+        type: DataTypes.STRING,
+      },
+      bankUserAddress: {
+        type: DataTypes.STRING,
       },
       isDeleted: {
         allowNull: false,

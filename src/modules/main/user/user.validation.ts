@@ -160,6 +160,25 @@ export default class UserValidation {
     return schema.validateSync(req.body);
   }
   
+  static updateUserBank(req: Request) {
+    const schema = yup
+      .object({
+        bankType: yup.number().integer(),
+        bankCode: yup.string(),
+        bankCardNumber: yup.string(),
+        bankUserName: yup.string(),
+        releaseDate: yup.date(),
+        expirationDate: yup.date(),
+        cvcOrCvv: yup.string(),
+        bankEmail: yup.string(),
+        bankCountry: yup.string(),
+        bankProvinceOrCity: yup.string(),
+        bankUserAddress: yup.string(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
 
   static changeLanguage(req: Request) {
     const schema = yup.object({
