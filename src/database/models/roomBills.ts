@@ -7,7 +7,7 @@ export interface RoomBillAttributes extends Model {
   dataValues: any;
   id: number;
   userId: number;
-  staylId: number;
+  stayId: number;
   stayOwnerId: number;
   startDate: string;
   endDate: string;
@@ -143,6 +143,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
     room_bills.belongsTo(models.users, {
       as: 'userInfo',
       foreignKey: 'userId',
+      constraints: false
+    });
+    room_bills.belongsTo(models.stays, {
+      as: 'stayInfo',
+      foreignKey: 'stayId',
       constraints: false
     });
     // room_bills.belongsTo(models.hotels, {

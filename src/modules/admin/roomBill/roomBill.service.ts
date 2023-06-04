@@ -373,7 +373,7 @@ export default class TourBillService {
         where: whereOption,
         include: [
           {
-            association: "tourInfo",
+            association: "stayInfo",
           },
           {
             attributes: [
@@ -396,6 +396,25 @@ export default class TourBillService {
               "bankUserAddress",
             ],
             association: "userInfo",
+          },
+          {
+            association: "roomBillDetail",
+            order: [
+              ["roomId", "ASC"],
+              ["bookedDate", "ASC"],
+            ],
+          },
+          {
+            association: "oldBillData",
+            include: [
+              {
+                association: "roomBillDetail",
+                order: [
+                  ["roomId", "ASC"],
+                  ["bookedDate", "ASC"],
+                ],
+              },
+            ],
           },
         ],
         limit: data.take,
