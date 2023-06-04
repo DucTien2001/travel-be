@@ -112,6 +112,21 @@ export default class TourBillService {
             },
             order: [["dayRange", "ASC"]],
           },
+          {
+            attributes: ["id", "day", "startTime", "endTime", "description", "parentLanguage", "language"],
+            association: "tourSchedules",
+            where: {
+              language: null,
+            },
+            include: [
+              {
+                attributes: ["id", "day", "startTime", "endTime", "description", "parentLanguage", "language"],
+                association: "languages",
+                order: [["startTime", "ASC"]],
+              }
+            ],
+            order: [["startTime", "ASC"]],
+          },
         ],
       });
       if (!tour) {
@@ -414,6 +429,22 @@ export default class TourBillService {
             where: {
               serviceType: EServiceType.TOUR,
             },
+            order: [["dayRange", "ASC"]],
+          },
+          {
+            attributes: ["id", "day", "startTime", "endTime", "description", "parentLanguage", "language"],
+            association: "tourSchedules",
+            where: {
+              language: null,
+            },
+            include: [
+              {
+                attributes: ["id", "day", "startTime", "endTime", "description", "parentLanguage", "language"],
+                association: "languages",
+                order: [["startTime", "ASC"]],
+              }
+            ],
+            order: [["startTime", "ASC"]],
           },
         ],
       });
