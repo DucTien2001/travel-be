@@ -384,6 +384,7 @@ export default class TourBillService {
               "phoneNumber",
               "bankType",
               "bankCode",
+              "bankName",
               "bankCardNumber",
               "bankUserName",
               "releaseDate",

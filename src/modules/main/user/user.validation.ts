@@ -165,6 +165,7 @@ export default class UserValidation {
       .object({
         bankType: yup.number().integer(),
         bankCode: yup.string(),
+        bankName: yup.string(),
         bankCardNumber: yup.string(),
         bankUserName: yup.string(),
         releaseDate: yup.date(),

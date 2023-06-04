@@ -18,6 +18,7 @@ export interface UserAttributes extends Model {
   enterpriseId: number;
   bankType: number;
   bankCode: string;
+  bankName: string;
   bankCardNumber: string;
   bankUserName: string;
   releaseDate: Date;
@@ -85,6 +86,9 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): UsersInstance
         comment: `Domestic: ${EBankType.DOMESTIC}, International: ${EBankType.INTERNATIONAL}`,
       },
       bankCode: {
+        type: DataTypes.STRING,
+      },
+      bankName: {
         type: DataTypes.STRING,
       },
       bankCardNumber: {

@@ -606,6 +606,7 @@ export default class UserService {
       }
       user.bankType = data.bankType;
       user.bankCode = data.bankCode;
+      user.bankName = data.bankName || "";
       user.bankCardNumber = data.bankCardNumber;
       user.bankUserName = data.bankUserName;
       user.releaseDate = data.releaseDate || null;

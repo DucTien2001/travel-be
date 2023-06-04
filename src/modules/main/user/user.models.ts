@@ -55,6 +55,7 @@ export interface IUpdateUserProfile {
 export interface IUpdateUserBank {
   bankType: number;
   bankCode: string;
+  bankName: string;
   bankCardNumber: string;
   bankUserName: string;
   releaseDate: Date;
