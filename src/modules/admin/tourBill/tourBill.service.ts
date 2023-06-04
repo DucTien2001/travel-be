@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
-import { ESortTourBillOption, StatisticByTour, StatisticByUser, StatisticByTourOnSale, GetAllBillOfOneTourOnSale, FindAllOrderNeedRefund } from "./tourBill.models";
+import {
+  ESortTourBillOption,
+  StatisticByTour,
+  StatisticByUser,
+  StatisticByTourOnSale,
+  GetAllBillOfOneTourOnSale,
+  FindAllOrderNeedRefund,
+  StatisticAllTourOnSale,
+} from "./tourBill.models";
 import { Response } from "express";
 import { Op, Order, Sequelize, WhereOptions } from "sequelize";
 import { EBillStatus, EPaymentStatus } from "models/general";
@@ -391,19 +399,20 @@ export default class TourBillService {
         });
         await Promise.all(
           tourOnSales.map(async (tourOnSale) => {
-            return (
-              await this.tourOnSalesModel.update(
-                {
-                  quantityOrdered: tourOnSale.tourOnSaleInfo.quantityOrdered - Number(tourOnSale.dataValues.totalAmountChild) - Number(tourOnSale.dataValues.totalAmountAdult),
+            return await this.tourOnSalesModel.update(
+              {
+                quantityOrdered:
+                  tourOnSale.tourOnSaleInfo.quantityOrdered -
+                  Number(tourOnSale.dataValues.totalAmountChild) -
+                  Number(tourOnSale.dataValues.totalAmountAdult),
+              },
+              {
+                where: {
+                  id: tourOnSale.tourOnSaleId,
                 },
-                {
-                  where: {
-                    id: tourOnSale.tourOnSaleId,
-                  },
-                  transaction: t,
-                }
-              )
-            )
+                transaction: t,
+              }
+            );
           })
         );
 
@@ -427,7 +436,7 @@ export default class TourBillService {
       return 0;
     }
   }
-  
+
   public async findAllOrderNeedRefund(data: FindAllOrderNeedRefund, res: Response) {
     try {
       const offset = data.take * (data.page - 1);
@@ -469,13 +478,6 @@ export default class TourBillService {
               "bankName",
               "bankCardNumber",
               "bankUserName",
-              "releaseDate",
-              "expirationDate",
-              "cvcOrCvv",
-              "bankEmail",
-              "bankCountry",
-              "bankProvinceOrCity",
-              "bankUserAddress",
             ],
             association: "userInfo",
           },
@@ -483,7 +485,7 @@ export default class TourBillService {
         limit: data.take,
         offset: offset,
         distinct: true,
-        order: ["isRefunded", "updatedAt"]
+        order: ["isRefunded", "updatedAt"],
       });
       if (!bills) {
         return res.onError({
@@ -507,13 +509,13 @@ export default class TourBillService {
       });
     }
   }
-  
+
   public async updateRefunded(billId: number, res: Response) {
     const t = await sequelize.transaction();
     try {
       const bill = await this.tourBillsModel.findOne({
         where: {
-          id: billId
+          id: billId,
         },
       });
       if (!bill) {
@@ -523,11 +525,129 @@ export default class TourBillService {
         });
       }
 
-      bill.isRefunded = true
+      bill.isRefunded = true;
       await bill.save({ transaction: t });
       await t.commit();
       return res.onSuccess(bill, {
         message: res.locals.t("update_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async statisticAllTourOnSale(data: StatisticAllTourOnSale, res: Response) {
+    try {
+      const offset = data.take * (data.page - 1);
+
+      // get all qualified tourOnSales
+      let tourOnSalesWhereOption: WhereOptions = {
+        isReceivedRevenue: data.isReceivedRevenue,
+        quantityOrdered: {
+          [Op.gt]: 0,
+        },
+      };
+      // ***** Start Search *********
+      if (data.keyword) {
+        const users = await this.usersModel.findAll({
+          attributes: ["id"],
+          where: {
+            username: { [Op.substring]: data.keyword },
+          },
+        });
+        const userIds = users.map((item) => item.id);
+        const tours = await this.toursModel.findAll({
+          attributes: ["id"],
+          where: {
+            owner: userIds,
+          },
+        });
+        const tourIds = tours.map((item) => item.id);
+        tourOnSalesWhereOption = {
+          ...tourOnSalesWhereOption,
+          tourId: tourIds,
+        };
+      }
+      // ***** End Search *********
+
+      if (data.month > 0) {
+        tourOnSalesWhereOption = {
+          ...tourOnSalesWhereOption,
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
+            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
+          ],
+        };
+      }
+
+      const tourOnSales = await this.tourOnSalesModel.findAndCountAll({
+        where: tourOnSalesWhereOption,
+        order: [["startDate", "ASC"]],
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+      });
+
+      const _tourOnSaleIds = tourOnSales.rows.map((item) => item.id);
+
+      // Group tourbill
+      const whereOption: WhereOptions = {
+        tourOnSaleId: _tourOnSaleIds,
+        paymentStatus: EPaymentStatus.PAID,
+        status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
+      };
+      const tourBills = await this.tourBillsModel.findAll({
+        where: whereOption,
+        include: [
+          {
+            association: "tourOnSaleInfo",
+            attributes: ["id", "startDate", "isReceivedRevenue"],
+          },
+          {
+            association: "enterpriseInfo",
+            attributes: [
+              "id",
+              "username",
+              "firstName",
+              "lastName",
+              "address",
+              "phoneNumber",
+              "bankType",
+              "bankCode",
+              "bankName",
+              "bankCardNumber",
+              "bankUserName",
+            ],
+          },
+          {
+            association: "tourInfo",
+            attributes: ["id", "title", "numberOfDays", "numberOfNights"],
+          },
+        ],
+        attributes: [
+          "tourOnSaleId",
+          [Sequelize.fn("sum", Sequelize.col("totalBill")), "revenue"],
+          [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
+        ],
+        group: "tourOnSaleId",
+      });
+      if (!tourBills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+
+      return res.onSuccess(tourBills, {
+        meta: {
+          take: data.take,
+          itemCount: tourOnSales.count,
+          page: data.page,
+          pageCount: Math.ceil(tourOnSales.count / data.take),
+        },
       });
     } catch (error) {
       return res.onError({

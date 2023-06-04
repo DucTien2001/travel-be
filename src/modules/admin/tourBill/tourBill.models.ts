@@ -40,3 +40,12 @@ export interface FindAllOrderNeedRefund {
   refundStatus: number;         // refundStatus === -1  --> All
 }                               // refundStatus === 0   --> Not refunded yet
                                 // refundStatus === 1   --> Refunded
+
+export interface StatisticAllTourOnSale {
+  take: number;
+  page: number;
+  keyword?: string;
+  month: number;
+  year: number;
+  isReceivedRevenue: boolean;
+}

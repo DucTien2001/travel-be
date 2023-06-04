@@ -78,4 +78,16 @@ export default class UserController {
       });
     }
   }
+
+  static statisticAllTourOnSale(req: Request, res: Response) {
+    try {
+      const value = TourBillValidation.statisticAllTourOnSale(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.statisticAllTourOnSale(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }
