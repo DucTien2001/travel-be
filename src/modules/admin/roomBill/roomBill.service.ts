@@ -371,6 +371,32 @@ export default class TourBillService {
       }
       const bills = await this.roomBillsModel.findAndCountAll({
         where: whereOption,
+        include: [
+          {
+            association: "tourInfo",
+          },
+          {
+            attributes: [
+              "username",
+              "firstName",
+              "lastName",
+              "address",
+              "phoneNumber",
+              "bankType",
+              "bankCode",
+              "bankCardNumber",
+              "bankUserName",
+              "releaseDate",
+              "expirationDate",
+              "cvcOrCvv",
+              "bankEmail",
+              "bankCountry",
+              "bankProvinceOrCity",
+              "bankUserAddress",
+            ],
+            association: "userInfo",
+          },
+        ],
         limit: data.take,
         offset: offset,
         distinct: true,
