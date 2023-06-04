@@ -1,6 +1,17 @@
 import Container, { Inject, Service } from "typedi";
 import bcrypt from "bcryptjs";
-import { ChangeLanguage, IChangePassForgot, IChangePassword, ILogin, IRegister, IReSendVerifySignup, ISendEmailForgotPassword, IUpdateUserBank, IUpdateUserProfile, IVerifySignup } from "./user.models";
+import {
+  ChangeLanguage,
+  IChangePassForgot,
+  IChangePassword,
+  ILogin,
+  IRegister,
+  IReSendVerifySignup,
+  ISendEmailForgotPassword,
+  IUpdateUserBank,
+  IUpdateUserProfile,
+  IVerifySignup,
+} from "./user.models";
 import database, { sequelize } from "database/models";
 import { Response } from "express";
 import EmailService from "services/emailService";
@@ -466,13 +477,34 @@ export default class UserService {
       });
     }
   }
-  
+
   /**
    * Get user profile
    */
-   public async getUserProfile(id: number, res: Response) {
+  public async getUserProfile(id: number, res: Response) {
     try {
       const user = await this.usersModel.findOne({
+        attributes: [
+          "id",
+          ["username", "email"],
+          "avatar",
+          "firstName",
+          "lastName",
+          "address",
+          "phoneNumber",
+          "bankType",
+          "bankCode",
+          "bankName",
+          "bankCardNumber",
+          "bankUserName",
+          "releaseDate",
+          "expirationDate",
+          "cvcOrCvv",
+          "bankEmail",
+          "bankCountry",
+          "bankProvinceOrCity",
+          "bankUserAddress",
+        ],
         where: {
           id: id,
         },
@@ -483,18 +515,7 @@ export default class UserService {
           detail: "Not found",
         });
       }
-      const _user = {
-        ...user?.dataValues
-      };
-      const result = {
-        email: _user?.username,
-        avatar: _user?.avatar,
-        firstName: _user?.firstName,
-        lastName: _user?.lastName,
-        address: _user?.address,
-        phoneNumber: _user?.phoneNumber,
-      }
-      return res.onSuccess(result, {
+      return res.onSuccess(user, {
         message: res.locals.t("get_user_success"),
       });
     } catch (error) {
@@ -504,11 +525,11 @@ export default class UserService {
       });
     }
   }
-  
+
   /**
    * Get all user profile
    */
-   public async getAllUserProfiles(res: Response) {
+  public async getAllUserProfiles(res: Response) {
     try {
       const allUser = await this.usersModel.findAll({
         where: {
@@ -521,9 +542,9 @@ export default class UserService {
           detail: "Not found",
         });
       }
-      const result = <any>[]
-      allUser.map(user=>{
-        const _user = {...user.dataValues}
+      const result = <any>[];
+      allUser.map((user) => {
+        const _user = { ...user.dataValues };
         result.push({
           id: _user?.id,
           email: _user?.username,
@@ -533,8 +554,8 @@ export default class UserService {
           address: _user?.address,
           phoneNumber: _user?.phoneNumber,
           role: _user?.role,
-        })
-      })
+        });
+      });
       return res.onSuccess(result, {
         message: res.locals.t("get_user_success"),
       });
@@ -545,7 +566,7 @@ export default class UserService {
       });
     }
   }
-  
+
   /**
    * Update user profile
    */
@@ -605,8 +626,8 @@ export default class UserService {
         });
       }
       user.bankType = data.bankType;
-      user.bankCode = data.bankCode;
-      user.bankName = data.bankName || "";
+      user.bankCode = data.bankCode || null;
+      user.bankName = data.bankName || null;
       user.bankCardNumber = data.bankCardNumber;
       user.bankUserName = data.bankUserName;
       user.releaseDate = data.releaseDate || null;
@@ -630,8 +651,7 @@ export default class UserService {
       });
     }
   }
-  
-  
+
   /**
    * v1.2
    */
@@ -639,25 +659,28 @@ export default class UserService {
     try {
       const user = await this.usersModel.findOne({
         where: {
-          id: _user.id
-        }
-      })
+          id: _user.id,
+        },
+      });
       if (!user) {
         return res.onError({
           status: 404,
-          detail: res.locals.t('auth_user_not_found')
-        })
+          detail: res.locals.t("auth_user_not_found"),
+        });
       }
-      user.language = data.language
-      await user.save({ silent: true })
-      return res.onSuccess({}, {
-        message: res.locals.t('common_update_success')
-      })
+      user.language = data.language;
+      await user.save({ silent: true });
+      return res.onSuccess(
+        {},
+        {
+          message: res.locals.t("common_update_success"),
+        }
+      );
     } catch (error) {
       return res.onError({
         status: 500,
-        detail: error
-      })
+        detail: error,
+      });
     }
   }
 }

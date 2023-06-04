@@ -2,6 +2,7 @@
 import { BuildOptions, Model, Sequelize } from "sequelize";
 import DataType from "sequelize";
 import { EBankType, ETypeUser, LANG } from "common/general";
+import { IBankInfo } from "models/general";
 
 export interface UserAttributes extends Model {
   dataValues: any;
@@ -17,8 +18,8 @@ export interface UserAttributes extends Model {
   becomeStaffDate: Date;
   enterpriseId: number;
   bankType: number;
-  bankCode: string;
-  bankName: string;
+  bankCode: IBankInfo;
+  bankName: IBankInfo;
   bankCardNumber: string;
   bankUserName: string;
   releaseDate: Date;
@@ -87,9 +88,21 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): UsersInstance
       },
       bankCode: {
         type: DataTypes.STRING,
+        get() {
+          return JSON.parse(this.getDataValue('bankCode') || '{}');
+        },
+        set(value: any) {
+          this.setDataValue('bankCode', JSON.stringify(value || {}));
+        }
       },
       bankName: {
         type: DataTypes.STRING,
+        get() {
+          return JSON.parse(this.getDataValue('bankName') || '{}');
+        },
+        set(value: any) {
+          this.setDataValue('bankName', JSON.stringify(value || {}));
+        }
       },
       bankCardNumber: {
         type: DataTypes.STRING,

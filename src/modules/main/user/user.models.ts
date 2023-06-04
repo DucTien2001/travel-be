@@ -1,3 +1,5 @@
+import { IBankInfo } from "models/general";
+
 export interface IRegister {
   username: string;
   password: string;
@@ -54,8 +56,8 @@ export interface IUpdateUserProfile {
 
 export interface IUpdateUserBank {
   bankType: number;
-  bankCode: string;
-  bankName: string;
+  bankCode: IBankInfo;
+  bankName: IBankInfo;
   bankCardNumber: string;
   bankUserName: string;
   releaseDate: Date;

@@ -164,8 +164,14 @@ export default class UserValidation {
     const schema = yup
       .object({
         bankType: yup.number().integer(),
-        bankCode: yup.string(),
-        bankName: yup.string(),
+        bankCode: yup.object({
+          id: yup.number(),
+          name: yup.string(),
+        }),
+        bankName: yup.object({
+          id: yup.number(),
+          name: yup.string(),
+        }),
         bankCardNumber: yup.string(),
         bankUserName: yup.string(),
         releaseDate: yup.date(),

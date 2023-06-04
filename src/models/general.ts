@@ -260,3 +260,8 @@ export enum StayType {
   HOMESTAY,
   RESORT,
 }
+
+export interface IBankInfo {
+  id: number;
+  name: string;
+}
