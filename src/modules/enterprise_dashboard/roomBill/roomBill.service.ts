@@ -400,7 +400,10 @@ export default class TourBillService {
         roomBill.roomBillDetail.forEach((item) => {
           if(!roomIds.includes(item.roomInfo.id)) {
             roomIds.push(item.roomInfo.id)
-            roomBillDetails.push({...item})
+            roomBillDetails.push({
+              title: item.roomInfo.title,
+              amount: item.amount
+            })
           }
         })
         return {
