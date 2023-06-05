@@ -359,7 +359,7 @@ export default class StaffService {
   }
 
   /**
-   * Statistic for tour bill
+   * Statistic for room bill
    */
   public async statisticRoomBill(data: StatisticRoomBill, user: ModelsAttributes.User, res: Response) {
     try {
@@ -410,7 +410,7 @@ export default class StaffService {
         order: order,
       });
 
-      const startPoint = data.page * data.take;
+      const startPoint = (data.page - 1) * data.take;
       const result = statistics.slice(startPoint, startPoint + data.take - 1);
 
       return res.onSuccess(result, {
