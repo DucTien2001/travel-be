@@ -621,4 +621,33 @@ export default class TourBillService {
       });
     }
   }
+  
+  public async updateSendRevenue(revenueId: number, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const revenue = await this.stayRevenuesModel.findOne({
+        where: {
+          id: revenueId,
+        },
+      });
+      if (!revenue) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+
+      revenue.isReceivedRevenue = true;
+      await revenue.save({ transaction: t });
+      await t.commit();
+      return res.onSuccess(revenue, {
+        message: res.locals.t("update_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
 }

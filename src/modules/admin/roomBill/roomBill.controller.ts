@@ -113,4 +113,16 @@ export default class Controller {
       });
     }
   }
+
+  static updateSendRevenue(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const ServiceI = Container.get(Service);
+      ServiceI.updateSendRevenue(Number(id), res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }
