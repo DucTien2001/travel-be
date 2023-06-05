@@ -522,30 +522,6 @@ export default class TourBillService {
           [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
         ],
         where: roomBillWhereOptions,
-        // include: [
-        //   {
-        //     association: "stayInfo",
-        //     attributes: ["id", "name", "type", "owner"],
-        //     include: [
-        //       {
-        //         association: "stayOwner",
-        //         attributes: [
-        //           "id",
-        //           "username",
-        //           "firstName",
-        //           "lastName",
-        //           "address",
-        //           "phoneNumber",
-        //           "bankType",
-        //           "bankCode",
-        //           "bankName",
-        //           "bankCardNumber",
-        //           "bankUserName",
-        //         ],
-        //       },
-        //     ],
-        //   },
-        // ],
         group: "stayId",
       });
       const revenueCreations = roomBills.map((roomBill: any) => {
@@ -601,6 +577,30 @@ export default class TourBillService {
 
       const revenues = await this.stayRevenuesModel.findAndCountAll({
         where: whereOption,
+        include: [
+          {
+            association: "stayInfo",
+            attributes: ["id", "name", "type", "owner"],
+            include: [
+              {
+                association: "stayOwner",
+                attributes: [
+                  "id",
+                  "username",
+                  "firstName",
+                  "lastName",
+                  "address",
+                  "phoneNumber",
+                  "bankType",
+                  "bankCode",
+                  "bankName",
+                  "bankCardNumber",
+                  "bankUserName",
+                ],
+              },
+            ],
+          },
+        ],
         limit: data.take,
         offset: offset,
         distinct: true,
