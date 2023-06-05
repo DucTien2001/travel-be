@@ -549,6 +549,9 @@ export default class TourBillService {
         quantityOrdered: {
           [Op.gt]: 0,
         },
+        startDate: {
+          [Op.lte]: new Date(),
+        },
       };
       // ***** Start Search *********
       if (data.keyword) {

@@ -90,4 +90,27 @@ export default class Controller {
       });
     }
   }
+
+  static generateQuarterlyRevenue(req: Request, res: Response) {
+    try {
+      const ServiceI = Container.get(Service);
+      ServiceI.generateQuarterlyRevenue(res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+
+  static findAllStayRevenue(req: Request, res: Response) {
+    try {
+      const value = Validation.findAllStayRevenue(req);
+      const ServiceI = Container.get(Service);
+      ServiceI.findAllStayRevenue(value, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

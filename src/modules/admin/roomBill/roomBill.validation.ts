@@ -63,4 +63,19 @@ export default class TourBillValidation {
       .noUnknown();
     return schema.validateSync(req.query);
   }
+
+  static findAllStayRevenue(req: Request) {
+    const schema = yup
+      .object({
+        take: yup.number().integer().default(10),
+        page: yup.number().min(1).integer().default(1),
+        keyword: yup.string(),
+        month: yup.number().integer(),
+        year: yup.number().integer(),
+        section: yup.number().integer().default(1),
+        isReceivedRevenue: yup.boolean().default(false),
+      })
+      .noUnknown();
+    return schema.validateSync(req.query);
+  }
 }

@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
-import { ESortRoomBillOption, StatisticOneUser, StatisticAllUsers, StatisticOneStay, StatisticRoom, FindAllOrderNeedRefund } from "./roomBill.models";
+import {
+  ESortRoomBillOption,
+  StatisticOneUser,
+  StatisticAllUsers,
+  StatisticOneStay,
+  StatisticRoom,
+  FindAllOrderNeedRefund,
+  FindAllStayRevenue,
+} from "./roomBill.models";
 import { Response } from "express";
 import { Op, Order, Sequelize, WhereOptions } from "sequelize";
 import { EBillStatus, EPaymentStatus } from "models/general";
@@ -11,6 +19,7 @@ export default class TourBillService {
   constructor(
     @Inject("usersModel") private usersModel: ModelsInstance.Users,
     @Inject("staysModel") private staysModel: ModelsInstance.Stays,
+    @Inject("stayRevenuesModel") private stayRevenuesModel: ModelsInstance.StayRevenues,
     @Inject("roomsModel") private roomsModel: ModelsInstance.Rooms,
     @Inject("roomBillsModel") private roomBillsModel: ModelsInstance.RoomBills,
     @Inject("roomBillDetailsModel") private roomBillDetailsModel: ModelsInstance.RoomBillDetails
@@ -36,7 +45,7 @@ export default class TourBillService {
         usersWhereOption = {
           ...usersWhereOption,
           username: { [Op.substring]: data.keyword },
-        }
+        };
       }
       // ***** End Search *********
 
@@ -54,7 +63,7 @@ export default class TourBillService {
           ],
         };
       }
-      
+
       const statisticUsers = await this.usersModel.findAndCountAll({
         where: usersWhereOption,
         include: [
@@ -68,14 +77,14 @@ export default class TourBillService {
               [Sequelize.fn("sum", Sequelize.col("price")), "revenue"],
               [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
             ],
-          }
+          },
         ],
         group: "users.id",
         limit: data.take,
         offset: offset,
         distinct: true,
         order: order,
-      })
+      });
       if (!statisticUsers) {
         return res.onError({
           status: 404,
@@ -345,7 +354,7 @@ export default class TourBillService {
       });
     }
   }
-  
+
   public async findAllOrderNeedRefund(data: FindAllOrderNeedRefund, res: Response) {
     try {
       const offset = data.take * (data.page - 1);
@@ -420,7 +429,7 @@ export default class TourBillService {
         limit: data.take,
         offset: offset,
         distinct: true,
-        order: ["isRefunded", "updatedAt"]
+        order: ["isRefunded", "updatedAt"],
       });
       if (!bills) {
         return res.onError({
@@ -444,13 +453,13 @@ export default class TourBillService {
       });
     }
   }
-  
+
   public async updateRefunded(billId: number, res: Response) {
     const t = await sequelize.transaction();
     try {
       const bill = await this.roomBillsModel.findOne({
         where: {
-          id: billId
+          id: billId,
         },
       });
       if (!bill) {
@@ -460,11 +469,150 @@ export default class TourBillService {
         });
       }
 
-      bill.isRefunded = true
+      bill.isRefunded = true;
       await bill.save({ transaction: t });
       await t.commit();
       return res.onSuccess(bill, {
         message: res.locals.t("update_success"),
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async generateQuarterlyRevenue(res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const today = new Date("2023-6-1");
+      const date = today.getDate();
+      let month = today.getMonth();
+      const year = today.getFullYear();
+      let roomBillWhereOptions: WhereOptions = {};
+      if (date === 1) {
+        roomBillWhereOptions = {
+          ...roomBillWhereOptions,
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), month as any),
+            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), year as any),
+          ],
+          startDate: {
+            [Op.gte]: new Date(`${year}-${month}-16`),
+          },
+        };
+      } else {
+        month = month + 1;
+        roomBillWhereOptions = {
+          ...roomBillWhereOptions,
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), month as any),
+            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), year as any),
+          ],
+          startDate: {
+            [Op.lte]: new Date(`${year}-${month}-15`),
+          },
+        };
+      }
+      const roomBills = await this.roomBillsModel.findAll({
+        attributes: [
+          "stayId",
+          [Sequelize.fn("sum", Sequelize.col("totalBill")), "revenue"],
+          [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
+        ],
+        where: roomBillWhereOptions,
+        // include: [
+        //   {
+        //     association: "stayInfo",
+        //     attributes: ["id", "name", "type", "owner"],
+        //     include: [
+        //       {
+        //         association: "stayOwner",
+        //         attributes: [
+        //           "id",
+        //           "username",
+        //           "firstName",
+        //           "lastName",
+        //           "address",
+        //           "phoneNumber",
+        //           "bankType",
+        //           "bankCode",
+        //           "bankName",
+        //           "bankCardNumber",
+        //           "bankUserName",
+        //         ],
+        //       },
+        //     ],
+        //   },
+        // ],
+        group: "stayId",
+      });
+      const revenueCreations = roomBills.map((roomBill: any) => {
+        console.log(roomBill.revenue, "====roomBill.revenue===");
+        return {
+          stayId: roomBill.dataValues.stayId,
+          revenue: roomBill.dataValues.revenue,
+          commission: roomBill.dataValues.commission,
+          section: date === 1 ? 2 : 1,
+          month: month,
+          year: year,
+        };
+      });
+      if (revenueCreations.length) {
+        await this.stayRevenuesModel.bulkCreate(revenueCreations, {
+          transaction: t,
+        });
+      }
+      console.log(revenueCreations, roomBills, "===revenueCreations===");
+      await t.commit();
+      return res.onSuccess(revenueCreations);
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async findAllStayRevenue(data: FindAllStayRevenue, res: Response) {
+    try {
+      const offset = data.take * (data.page - 1);
+      // Start search
+      let whereOption: WhereOptions = {
+        isReceivedRevenue: data.isReceivedRevenue,
+        month: data.month,
+        year: data.year,
+        section: data.section,
+      };
+      if (data?.keyword) {
+        const stays = await this.staysModel.findAll({
+          attributes: ["id"],
+          where: {
+            name: { [Op.substring]: data.keyword },
+          },
+        });
+        const stayIds = stays.map((item) => item.id);
+        whereOption = {
+          ...whereOption,
+          stayId: stayIds,
+        };
+      }
+
+      const revenues = await this.stayRevenuesModel.findAndCountAll({
+        where: whereOption,
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+      });
+
+      return res.onSuccess(revenues.rows, {
+        meta: {
+          take: data.take,
+          itemCount: revenues.count,
+          page: data.page,
+          pageCount: Math.ceil(revenues.count / data.take),
+        },
       });
     } catch (error) {
       return res.onError({

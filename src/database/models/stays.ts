@@ -175,7 +175,7 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): StaysInstance
     });
     stays.belongsTo(models.users, {
       as: "stayOwner",
-      foreignKey: "creator",
+      foreignKey: "owner",
       constraints: false,
     });
     stays.hasMany(models.rooms, {

@@ -9,6 +9,7 @@ export interface TourBillAttributes extends Model {
   userId: number;
   tourId: number;
   tourOwnerId: number;
+  staffId: number;
   tourOnSaleId: number;
   amountChild: number;
   amountAdult: number;
@@ -58,6 +59,10 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
         type: DataTypes.INTEGER,
       },
       tourOwnerId: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
+      staffId: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
@@ -192,6 +197,11 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
       as: "userInfo",
       foreignKey: "userId",
       constraints: false,
+    });
+    tour_bills.belongsTo(models.users, {
+      as: 'staffInfo',
+      foreignKey: 'staffId',
+      constraints: false
     });
     tour_bills.belongsTo(models.users, {
       as: "enterpriseInfo",

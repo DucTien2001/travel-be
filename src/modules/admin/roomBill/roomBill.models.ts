@@ -40,3 +40,14 @@ export interface FindAllOrderNeedRefund {
   refundStatus: number;         // refundStatus === -1  --> All
 }                               // refundStatus === 0   --> Not refunded yet
                                 // refundStatus === 1   --> Refunded
+
+
+export interface FindAllStayRevenue {
+  take: number;
+  page: number;
+  keyword?: string; // stay name
+  month: number;
+  year: number;
+  section: number; // 1, 2
+  isReceivedRevenue: boolean;
+}

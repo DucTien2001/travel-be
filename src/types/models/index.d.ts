@@ -21,6 +21,7 @@ import { TranslationAttributes, TranslationsInstance } from "database/models/tra
 import { UserAttributes, UsersInstance } from "database/models/users";
 import { VerifyCodeAttributes, VerifyCodesInstance } from "database/models/verifyCodes";
 import { VNPayAttributes, VNPaysInstance } from "database/models/vnpays";
+import { StayRevenueAttributes, StayRevenuesInstance } from "database/models/stayRevenues";
 
 declare global {
   namespace ModelsAttributes {
@@ -31,6 +32,7 @@ declare global {
     export type VerifyCode = VerifyCodeAttributes;
     export type Tour = TourAttributes;
     export type Stay = StayAttributes;
+    export type StayRevenue = StayRevenueAttributes;
     export type Room = RoomAttributes;
     export type CheckRoom = CheckRoomAttributes;
     export type RoomOtherPrice = RoomOtherPriceAttributes;
@@ -57,6 +59,7 @@ declare global {
     export type VerifyCodes = VerifyCodesInstance;
     export type Tours = ToursInstance;
     export type Stays = StaysInstance;
+    export type StayRevenues = StayRevenuesInstance;
     export type Rooms = RoomsInstance;
     export type CheckRooms = CheckRoomsInstance;
     export type RoomOtherPrices = RoomOtherPricesInstance;
