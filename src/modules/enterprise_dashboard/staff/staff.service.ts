@@ -13,6 +13,8 @@ import { ESortStaffRevenueOption } from "models/general";
 export default class StaffService {
   constructor(
     @Inject("usersModel") private usersModel: ModelsInstance.Users,
+    @Inject("toursModel") private toursModel: ModelsInstance.Tours,
+    @Inject("tourOnSalesModel") private tourOnSalesModel: ModelsInstance.TourOnSales,
     @Inject("tourBillsModel") private tourBillsModel: ModelsInstance.TourBills,
     @Inject("roomBillsModel") private roomBillsModel: ModelsInstance.TourBills,
     @Inject("verifyCodesModel") private verifyCodesModel: ModelsInstance.VerifyCodes
@@ -271,17 +273,37 @@ export default class StaffService {
   public async statisticTourBill(data: StatisticTourBill, user: ModelsAttributes.User, res: Response) {
     try {
       const enterpriseId = user.id;
-      
+
+      // Get all tours owned
+      const listToursWhereOption: WhereOptions = {
+        owner: enterpriseId,
+        parentLanguage: null,
+      };
+      const listTours = await this.toursModel.findAndCountAll({
+        attributes: ["id"],
+        where: listToursWhereOption,
+      });
+      const _listTourIds = listTours.rows.map((item) => item.id);
+
       let whereOption: WhereOptions = {
         tourOwnerId: enterpriseId,
       };
       if (data.month > 0) {
-        whereOption = {
-          ...whereOption,
+        const listTourOnSalesWhereOption: WhereOptions = {
+          tourId: _listTourIds,
           [Op.and]: [
             Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
             Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
           ],
+        };
+        const listTourOnSales = await this.tourOnSalesModel.findAll({
+          attributes: ["id"],
+          where: listTourOnSalesWhereOption,
+        });
+        const _listTourOnSaleIds = listTourOnSales.map((item) => item.id);
+        whereOption = {
+          ...whereOption,
+          tourOnSaleId: _listTourOnSaleIds,
         };
       }
       let order: Order = null;
@@ -310,15 +332,15 @@ export default class StaffService {
         ],
         include: [
           {
-            association: "staffInfo"
-          }
+            association: "staffInfo",
+          },
         ],
         group: "staffId",
-        order: order
-      })
+        order: order,
+      });
 
-      const startPoint = data.page * data.take
-      const result = statistics.slice(startPoint, startPoint + data.take - 1)
+      const startPoint = data.page * data.take;
+      const result = statistics.slice(startPoint, startPoint + data.take - 1);
 
       return res.onSuccess(result, {
         meta: {
@@ -342,7 +364,7 @@ export default class StaffService {
   public async statisticRoomBill(data: StatisticRoomBill, user: ModelsAttributes.User, res: Response) {
     try {
       const enterpriseId = user.id;
-      
+
       let whereOption: WhereOptions = {
         tourOwnerId: enterpriseId,
       };
@@ -381,15 +403,15 @@ export default class StaffService {
         ],
         include: [
           {
-            association: "staffInfo"
-          }
+            association: "staffInfo",
+          },
         ],
         group: "staffId",
-        order: order
-      })
+        order: order,
+      });
 
-      const startPoint = data.page * data.take
-      const result = statistics.slice(startPoint, startPoint + data.take - 1)
+      const startPoint = data.page * data.take;
+      const result = statistics.slice(startPoint, startPoint + data.take - 1);
 
       return res.onSuccess(result, {
         meta: {
