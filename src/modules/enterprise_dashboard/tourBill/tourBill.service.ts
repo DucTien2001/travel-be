@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
-import { Filter, FindAll, StaffStatisticTourOnSales, StatisticAll, StatisticOneTour, StatisticTourOnSale, Update } from "./tourBill.models";
+import {
+  Filter,
+  FindAll,
+  FindAllStaffBill,
+  StaffStatisticTourOnSales,
+  StatisticAll,
+  StatisticOneTour,
+  StatisticTourOnSale,
+  Update,
+} from "./tourBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
 import { Op, Sequelize, WhereOptions } from "sequelize";
@@ -114,7 +123,7 @@ export default class TourBillService {
       const offset = data.take * (data.page - 1);
       let whereOption: WhereOptions = {
         tourOwnerId: enterpriseId,
-        paymentStatus: EPaymentStatus.PAID
+        paymentStatus: EPaymentStatus.PAID,
       };
       if (data.tourId !== -1) {
         whereOption = {
@@ -217,6 +226,9 @@ export default class TourBillService {
 
       if (data?.status) {
         tourBill.status = data.status;
+        if (data.status === EBillStatus.CONTACTED) {
+          tourBill.staffId = user.id;
+        }
       }
 
       await tourBill.save({ transaction: t });
@@ -592,6 +604,80 @@ export default class TourBillService {
         limit: data.take,
         offset: offset,
         distinct: true,
+      });
+      if (!bills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+
+      return res.onSuccess(bills.rows, {
+        meta: {
+          take: data.take,
+          itemCount: bills.count,
+          page: data.page,
+          pageCount: Math.ceil(bills.count / data.take),
+        },
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async findAllStaffBill(staffId: number, data: FindAllStaffBill, user: ModelsAttributes.User, res: Response) {
+    try {
+      const enterpriseId = user.enterpriseId || user.id;
+      const offset = data.take * (data.page - 1);
+      let whereOption: WhereOptions = {
+        tourOwnerId: enterpriseId,
+        paymentStatus: EPaymentStatus.PAID,
+        staffId: staffId,
+      };
+      // Get all tour on sales of the tour
+      let listTourOnSalesWhereOption: WhereOptions = {
+        [Op.and]: [
+          Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
+          Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
+        ],
+      };
+      if (data.tourId !== -1) {
+        listTourOnSalesWhereOption = {
+          ...listTourOnSalesWhereOption,
+          tourId: data.tourId,
+        };
+      }
+      const listTourOnSales = await this.tourOnSalesModel.findAll({
+        attributes: ["id"],
+        where: listTourOnSalesWhereOption,
+      });
+      const _listTourOnSaleIds = listTourOnSales.map((item) => item.id);
+
+      whereOption = {
+        ...whereOption,
+        tourOnSaleId: _listTourOnSaleIds,
+      };
+
+      // filter
+      if (data.status !== -1) {
+        whereOption = {
+          ...whereOption,
+          status: data.status,
+        };
+      }
+      
+      const bills = await this.tourBillsModel.findAndCountAll({
+        where: whereOption,
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+        order: [
+          ["tourOnSaleId", "ASC"],
+          ["tourId", "ASC"],
+        ],
       });
       if (!bills) {
         return res.onError({

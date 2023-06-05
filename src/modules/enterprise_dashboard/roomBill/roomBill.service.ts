@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
-import { FindAll, StatisticAll, StatisticOneStay, StatisticRoom, Update } from "./roomBill.models";
+import { FindAll, FindAllStaffBill, StatisticAll, StatisticOneStay, StatisticRoom, Update } from "./roomBill.models";
 import { sequelize } from "database/models";
 import { Response } from "express";
 import { Op, Sequelize, WhereOptions } from "sequelize";
@@ -227,6 +227,9 @@ export default class TourBillService {
 
       if (data?.status) {
         roomBill.status = data.status;
+        if (data.status === EBillStatus.CONTACTED) {
+          roomBill.staffId = user.id;
+        }
       }
 
       await roomBill.save({ transaction: t });
@@ -472,6 +475,89 @@ export default class TourBillService {
       });
 
       return res.onSuccess(roomBillDetails);
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  public async findAllStaffBill(staffId: number, data: FindAllStaffBill, user: ModelsAttributes.User, res: Response) {
+    try {
+      const enterpriseId = user.enterpriseId || user.id;
+      const offset = data.take * (data.page - 1);
+      let whereOption: WhereOptions = {
+        stayOwnerId: enterpriseId,
+        stayId: data.stayId,
+        staffId: staffId,
+        [Op.and]: [
+          Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
+          Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
+        ],
+      };
+      if (data.status !== -1) {
+        whereOption = {
+          ...whereOption,
+          status: data.status,
+        };
+      }
+      const bills = await this.roomBillsModel.findAndCountAll({
+        where: whereOption,
+        include: [
+          {
+            association: "roomBillDetail",
+            include: [
+              {
+                attributes: ["title"],
+                association: "roomInfo",
+              },
+            ],
+            order: [
+              ["roomId", "ASC"],
+              ["bookedDate", "ASC"],
+            ],
+          },
+        ],
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+        order: ["startDate", "ASC"]
+      });
+      if (!bills) {
+        return res.onError({
+          status: 404,
+          detail: "not_found",
+        });
+      }
+
+      const result = bills.rows?.map((bill) => {
+        const bookedRoomsInfo: any[] = [];
+        const bookedRoomIds: number[] = [];
+        bill.roomBillDetail.forEach((item) => {
+          if (!bookedRoomIds.includes(item.roomId)) {
+            bookedRoomIds.push(item.roomId);
+            bookedRoomsInfo.push({
+              title: item.roomInfo.title,
+              amount: item.amount,
+            });
+          }
+        });
+        return {
+          ...bill.dataValues,
+          stayData: JSON.parse(bill.dataValues.stayData),
+          bookedRoomsInfo: bookedRoomsInfo,
+        };
+      });
+
+      return res.onSuccess(result, {
+        meta: {
+          take: data.take,
+          itemCount: bills.count,
+          page: data.page,
+          pageCount: Math.ceil(bills.count / data.take),
+        },
+      });
     } catch (error) {
       return res.onError({
         status: 500,

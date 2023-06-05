@@ -22,4 +22,30 @@ export default class Validation {
       .noUnknown();
     return schema.validateSync(req.body);
   }
+  
+  static statisticTourBill(req: Request) {
+    const schema = yup
+      .object({
+        take: yup.number().min(1).integer().default(10),
+        page: yup.number().min(1).integer().default(1),
+        month: yup.number().integer(),
+        year: yup.number().integer(),
+        sort: yup.number().integer(),
+      })
+      .noUnknown();
+    return schema.validateSync(req.query);
+  }
+  
+  static statisticRoomBill(req: Request) {
+    const schema = yup
+      .object({
+        take: yup.number().min(1).integer().default(10),
+        page: yup.number().min(1).integer().default(1),
+        month: yup.number().integer(),
+        year: yup.number().integer(),
+        sort: yup.number().integer(),
+      })
+      .noUnknown();
+    return schema.validateSync(req.query);
+  }
 }

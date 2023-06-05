@@ -90,4 +90,17 @@ export default class UserController {
       });
     }
   }
+  
+  static findAllStaffBill(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = TourBillValidation.findAllStaffBill(req);
+      const TourBillServiceI = Container.get(TourBillService);
+      TourBillServiceI.findAllStaffBill(Number(id), value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

@@ -31,3 +31,12 @@ export interface StatisticRoom {
   month: number;
   year: number;
 }
+
+export interface FindAllStaffBill {
+  take: number;
+  page: number;
+  stayId: number;
+  month: number;
+  year: number;
+  status: number;         // status === -1  --> All    -   EBillStatus
+}

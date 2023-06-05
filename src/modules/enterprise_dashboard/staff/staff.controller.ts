@@ -75,4 +75,28 @@ export default class StaffController {
       });
     }
   }
+  
+  static statisticTourBill(req: Request, res: Response) {
+    try {
+      const value = Validation.statisticTourBill(req);
+      const ServiceI = Container.get(Service);
+      ServiceI.statisticTourBill(value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
+  
+  static statisticRoomBill(req: Request, res: Response) {
+    try {
+      const value = Validation.statisticRoomBill(req);
+      const ServiceI = Container.get(Service);
+      ServiceI.statisticRoomBill(value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

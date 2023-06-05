@@ -89,4 +89,17 @@ export default class Controller {
       });
     }
   }
+  
+  static findAllStaffBill(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const value = Validation.findAllStaffBill(req);
+      const ServiceI = Container.get(Service);
+      ServiceI.findAllStaffBill(Number(id), value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

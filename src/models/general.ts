@@ -265,3 +265,10 @@ export interface IBankInfo {
   id: number;
   name: string;
 }
+
+export enum ESortStaffRevenueOption {
+  LOWEST_BILL = 0,
+  HIGHEST_BILL,
+  LOWEST_REVENUE,
+  HIGHEST_REVENUE,
+}

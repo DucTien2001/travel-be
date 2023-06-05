@@ -1,16 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
-import { ChangeRole, FindAll, SendOffer } from "./staff.models";
+import { FindAll, SendOffer, StatisticRoomBill, StatisticTourBill } from "./staff.models";
 import { Response } from "express";
-import { WhereOptions } from "sequelize/types";
+import { Op, Order, Sequelize, WhereOptions } from "sequelize";
 import EmailService from "services/emailService";
 import { sequelize } from "database/models";
 import { ETypeUser, ETypeVerifyCode } from "common/general";
 import moment from "moment";
+import { ESortStaffRevenueOption } from "models/general";
 
 @Service()
 export default class StaffService {
   constructor(
     @Inject("usersModel") private usersModel: ModelsInstance.Users,
+    @Inject("tourBillsModel") private tourBillsModel: ModelsInstance.TourBills,
+    @Inject("roomBillsModel") private roomBillsModel: ModelsInstance.TourBills,
     @Inject("verifyCodesModel") private verifyCodesModel: ModelsInstance.VerifyCodes
   ) {}
   /**
@@ -253,6 +257,148 @@ export default class StaffService {
           message: res.locals.t("common_update_success"),
         }
       );
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Statistic for tour bill
+   */
+  public async statisticTourBill(data: StatisticTourBill, user: ModelsAttributes.User, res: Response) {
+    try {
+      const enterpriseId = user.id;
+      
+      let whereOption: WhereOptions = {
+        tourOwnerId: enterpriseId,
+      };
+      if (data.month > 0) {
+        whereOption = {
+          ...whereOption,
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
+            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
+          ],
+        };
+      }
+      let order: Order = null;
+      if (!isNaN(data?.sort)) {
+        switch (data.sort) {
+          case ESortStaffRevenueOption.LOWEST_BILL:
+            order = [[Sequelize.col("numberOfBills"), "ASC"]];
+            break;
+          case ESortStaffRevenueOption.HIGHEST_BILL:
+            order = [[Sequelize.col("numberOfBills"), "DESC"]];
+            break;
+          case ESortStaffRevenueOption.LOWEST_REVENUE:
+            order = [[Sequelize.col("revenue"), "ASC"]];
+            break;
+          case ESortStaffRevenueOption.HIGHEST_REVENUE:
+            order = [[Sequelize.col("revenue"), "DESC"]];
+            break;
+        }
+      }
+      const statistics = await this.tourBillsModel.findAll({
+        where: whereOption,
+        attributes: [
+          "staffId",
+          [Sequelize.fn("count", Sequelize.col("tour_bills.id")), "numberOfBills"],
+          [Sequelize.fn("sum", Sequelize.col("totalBill")), "revenue"],
+        ],
+        include: [
+          {
+            association: "staffInfo"
+          }
+        ],
+        group: "staffId",
+        order: order
+      })
+
+      const startPoint = data.page * data.take
+      const result = statistics.slice(startPoint, startPoint + data.take - 1)
+
+      return res.onSuccess(result, {
+        meta: {
+          take: data.take,
+          itemCount: statistics.length,
+          page: data.page,
+          pageCount: Math.ceil(statistics.length / data.take),
+        },
+      });
+    } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+
+  /**
+   * Statistic for tour bill
+   */
+  public async statisticRoomBill(data: StatisticRoomBill, user: ModelsAttributes.User, res: Response) {
+    try {
+      const enterpriseId = user.id;
+      
+      let whereOption: WhereOptions = {
+        tourOwnerId: enterpriseId,
+      };
+      if (data.month > 0) {
+        whereOption = {
+          ...whereOption,
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
+            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
+          ],
+        };
+      }
+      let order: Order = null;
+      if (!isNaN(data?.sort)) {
+        switch (data.sort) {
+          case ESortStaffRevenueOption.LOWEST_BILL:
+            order = [[Sequelize.col("numberOfBills"), "ASC"]];
+            break;
+          case ESortStaffRevenueOption.HIGHEST_BILL:
+            order = [[Sequelize.col("numberOfBills"), "DESC"]];
+            break;
+          case ESortStaffRevenueOption.LOWEST_REVENUE:
+            order = [[Sequelize.col("revenue"), "ASC"]];
+            break;
+          case ESortStaffRevenueOption.HIGHEST_REVENUE:
+            order = [[Sequelize.col("revenue"), "DESC"]];
+            break;
+        }
+      }
+      const statistics = await this.roomBillsModel.findAll({
+        where: whereOption,
+        attributes: [
+          "staffId",
+          [Sequelize.fn("count", Sequelize.col("room_bills.id")), "numberOfBills"],
+          [Sequelize.fn("sum", Sequelize.col("totalBill")), "revenue"],
+        ],
+        include: [
+          {
+            association: "staffInfo"
+          }
+        ],
+        group: "staffId",
+        order: order
+      })
+
+      const startPoint = data.page * data.take
+      const result = statistics.slice(startPoint, startPoint + data.take - 1)
+
+      return res.onSuccess(result, {
+        meta: {
+          take: data.take,
+          itemCount: statistics.length,
+          page: data.page,
+          pageCount: Math.ceil(statistics.length / data.take),
+        },
+      });
     } catch (error) {
       return res.onError({
         status: 500,

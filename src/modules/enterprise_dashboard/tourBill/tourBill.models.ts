@@ -41,3 +41,12 @@ export interface StaffStatisticTourOnSales {
   isPast: boolean;
   tourId: number;   // tourId === -1  --> All
 }
+
+export interface FindAllStaffBill {
+  take: number;
+  page: number;
+  month: number;
+  year: number;
+  tourId: number;         // tourId === -1  --> All
+  status: number;         // status === -1  --> All    -   EBillStatus
+}

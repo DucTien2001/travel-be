@@ -69,4 +69,18 @@ export default class TourBillValidation {
       .noUnknown();
     return schema.validateSync(req.query);
   }
+  
+  static findAllStaffBill(req: Request) {
+    const schema = yup
+      .object({
+        take: yup.number().integer().default(10),
+        page: yup.number().min(1).integer().default(1),
+        tourId: yup.number().default(-1),
+        status: yup.number().default(-1),
+        month: yup.number().integer(),
+        year: yup.number().integer(),
+      })
+      .noUnknown();
+    return schema.validateSync(req.query);
+  }
 }

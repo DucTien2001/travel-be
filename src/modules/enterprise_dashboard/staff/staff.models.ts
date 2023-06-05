@@ -14,3 +14,19 @@ export interface ChangeRole {
   userId: number;
   role: ETypeUser;
 }
+
+export interface StatisticTourBill {
+  take: number;
+  page: number;
+  month: number;
+  year: number;
+  sort: number;    //ESortStaffRevenueOption
+}
+
+export interface StatisticRoomBill {
+  take: number;
+  page: number;
+  month: number;
+  year: number;
+  sort: number;    //ESortStaffRevenueOption
+}
