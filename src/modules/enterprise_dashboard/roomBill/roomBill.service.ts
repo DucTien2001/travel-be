@@ -252,85 +252,84 @@ export default class TourBillService {
   public async statisticAll(data: StatisticAll, user: ModelsAttributes.User, res: Response) {
     try {
       const enterpriseId = user.id;
-      const offset = data.take * (data.page - 1);
-
-      // Get all stays owned
-      let listStaysWhereOption: WhereOptions = {
-        owner: enterpriseId,
-        parentLanguage: null,
-      };
-      if (data.keyword) {
-        listStaysWhereOption = {
-          [Op.and]: [{ ...listStaysWhereOption }, { name: { [Op.substring]: data.keyword } }],
-        };
-      }
-      const listStays = await this.staysModel.findAndCountAll({
-        attributes: ["id", "name", "type"],
-        where: listStaysWhereOption,
-        limit: data.take,
-        offset: offset,
-        distinct: true,
-      });
-
-      const _listStayIds = listStays.rows.map((item) => item.id);
 
       // Statistic by roomBillDetail
-      let roomBillDetailsWhereOption: WhereOptions = {
-        stayId: _listStayIds,
+      let roomBillsWhereOption: WhereOptions = {
+        stayOwnerId: enterpriseId,
         paymentStatus: EPaymentStatus.PAID,
         status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
       };
+
+      // Start search
+      if (data.keyword) {
+        const listStaysWhereOption: WhereOptions = {
+          owner: enterpriseId,
+          parentLanguage: null,
+          name: { [Op.substring]: data.keyword },
+        };
+        const listStays = await this.staysModel.findAll({
+          attributes: ["id", "name", "type"],
+          where: listStaysWhereOption,
+        });
+
+        const _listStayIds = listStays.map((item) => item.id);
+        roomBillsWhereOption = {
+          ...roomBillsWhereOption,
+          stayId: _listStayIds,
+        };
+      }
+      // End search
+
       if (data.month > 0) {
-        roomBillDetailsWhereOption = {
-          ...roomBillDetailsWhereOption,
+        roomBillsWhereOption = {
+          ...roomBillsWhereOption,
           [Op.and]: [
-            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("bookedDate")), data.month as any),
-            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("bookedDate")), data.year as any),
+            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
+            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
           ],
         };
       }
-      const roomBillDetails = await this.roomBillDetailsModel.findAll({
-        where: roomBillDetailsWhereOption,
+      const roomBillDetails = await this.roomBillsModel.findAll({
+        where: roomBillsWhereOption,
         include: [
           {
             association: "stayInfo",
             attributes: ["id", "name", "type"],
           },
+          {
+            association: "roomBillDetail",
+            attributes: ["id", "roomId", "billId", "amount"],
+          },
         ],
         attributes: [
           "stayId",
-          [Sequelize.literal("COUNT(DISTINCT(billId))"), "numberOfBookings"],
-          [Sequelize.fn("sum", Sequelize.col("amount")), "totalNumberOfRoom"],
-          [Sequelize.fn("sum", Sequelize.col("price")), "revenue"],
-          [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
+          // [Sequelize.literal("COUNT(DISTINCT(billId))"), "numberOfBookings"],
+          [Sequelize.fn("count", Sequelize.col("room_bills.id")), "numberOfBookings"],
+          // [Sequelize.fn("sum", Sequelize.col("amount")), "totalNumberOfRoom"],
+          [Sequelize.fn("sum", Sequelize.col("room_bills.totalBill")), "revenue"],
+          [Sequelize.fn("sum", Sequelize.col("room_bills.commission")), "commission"],
         ],
         group: "stayId",
       });
 
-      const validStayIds = roomBillDetails.map((item) => item.stayId);
+      const startPoint = (data.page - 1) * data.take;
+      const result = roomBillDetails
+        .map((roomBill) => {
+          let totalNumberOfRoom = 0;
+          roomBill.roomBillDetail.forEach((item) => (totalNumberOfRoom = totalNumberOfRoom + item.amount));
+          return {
+            ...roomBill.dataValues,
+            totalNumberOfRoom,
+          };
+        })
+        .slice(startPoint, startPoint + data.take - 1);
 
-      let result: any = [...roomBillDetails];
-      listStays.rows.forEach((item) => {
-        if (!validStayIds.includes(item.id)) {
-          result = [
-            ...result,
-            {
-              stayId: item.id,
-              numberOfBookings: 0,
-              revenue: 0,
-              commission: 0,
-              stayInfo: item,
-            },
-          ];
-        }
-      });
-      result = result.sort((a: any, b: any) => a.stayId - b.stayId);
       return res.onSuccess(result, {
         meta: {
           take: data.take,
-          itemCount: listStays.count,
+          itemCount: roomBillDetails.length,
           page: data.page,
-          pageCount: Math.ceil(listStays.count / data.take),
+          pageCount: Math.ceil(roomBillDetails.length / data.take),
         },
       });
     } catch (error) {
@@ -344,6 +343,7 @@ export default class TourBillService {
   public async statisticOneStay(stayId: number, data: StatisticOneStay, user: ModelsAttributes.User, res: Response) {
     try {
       const enterpriseId = user.id;
+      const offset = data.take * (data.page - 1);
 
       // Check stay owner
       const stay = await this.staysModel.findOne({
@@ -360,78 +360,34 @@ export default class TourBillService {
         });
       }
 
-      // Get all rooms of the stay
-      const offset = data.take * (data.page - 1);
-      const listRooms = await this.roomsModel.findAndCountAll({
-        attributes: ["id", "title", "numberOfBed", "numberOfRoom", "numberOfAdult", "numberOfChildren"],
-        where: {
-          stayId: stayId,
-          parentLanguage: null,
-        },
-        limit: data.take,
-        offset: offset,
-        distinct: true,
-      });
-      const _listRoomIds = listRooms.rows.map((item) => item.id);
-
-      // Statistic by roomBillDetail
-      let roomBillDetailsWhereOption: WhereOptions = {
-        roomId: _listRoomIds,
+      let roomBillsWhereOption: WhereOptions = {
+        stayOwnerId: enterpriseId,
         paymentStatus: EPaymentStatus.PAID,
         status: { [Op.notIn]: [EBillStatus.CANCELED, EBillStatus.RESCHEDULED, EBillStatus.WAITING_RESCHEDULE_SUCCESS] },
+        stayId: stayId,
       };
       if (data.month > 0) {
-        roomBillDetailsWhereOption = {
-          ...roomBillDetailsWhereOption,
+        roomBillsWhereOption = {
+          ...roomBillsWhereOption,
           [Op.and]: [
-            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("bookedDate")), data.month as any),
-            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("bookedDate")), data.year as any),
+            Sequelize.where(Sequelize.fn("MONTH", Sequelize.col("startDate")), data.month as any),
+            Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("startDate")), data.year as any),
           ],
         };
       }
-      const roomBillDetails = await this.roomBillDetailsModel.findAll({
-        where: roomBillDetailsWhereOption,
-        include: [
-          {
-            association: "roomInfo",
-            attributes: ["id", "title", "numberOfBed", "numberOfRoom", "numberOfAdult", "numberOfChildren"],
-          },
-        ],
-        attributes: [
-          "roomId",
-          [Sequelize.literal("COUNT(DISTINCT(billId))"), "numberOfBookings"],
-          [Sequelize.fn("sum", Sequelize.col("amount")), "totalNumberOfRoom"],
-          [Sequelize.fn("sum", Sequelize.col("price")), "revenue"],
-          [Sequelize.fn("sum", Sequelize.col("commission")), "commission"],
-        ],
-        group: "roomId",
-      });
+      const roomBills = await this.roomBillsModel.findAndCountAll({
+        where: roomBillsWhereOption,
+        limit: data.take,
+        offset: offset,
+        distinct: true,
+      })
 
-      const validRoomIds = roomBillDetails.map((item) => item.stayId);
-
-      let result: any = [...roomBillDetails];
-      listRooms.rows.forEach((item) => {
-        if (!validRoomIds.includes(item.id)) {
-          result = [
-            ...result,
-            {
-              roomId: item.id,
-              numberOfBookings: 0,
-              revenue: 0,
-              commission: 0,
-              roomInfo: item,
-            },
-          ];
-        }
-      });
-      result = result.sort((a: any, b: any) => a.roomId - b.roomId);
-
-      return res.onSuccess(result, {
+      return res.onSuccess(roomBills.rows, {
         meta: {
           take: data.take,
-          itemCount: listRooms.count,
+          itemCount: roomBills.count,
           page: data.page,
-          pageCount: Math.ceil(listRooms.count / data.take),
+          pageCount: Math.ceil(roomBills.count / data.take),
         },
       });
     } catch (error) {
@@ -522,7 +478,7 @@ export default class TourBillService {
         limit: data.take,
         offset: offset,
         distinct: true,
-        order: ["startDate", "ASC"]
+        order: [["startDate", "ASC"]],
       });
       if (!bills) {
         return res.onError({
