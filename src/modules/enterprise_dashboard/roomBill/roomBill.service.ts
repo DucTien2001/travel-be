@@ -408,7 +408,7 @@ export default class TourBillService {
         })
         return {
           ...roomBill.dataValues,
-          roomBillDetails: roomBillDetails
+          roomBillDetail: roomBillDetails
         }
       })
 
