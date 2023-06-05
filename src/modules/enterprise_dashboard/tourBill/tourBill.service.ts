@@ -362,32 +362,30 @@ export default class TourBillService {
   public async statisticAll(data: StatisticAll, user: ModelsAttributes.User, res: Response) {
     try {
       const enterpriseId = user.id;
-      const offset = data.take * (data.page - 1);
 
-      // Get all tours owned
-      let listToursWhereOption: WhereOptions = {
-        owner: enterpriseId,
-        parentLanguage: null,
-      };
+      let tourOnSalesWhereOption: WhereOptions = {};
+      // Start search
       if (data.keyword) {
-        listToursWhereOption = {
-          [Op.and]: [{ ...listToursWhereOption }, { title: { [Op.substring]: data.keyword } }],
+        const listToursWhereOption: WhereOptions = {
+          owner: enterpriseId,
+          parentLanguage: null,
+          title: { [Op.substring]: data.keyword },
+        };
+        const listTours = await this.toursModel.findAll({
+          attributes: ["id", "title", "numberOfDays", "numberOfNights"],
+          where: listToursWhereOption,
+        });
+
+        const _listTourIds = listTours.map((item) => item.id);
+
+        tourOnSalesWhereOption = {
+          ...tourOnSalesWhereOption,
+          tourId: _listTourIds,
         };
       }
-      const listTours = await this.toursModel.findAndCountAll({
-        attributes: ["id", "title", "numberOfDays", "numberOfNights"],
-        where: listToursWhereOption,
-        limit: data.take,
-        offset: offset,
-        distinct: true,
-      });
-
-      const _listTourIds = listTours.rows.map((item) => item.id);
+      // End search
 
       // get all qualified tourOnSales
-      let tourOnSalesWhereOption: WhereOptions = {
-        tourId: _listTourIds,
-      };
       if (data.month > 0) {
         tourOnSalesWhereOption = {
           ...tourOnSalesWhereOption,
@@ -444,31 +442,15 @@ export default class TourBillService {
           detail: "not_found",
         });
       }
-      const _tourBillIds = tourBills.map((item) => item.tourId);
-      let result: any = [...tourBills];
-      listTours.rows.forEach((item) => {
-        if (!_tourBillIds.includes(item.id)) {
-          result = [
-            ...result,
-            {
-              tourId: item.id,
-              numberOfBookings: 0,
-              totalAmountChild: 0,
-              totalAmountAdult: 0,
-              revenue: 0,
-              commission: 0,
-              tourInfo: item,
-            },
-          ];
-        }
-      });
-      result = result.sort((a: any, b: any) => a.tourId - b.tourId);
+
+      const startPoint = (data.page - 1) * data.take;
+      const result = tourBills.slice(startPoint, startPoint + data.take - 1);
       return res.onSuccess(result, {
         meta: {
           take: data.take,
-          itemCount: listTours.count,
+          itemCount: tourBills.length,
           page: data.page,
-          pageCount: Math.ceil(listTours.count / data.take),
+          pageCount: Math.ceil(tourBills.length / data.take),
         },
       });
     } catch (error) {
@@ -668,7 +650,7 @@ export default class TourBillService {
           status: data.status,
         };
       }
-      
+
       const bills = await this.tourBillsModel.findAndCountAll({
         where: whereOption,
         limit: data.take,
