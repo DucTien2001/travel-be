@@ -366,7 +366,7 @@ export default class StaffService {
       const enterpriseId = user.id;
 
       let whereOption: WhereOptions = {
-        tourOwnerId: enterpriseId,
+        stayOwnerId: enterpriseId,
       };
       if (data.month > 0) {
         whereOption = {
