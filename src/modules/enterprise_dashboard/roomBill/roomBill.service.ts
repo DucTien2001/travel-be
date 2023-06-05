@@ -380,7 +380,13 @@ export default class TourBillService {
         include: [
           {
             association: "roomBillDetail",
-            attributes: ["id", "billId", "roomId", "stayId", "amount", "bookedDate"],
+            attributes: ["id", "amount"],
+            include: [
+              {
+                association: "roomInfo",
+                attributes: ["id", "title"]
+              }
+            ]
           },
         ],
         limit: data.take,
@@ -388,7 +394,22 @@ export default class TourBillService {
         distinct: true,
       });
 
-      return res.onSuccess(roomBills.rows, {
+      const result = roomBills.rows.map((roomBill) => {
+        const roomBillDetails: any[] = []
+        const roomIds: number[] = []
+        roomBill.roomBillDetail.forEach((item) => {
+          if(!roomIds.includes(item.roomInfo.id)) {
+            roomIds.push(item.roomInfo.id)
+            roomBillDetails.push({...item})
+          }
+        })
+        return {
+          ...roomBill.dataValues,
+          roomBillDetails: roomBillDetails
+        }
+      })
+
+      return res.onSuccess(result, {
         meta: {
           take: data.take,
           itemCount: roomBills.count,
