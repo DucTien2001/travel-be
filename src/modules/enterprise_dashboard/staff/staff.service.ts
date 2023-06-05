@@ -339,7 +339,7 @@ export default class StaffService {
         order: order,
       });
 
-      const startPoint = data.page * data.take;
+      const startPoint = (data.page - 1) * data.take;
       const result = statistics.slice(startPoint, startPoint + data.take - 1);
 
       return res.onSuccess(result, {
