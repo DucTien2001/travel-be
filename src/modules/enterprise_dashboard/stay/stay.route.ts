@@ -13,4 +13,4 @@ router
   .route("/:id")
   .get(staff, Controller.findOne)
   .put(staff, Controller.update)
-  // .delete(staff, Controller.delete)
+  .delete(staff, Controller.delete)

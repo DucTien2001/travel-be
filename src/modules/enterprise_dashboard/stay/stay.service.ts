@@ -318,7 +318,7 @@ export default class StayService {
         await t.rollback();
         return res.onError({
           status: 404,
-          detail: "Room not found",
+          detail: "Stay not found",
         });
       }
       stay.isDeleted = true;
