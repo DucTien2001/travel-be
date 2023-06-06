@@ -80,4 +80,17 @@ export default class Validation {
       .required();
     return schema.validateSync(req.body);
   }
+
+  static createOrUpdateCheckRoom(req: Request) {
+    const schema = yup
+      .object({
+        date: yup.date(),
+        amount: yup.number(),
+        stayId: yup.number(),
+        roomId: yup.number(),
+      })
+      .noUnknown()
+      .required();
+    return schema.validateSync(req.body);
+  }
 }

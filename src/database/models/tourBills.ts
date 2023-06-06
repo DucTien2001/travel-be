@@ -63,7 +63,6 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): TourBillsInst
         type: DataTypes.INTEGER,
       },
       staffId: {
-        allowNull: false,
         type: DataTypes.INTEGER,
       },
       tourOnSaleId: {

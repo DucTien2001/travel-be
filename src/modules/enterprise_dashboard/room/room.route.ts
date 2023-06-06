@@ -10,6 +10,10 @@ router
   .post(staff, Controller.create);
 
 router
+  .route("/check-room")
+  .put(staff, Controller.createOrUpdateCheckRoom)
+
+router
   .route("/:id")
   .get(staff, Controller.findOne)
   .put(staff, Controller.update)

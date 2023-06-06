@@ -65,4 +65,16 @@ export default class Controller {
       });
     }
   }
+
+  static createOrUpdateCheckRoom(req: Request, res: Response) {
+    try {
+      const value = Validation.createOrUpdateCheckRoom(req);
+      const ServiceI = Container.get(Service);
+      ServiceI.createOrUpdateCheckRoom(value, req.user, res);
+    } catch (error) {
+      return res.onError({
+        detail: error,
+      });
+    }
+  }
 }

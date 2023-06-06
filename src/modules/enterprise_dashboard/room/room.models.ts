@@ -59,3 +59,11 @@ export interface Update {
             // ví dụ ban đầu có 5 image: [1, 2, 3, 4, 5] và xóa đi image 2 và 4 thì:
             // field images: [1, 3, 5]
             // field imagesDeleted: [2, 4]
+
+            
+export interface CreateOrUpdateCheckRoom {
+  date: Date;
+  amount: number;
+  stayId: number;
+  roomId: number;
+}

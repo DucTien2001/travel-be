@@ -57,7 +57,6 @@ export default (sequelize: Sequelize, DataTypes: typeof DataType): RoomBillsInst
         type: DataTypes.INTEGER,
       },
       staffId: {
-        allowNull: false,
         type: DataTypes.INTEGER,
       },
       startDate: {

@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Service } from "typedi";
-import { Create, ERoomStatusFilter, FindAll, FindOne, Update } from "./room.models";
+import { Create, CreateOrUpdateCheckRoom, ERoomStatusFilter, FindAll, FindOne, Update } from "./room.models";
 import { Response } from "express";
-import { WhereOptions } from "sequelize";
+import { Op, Sequelize, WhereOptions } from "sequelize";
 import { sequelize } from "database/models";
 import GetLanguage from "services/getLanguage";
 import { roomLangFields } from "models/langField";
@@ -11,7 +12,8 @@ import FileService from "services/file";
 export default class RoomService {
   constructor(
     @Inject("roomsModel") private roomsModel: ModelsInstance.Rooms,
-    @Inject("staysModel") private staysModel: ModelsInstance.Stays
+    @Inject("staysModel") private staysModel: ModelsInstance.Stays,
+    @Inject("checkRoomsModel") private checkRoomsModel: ModelsInstance.CheckRooms,
   ) {}
   /**
    * Find all
@@ -402,6 +404,60 @@ export default class RoomService {
         message: res.locals.t("common_delete_success"),
       });
     } catch (error) {
+      return res.onError({
+        status: 500,
+        detail: error,
+      });
+    }
+  }
+  
+  public async createOrUpdateCheckRoom(data: CreateOrUpdateCheckRoom, user: ModelsAttributes.User, res: Response) {
+    const t = await sequelize.transaction();
+    try {
+      const room = await this.roomsModel.findOne({
+        where: {
+          id: data.roomId
+        }
+      })
+      if (!room) {
+        return res.onError({
+          status: 404,
+          detail: "Room not found",
+        });
+      }
+      if (room.numberOfRoom < data.amount) {
+        return res.onError({
+          status: 409,
+          detail: "The number of rooms must not be greater than the original number of rooms",
+        });
+      }
+      const date = new Date(data.date)
+      const checkRoom = await this.checkRoomsModel.findOne({
+        where: {
+          stayId: data.stayId,
+          roomId: data.roomId,
+          bookedDate: date
+        }
+      })
+      if(checkRoom) {
+        checkRoom.numberOfRoomsAvailable = data.amount
+        await checkRoom.save({ transaction: t });
+      } else {
+        await this.checkRoomsModel.create({
+          stayId: data.stayId,
+          roomId: data.roomId,
+          bookedDate: data.date,
+          numberOfRoomsAvailable: data.amount
+          },
+          { transaction: t }
+        )
+      }
+      await t.commit();
+      return res.onSuccess({
+        message: res.locals.t("common_success"),
+      });
+    } catch (error) {
+      await t.rollback();
       return res.onError({
         status: 500,
         detail: error,
