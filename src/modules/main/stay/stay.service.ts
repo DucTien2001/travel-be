@@ -140,7 +140,6 @@ export default class TourService {
       const whereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
-        isDeleted: false,
       };
       let stay = await this.staysModel.findOne({
         where: whereOptions,

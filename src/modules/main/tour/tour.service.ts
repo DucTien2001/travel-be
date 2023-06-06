@@ -118,7 +118,6 @@ export default class TourService {
       const tourWhereOptions: WhereOptions = {
         id: id,
         parentLanguage: null,
-        isDeleted: false,
       };
       let tour = await this.toursModel.findOne({
         where: tourWhereOptions,
